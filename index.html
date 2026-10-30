@@ -32,8 +32,9 @@ h2{margin:4px 0 14px;font-size:20px}
 h3{margin:0 0 10px;font-size:16px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:14px}
 .grid{display:grid;gap:14px}
-.g2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
-.g4{grid-template-columns:repeat(auto-fit,minmax(170px,1fr))}
+.g2{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.g4{grid-template-columns:repeat(auto-fit,minmax(min(170px,100%),1fr))}
+.grid>*{min-width:0}
 .kpi .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
 .kpi .val{font-size:24px;font-weight:700;margin-top:4px}
 .kpi .sub{font-size:12px;color:var(--muted)}
@@ -93,6 +94,26 @@ input[type=checkbox]{width:auto}
 .cart-item.last{background:var(--berry-l);border-radius:6px;padding:6px}
 .total-big{font-size:28px;font-weight:800}
 code{background:#f3ece4;padding:1px 5px;border-radius:4px;font-size:13px}
+.badge.b{background:#efe6fb;color:#6b3fa0}
+/* celulares */
+@media (max-width:600px){
+  body{font-size:15px}
+  input,select,textarea{font-size:16px} /* evita que el iPhone haga zoom al escribir */
+  main{padding:12px}
+  .card{padding:12px}
+  h2{font-size:18px}
+  .kpi .val{font-size:20px}
+  .total-big{font-size:24px}
+  .row>div{min-width:100%}
+  .row>div[style*="flex:0"]{min-width:0}
+  .btn{padding:11px 14px}
+  .btn.sm{padding:8px 10px}
+  .btn.x{padding:8px 10px;font-size:16px}
+  .circ{width:70px;height:70px}
+  header .rol .txt{display:none}
+  th,td{padding:7px 4px}
+}
+@media (max-width:360px){ .g4{grid-template-columns:1fr 1fr} .kpi .val{font-size:17px} .circ{width:62px;height:62px;font-size:11px} }
 @media print{ header,.drawer,.noprint{display:none!important} body{background:#fff} .card{border:0} }
 </style>
 </head>
@@ -169,7 +190,7 @@ function costoUnit(id){ // costo por litro (elaborados) o por unidad (reventa)
 }
 function descVenta(v){
   if(v.tipo==='producto') return prod(v.producto).nombre;
-  return 'Vaso '+bs(v.precio).replace('Bs ','Bs ')+(v.sabores&&v.sabores.length?' · '+v.sabores.map(s=>sabor(s).nombre).join(', '):'');
+  return 'Vaso de Bs '+(+v.precio).toLocaleString('es-BO')+(v.sabores&&v.sabores.length?' · '+v.sabores.map(s=>sabor(s).nombre).join(', '):'');
 }
 
 /* ================== ROLES Y NAVEGACIÓN ================== */
@@ -193,7 +214,7 @@ function render(){
   $('tit').textContent = $('dtit').textContent = '🍦 '+S.config.negocio;
   $('secn').textContent = TABS.find(x=>x[0]===tab)[1];
   $('hoy').textContent = new Date().toLocaleDateString('es-BO',{weekday:'long',day:'numeric',month:'long'});
-  $('rol').textContent = rol==='admin' ? '👑 Administradora' : '🙋‍♀️ Trabajadora';
+  $('rol').innerHTML = rol==='admin' ? '👑 <span class="txt">Administradora</span>' : '🙋‍♀️ <span class="txt">Trabajadora</span>';
   $('nav').innerHTML = TABS.filter(x=>permitido(x[0])).map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
   $('main').innerHTML = V[tab]();
   if(V[tab+'After']) V[tab+'After']();
@@ -249,14 +270,20 @@ function calcER(d,h){
     gDep:sum(dias,x=>depMensual(x)/diasMes(x)),
     gDif:-sum(C,c=>(c.diferencia||0)+sum(c.reemplazos||[],r=>r.diferencia||0)),
     gOtros:gc('otros'),
-    vasos:sum(HV,v=>v.cant), dias:dias.length
+    vasos:sum(HV.filter(v=>v.metodo!=='invitado'),v=>v.cant), dias:dias.length
   };
   r.vHelado=sum(r.vPuntos,p=>p.monto);
   r.ingresos=r.vHelado+sum(r.vProd,p=>p.monto);
+  // invitaciones: su parte del costo de insumos y empanadas se pasa a un gasto aparte (el total no cambia)
+  const INV=V_.filter(v=>v.metodo==='invitado');
+  r.invValor=sum(INV,v=>v.valor||0); r.invVasos=sum(INV.filter(v=>v.tipo==='helado'),v=>v.cant);
+  const share=r.invValor/((r.ingresos+r.invValor)||1);
+  r.gInv=(r.cInsumos+r.cEmp)*share; r.cInsumos*=1-share; r.cEmp*=1-share;
+  r.invPara=Object.entries(INV.reduce((a,v)=>(a[v.invitado||'Sin indicar']=(a[v.invitado||'Sin indicar']||0)+(v.valor||0),a),{})).sort((a,b)=>b[1]-a[1]);
   r.costoVentas=r.cInsumos+r.cHielo+r.cSal+r.cGas+r.cEmp+r.cMerma;
   r.bruta=r.ingresos-r.costoVentas;
   r.gFijos=sum(fijos,f=>f.monto);
-  r.gastosOp=r.gSueldos+r.gFijos+r.gRep+r.gDep+r.gDif+r.gOtros;
+  r.gastosOp=r.gSueldos+r.gFijos+r.gRep+r.gDep+r.gDif+r.gInv+r.gOtros;
   r.neta=r.bruta-r.gastosOp;
   // rentabilidad por sabor/producto: un vaso con varios sabores reparte su precio entre ellos
   const acc={};
@@ -310,7 +337,9 @@ const itemsVivos = p => p.items.filter(i=>!i.cancelado);
 const totalPed = p => sum(itemsVivos(p),i=>i.precio*i.cant);
 const pendientes = c => pedidosCaja(c).filter(p=>p.estado==='abierto');
 const pedido = id => S.pedidos.find(p=>p.id===id);
-const ESTADO = {abierto:['a','Pendiente de cobro'],pagado:['g','Pagado'],cancelado:['r','Cancelado']};
+const ESTADO = {abierto:['a','Pendiente de cobro'],pagado:['g','Pagado'],invitado:['b','Invitado'],cancelado:['r','Cancelado']};
+const PARA = ['Familia','Persona que lo necesita','Trabajadora','Otro'];
+let invMode=false;
 
 function editorHTML(){
   const act=S.config.sabores.filter(s=>s.activo);
@@ -345,18 +374,22 @@ function pedidoCard(p){
       <button class="btn sec" onclick="cancelarPedido('${p.id}')">Cancelar pedido</button></div></div>
     ${payFor===p.id?`<div class="alert ok" style="margin-top:10px"><b>Cobrar ${bs(tot)}</b>
       <div class="row" style="margin-top:6px"><div><label>Recibido (para el cambio)</label><input type="number" inputmode="decimal" oninput="$('cambio').textContent=bs(num(this.value)-${tot})"></div><div><div class="muted">Cambio</div><b id="cambio">${bs(0)}</b></div></div>
-      <div class="row" style="margin-top:8px"><button class="btn ok" onclick="pagar('${p.id}','efectivo')">💵 Pagó en efectivo</button><button class="btn" onclick="pagar('${p.id}','qr')">📱 Pagó por QR</button><button class="btn sec" onclick="payFor=null;render()">Todavía no paga</button></div></div>`:''}
+      <div class="row" style="margin-top:8px"><button class="btn ok" onclick="pagar('${p.id}','efectivo')">💵 Pagó en efectivo</button><button class="btn" onclick="pagar('${p.id}','qr')">📱 Pagó por QR</button>
+        <button class="btn sec" onclick="invMode=!invMode;render()">🎁 Invitado</button><button class="btn sec" onclick="payFor=null;invMode=false;render()">Todavía no paga</button></div>
+      ${invMode?`<div class="editor"><b>🎁 Invitado (no se cobra)</b><p class="muted" style="margin:4px 0 8px">¿Para quién es?</p>
+        <div class="chips">${PARA.map(x=>`<span class="chip" onclick="$('para').value='${x}'">${x}</span>`).join('')}</div>
+        <div class="row" style="margin-top:8px"><div><input id="para" placeholder="Ej: hermano, persona que lo necesita"></div><div style="flex:0"><button class="btn" onclick="pagar('${p.id}','invitado')">Confirmar</button></div></div></div>`:''}</div>`:''}
   </div>`;
 }
 function historialHTML(c){
   const H=pedidosCaja(c).filter(p=>p.estado!=='abierto'&&(filtroHist==='todos'||p.estado===filtroHist)).slice().reverse();
-  const pag=pedidosCaja(c).filter(p=>p.estado==='pagado'), can=pedidosCaja(c).filter(p=>p.estado==='cancelado');
-  return `<div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['pagado','Pagados ('+pag.length+')'],['cancelado','Cancelados ('+can.length+')']].map(([k,l])=>`<span class="chip ${filtroHist===k?'on':''}" onclick="filtroHist='${k}';render()">${l}</span>`).join('')}</div>
-    <p class="muted">Cobrado: <b>${bs(sum(pag,totalPed))}</b> en ${pag.length} pedidos.</p>
+  const PC=pedidosCaja(c), pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado'), can=PC.filter(p=>p.estado==='cancelado');
+  return `<div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['pagado','Pagados ('+pag.length+')'],['invitado','Invitados ('+inv.length+')'],['cancelado','Cancelados ('+can.length+')']].map(([k,l])=>`<span class="chip ${filtroHist===k?'on':''}" onclick="filtroHist='${k}';render()">${l}</span>`).join('')}</div>
+    <p class="muted">Cobrado: <b>${bs(sum(pag,totalPed))}</b> en ${pag.length} pedidos.${inv.length?` Invitado: ${bs(sum(inv,totalPed))}.`:''}</p>
     ${H.map(p=>{const [cl,tx]=ESTADO[p.estado];return `<div class="card" style="padding:10px 14px;cursor:pointer" onclick="verPed=verPed==='${p.id}'?null:'${p.id}';render()">
       <div class="row" style="align-items:center"><div><b>Pedido #${p.num}</b> <span class="muted">${p.hora} · ${esc(p.vendedor)} · ${itemsVivos(p).length} ítems</span></div>
-      <div style="flex:0;white-space:nowrap"><b>${bs(totalPed(p))}</b> <span class="badge ${cl}">${tx}${p.metodo?' · '+p.metodo:''}</span></div></div>
-      ${verPed===p.id?`<div style="margin-top:8px">${p.items.map(i=>itemRow(p,i,false)).join('')}<p class="muted">${p.estado==='pagado'?'Pagado a las '+p.horaPago:'Cancelado a las '+p.horaCancel}</p></div>`:''}</div>`}).join('')||'<p class="muted">Sin pedidos aquí todavía.</p>'}`;
+      <div style="flex:0;white-space:nowrap"><b>${bs(totalPed(p))}</b> <span class="badge ${cl}">${tx}${p.estado==='pagado'?' · '+p.metodo:p.estado==='invitado'&&p.para?' · '+esc(p.para):''}</span></div></div>
+      ${verPed===p.id?`<div style="margin-top:8px">${p.items.map(i=>itemRow(p,i,false)).join('')}<p class="muted">${p.estado==='pagado'?'Pagado a las '+p.horaPago:p.estado==='invitado'?'Invitado'+(p.para?' para '+esc(p.para):'')+' a las '+p.horaPago:'Cancelado a las '+p.horaCancel}</p></div>`:''}</div>`}).join('')||'<p class="muted">Sin pedidos aquí todavía.</p>'}`;
 }
 V.vender = () => {
   const c=cajaSel();
@@ -389,19 +422,24 @@ function addProd(pid,prid){
   ex?ex.cant++:p.items.push({id:uid(),tipo:'producto',producto:prid,precio:pr.precio,cant:1,sabores:[]}); save(); render();
 }
 function cantProd(pid,iid,d){ const i=pedido(pid).items.find(x=>x.id===iid); i.cant+=d; if(i.cant<1){ i.cant=1; return cancelarItem(pid,iid); } save(); render(); }
-function cancelarItem(pid,iid){ if(!confirm('¿Cancelar este ítem del pedido?')) return; pedido(pid).items.find(x=>x.id===iid).cancelado=true; if(edit&&edit.itemId===iid) edit=null; save(); render(); }
+function cancelarItem(pid,iid){ if(!confirm('¿Quitar este ítem del pedido?')) return; const p=pedido(pid); p.items=p.items.filter(x=>x.id!==iid); if(edit&&edit.itemId===iid) edit=null; save(); render(); }
 function cancelarPedido(pid){
   const p=pedido(pid); if(!confirm(`¿Cancelar el pedido #${p.num}?`)) return;
   if(!p.items.length) S.pedidos=S.pedidos.filter(x=>x.id!==pid); else { p.estado='cancelado'; p.horaCancel=hora(); }
   edit=null; payFor=null; save(); render();
 }
 function ventasDePedido(p,c,metodo,hh){ // al cobrar, el pedido se vuelve ventas (lo que lee caja y estado de resultados)
-  const re=reempActivo(c);
+  // invitado: no entra dinero (total 0) pero se guarda su valor para ver cuánto se regala
+  const re=reempActivo(c), inv=metodo==='invitado';
   itemsVivos(p).forEach(i=>S.ventas.push({id:uid(),fecha:p.fecha,hora:hh,cajaId:c.id,punto:c.punto,vendedor:re?re.quien:c.responsable,reempId:re?re.id:null,pedidoId:p.id,
-    tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:i.precio*i.cant,metodo}));
-  p.estado='pagado'; p.metodo=metodo; p.horaPago=hh;
+    tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:inv?0:i.precio*i.cant,valor:i.precio*i.cant,metodo,invitado:inv?p.para:undefined}));
+  p.estado=inv?'invitado':'pagado'; p.metodo=metodo; p.horaPago=hh;
 }
-function pagar(pid,metodo){ const p=pedido(pid); ventasDePedido(p,S.cajas.find(c=>c.id===p.cajaId),metodo,hora()); payFor=null; save(); render(); }
+function pagar(pid,metodo){
+  const p=pedido(pid);
+  if(metodo==='invitado'){ p.para=val('para').trim(); if(!p.para) return alert('Escribe para quién es la invitación'); }
+  ventasDePedido(p,S.cajas.find(c=>c.id===p.cajaId),metodo,hora()); payFor=null; invMode=false; save(); render();
+}
 function delItem(col,id){ if(!confirm('¿Eliminar este registro?')) return; S[col]=S[col].filter(x=>x.id!==id); save(); render(); }
 
 /* ================== CAJA ================== */
@@ -453,7 +491,7 @@ function formAbrir(){
     <div class="row"><div><label>Fecha</label><input id="cf" type="date" value="${hoy()}"></div>
     <div><label>Quién cobra</label><input id="cr" list="resp" value="${esc(S.empleados[0]?.nombre||'')}"><datalist id="resp">${personas().map(r=>`<option>${esc(r)}</option>`).join('')}</datalist></div>
     <div><label>Dónde</label><select id="cp">${opts(S.config.puntos)}</select></div>
-    <div style="flex:0"><button class="btn sec sm" onclick="nuevoPunto()" title="Agregar lugar">+ lugar</button></div>
+    <div style="flex:0"><button class="btn sec sm" style="white-space:nowrap" onclick="nuevoPunto()" title="Agregar lugar">+ Nuevo lugar</button></div>
     <div><label>Monto inicial en monedas (Bs)</label><input id="cm" type="number" inputmode="decimal" value="50"></div>
     <div><button class="btn" onclick="abrirCaja()">Abrir caja</button></div></div></div>`;
 }
@@ -627,8 +665,8 @@ V.personal = () => {
     <div class="row"><div><label>Fecha</label><input id="jf" type="date" value="${hoy()}"></div></div>
     ${S.empleados.map(e=>`<div class="row" style="margin-top:8px"><div><label><input type="checkbox" id="j_${e.id}" checked> ${esc(e.nombre)}</label></div><div><input id="jm_${e.id}" type="number" value="${e.pago}"></div></div>`).join('')}
     <div style="margin-top:10px"><button class="btn" onclick="jornada()">Registrar pagos</button></div></div>
-  <div class="grid g2"><div class="card"><h3>Trabajadoras</h3><table>
-    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="if(confirm('¿Quitar?')){S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()}">✕</button></td></tr>`).join('')}</table>
+  <div class="grid g2"><div class="card"><h3>Trabajadoras</h3><div class="tbl-wrap"><table>
+    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="if(confirm('¿Quitar?')){S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()}">✕</button></td></tr>`).join('')}</table></div>
     <div class="row" style="margin-top:10px"><div><input id="en" placeholder="Nombre"></div><div><input id="ep" type="number" value="${S.config.pagoDiario}"></div><div><button class="btn sec" onclick="if(val('en')){S.empleados.push({id:uid(),nombre:val('en'),pago:num(val('ep'))});save();render()}">Agregar</button></div></div></div>
   <div class="card"><h3>Pagos del mes</h3><div class="tbl-wrap"><table>
     <tr><th>Fecha</th><th>Persona</th><th class="n">Monto</th><th></th></tr>
@@ -705,7 +743,7 @@ V.er = () => {
       ${L('UTILIDAD BRUTA',r.bruta,'tot')}
       ${S_('(−) Gastos de operación')}${L('Sueldos del personal (incluye almuerzo)',r.gSueldos)}
       ${r.fijos.map(f=>L(esc(f.nombre),f.monto)).join('')}
-      ${L('Roturas y reparaciones',r.gRep)}${L('Depreciación de equipos',r.gDep)}${L('Faltantes (−sobrantes) de caja',r.gDif)}${L('Otros gastos',r.gOtros)}
+      ${L('Roturas y reparaciones',r.gRep)}${L('Depreciación de equipos',r.gDep)}${L('Faltantes (−sobrantes) de caja',r.gDif)}${L('Invitaciones y cortesías (costo estimado)',r.gInv)}${L('Otros gastos',r.gOtros)}
       ${L('Total gastos de operación',r.gastosOp,'tot')}
       <tr class="big ${r.neta<0?'neg':''}"><td>UTILIDAD (PÉRDIDA) NETA</td><td class="n">${bs(r.neta)}</td><td class="n">${pct(r.neta)}</td></tr>
     </table></div>
@@ -717,7 +755,9 @@ V.er = () => {
       <tr><td>Precio promedio por vaso</td><td class="n">${bs(r.vasos?r.vHelado/r.vasos:0)}</td></tr>
       <tr><td>Margen bruto</td><td class="n">${(margen*100).toFixed(1)}%</td></tr>
       <tr><td>Punto de equilibrio mensual (ventas mínimas para no perder)</td><td class="n">${bs(margen>0?fijosMes/margen:0)}</td></tr>
-      <tr><td>Fondo sugerido para reponer equipos (por mes)</td><td class="n">${bs(depMensual(erH))}</td></tr></table></div>
+      <tr><td>Fondo sugerido para reponer equipos (por mes)</td><td class="n">${bs(depMensual(erH))}</td></tr>
+      <tr><td>Invitaciones: ${r.invVasos} vasos regalados (valor a precio de venta)</td><td class="n">${bs(r.invValor)}</td></tr>
+      ${r.invPara.map(([k,v])=>`<tr class="muted"><td style="padding-left:22px">🎁 ${esc(k)}</td><td class="n">${bs(v)}</td></tr>`).join('')}</table></div>
     <div class="card"><h3>Rentabilidad por sabor y producto</h3><div class="tbl-wrap"><table>
       <tr><th>Sabor / producto</th><th class="n">Ventas</th><th class="n">Insumos</th><th class="n">Mermas</th><th class="n">Margen</th></tr>
       ${r.rent.map(s=>{const m=s.venta-s.costo; return `<tr><td>${esc(s.nombre)}</td><td class="n">${bs(s.venta)}</td><td class="n">${bs(s.costo)}</td><td class="n">${bs(s.merma)}</td><td class="n ${m<0?'neg':'pos'}">${bs(m)}</td></tr>`}).join('')||'<tr><td colspan=5 class="muted">Sin datos</td></tr>'}
@@ -729,7 +769,7 @@ function exportER(){
     ['INGRESOS'],...r.vPuntos.map(p=>['Helados '+p.nombre,p.monto]),...r.vProd.map(p=>['Ventas '+p.nombre,p.monto]),['Total ingresos',r.ingresos],
     ['COSTO DE VENTAS'],['Insumos helado y refresco',r.cInsumos],['Hielo',r.cHielo],['Sal',r.cSal],['Gas',r.cGas],['Empanadas',r.cEmp],['Mermas',r.cMerma],['Total costo de ventas',r.costoVentas],
     ['UTILIDAD BRUTA',r.bruta],['GASTOS DE OPERACION'],['Sueldos',r.gSueldos],...r.fijos.map(f=>[f.nombre,f.monto]),
-    ['Roturas y reparaciones',r.gRep],['Depreciacion',r.gDep],['Faltantes de caja',r.gDif],['Otros',r.gOtros],['Total gastos de operacion',r.gastosOp],['UTILIDAD NETA',r.neta]];
+    ['Roturas y reparaciones',r.gRep],['Depreciacion',r.gDep],['Faltantes de caja',r.gDif],['Invitaciones (costo estimado)',r.gInv],['Otros',r.gOtros],['Total gastos de operacion',r.gastosOp],['UTILIDAD NETA',r.neta]];
   descargar(`estado_resultados_${erD}_${erH}.csv`,'﻿'+rows.map(x=>x.map(c=>typeof c==='number'?c.toFixed(2):'"'+String(c??'').replace(/"/g,'""')+'"').join(';')).join('\n'),'text/csv');
 }
 function descargar(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); }
@@ -749,10 +789,10 @@ V.config = () => {
     <input value="${c.precios.join(', ')}" onchange="S.config.precios=this.value.split(/[ ,;]+/).map(num).filter(Boolean);save();render()">
     <p class="muted">Separados por coma. Al escribir rápido se puede usar cualquier precio.</p>
     <h3 style="margin-top:16px">Otros productos</h3>
-    <table><tr><th>Nombre</th><th>Precio</th><th>¿Se compra hecho?</th><th>Costo unid.</th><th></th></tr>
+    <div class="tbl-wrap"><table><tr><th>Nombre</th><th>Precio</th><th>¿Se compra hecho?</th><th>Costo unid.</th><th></th></tr>
     ${c.productos.map((p,i)=>`<tr><td><input value="${esc(p.nombre)}" onchange="S.config.productos[${i}].nombre=this.value;save()"></td><td><input type="number" value="${p.precio}" onchange="S.config.productos[${i}].precio=num(this.value);save()"></td>
       <td><input type="checkbox" ${p.reventa?'checked':''} onchange="S.config.productos[${i}].reventa=this.checked;save();render()"></td><td>${p.reventa?`<input type="number" value="${p.costo||0}" onchange="S.config.productos[${i}].costo=num(this.value);save()">`:'<span class="muted">de Producción</span>'}</td>
-      <td>${p.id==='emp'?'':`<button class="btn x" onclick="S.config.productos.splice(${i},1);save();render()">✕</button>`}</td></tr>`).join('')}</table>
+      <td>${p.id==='emp'?'':`<button class="btn x" onclick="S.config.productos.splice(${i},1);save();render()">✕</button>`}</td></tr>`).join('')}</table></div>
     <button class="btn sec sm" style="margin-top:6px" onclick="S.config.productos.push({id:uid(),nombre:'Nuevo producto',precio:5,reventa:false});save();render()">+ Producto</button>
     <h3 style="margin-top:16px">Gastos fijos mensuales</h3>
     ${c.fijos.map((f,i)=>`<div class="row" style="margin-bottom:6px"><div><input value="${esc(f.nombre)}" onchange="S.config.fijos[${i}].nombre=this.value;save()"></div><div><input type="number" value="${f.monto}" onchange="S.config.fijos[${i}].monto=num(this.value);save()"></div><div style="flex:0"><button class="btn x" onclick="S.config.fijos.splice(${i},1);save();render()">✕</button></div></div>`).join('')}
@@ -800,6 +840,7 @@ function demo(){
       const ns=p<=3?1:p<=5?RI(1,2):RI(2,3), ss=[...act].sort(()=>Math.random()-.5).slice(0,ns).map(s=>s.id);
       V_(f,caja,{tipo:'helado',cant:1,precio:p,sabores:ss}); }});
     V_(f,caja,{tipo:'producto',producto:'ref',cant:RI(15,30)*k|0,precio:3,metodo:'efectivo'});
+    if(di%4===1){ const n=RI(1,3); S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:'pp',vendedor:'Dueña',tipo:'helado',producto:null,sabores:[act[RI(0,5)].id],cant:n,precio:5,total:0,valor:n*5,metodo:'invitado',invitado:di%8===1?'Hermano':'Persona que lo necesita'}); }
     const sobE=RI(0,4), ev=emp+empRec-sobE; V_(f,caja,{tipo:'producto',producto:'emp',cant:ev,precio:5,metodo:'efectivo'});
     const sob=[...act].sort(()=>Math.random()-.5).slice(0,2).map(s=>({id:uid(),fecha:f,cajaId:caja.id,item:s.id,cantidad:RI(1,3),recuperado:null}));
     if(sobE) sob.push({id:uid(),fecha:f,cajaId:caja.id,item:'emp',cantidad:sobE,recuperado:null});
@@ -822,7 +863,8 @@ function demo(){
     if(estado==='pagado') ventasDePedido(p,cx,Math.random()<.8?'efectivo':'qr',hh);
     return p; };
   for(let j=0;j<14;j++) mkPed(c1,j,RI(1,3),j===6?'cancelado':'pagado');
-  const fam=mkPed(c1,15,5,'abierto'); fam.items[1].cancelado=true; mkPed(c1,16,2,'abierto');
+  const her=mkPed(c1,14,1,'abierto'); her.para='Hermano'; ventasDePedido(her,c1,'invitado','14:30');
+  mkPed(c1,15,5,'abierto'); mkPed(c1,16,2,'abierto');
   const reV=c2.reemplazos.pop();
   for(let j=0;j<6;j++) mkPed(c2,j*2,RI(1,2),'pagado');
   c2.reemplazos.push(reV);

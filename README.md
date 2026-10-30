@@ -13,7 +13,7 @@ Se cambia con el botón de arriba a la derecha.
 
 | Módulo | Qué hace |
 |---|---|
-| **Pedidos** | *+ Nuevo pedido* → *+ Vaso*: sabores en botones redondos + precio → se agrega a la lista. Cada vaso se puede modificar o cancelar; también refresco y empanadas. El pedido queda *pendiente de cobro* hasta marcarlo pagado (efectivo/QR). Pestañas *En curso* e *Historial* (pagados y cancelados), lo más reciente arriba. |
+| **Pedidos** | *+ Nuevo pedido* → *+ Vaso*: sabores en botones redondos + precio → se agrega a la lista. Cada vaso se puede modificar o cancelar; también refresco y empanadas. El pedido queda *pendiente de cobro* hasta marcarlo pagado (efectivo/QR) o *invitado* (no se cobra; se anota para quién y su costo va al estado de resultados). Pestañas *En curso* e *Historial*, lo más reciente arriba. |
 | **Caja** | Cada vendedora abre su caja con su monto inicial en monedas en un lugar de venta. La administradora ve todas las cajas abiertas. Reemplazos (baño, almuerzo) con entrega de ventas. No se cierra con pedidos sin cobrar. |
 | **Sobrantes** (solo administradora) | Lo guardado en el refrigerador; al día siguiente se anota cuánto se recuperó. Lo perdido es merma y se valoriza al costo. |
 | **Panel** | Ventas del día, cajas abiertas, utilidad del mes, alertas. |
