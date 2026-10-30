@@ -61,7 +61,19 @@ input[type=checkbox]{width:auto}
 .pad{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
 .pad button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:14px 4px;cursor:pointer;font-size:18px;font-weight:700}
 .pad button small{display:block;font-weight:400;color:var(--muted);font-size:11px}
-.pad button:active{background:var(--berry-l);border-color:var(--berry)}
+.pad button:active,.pad button.on{background:var(--berry-l);border-color:var(--berry);color:var(--berry)}
+.circles{display:flex;flex-wrap:wrap;gap:10px}
+.circ{width:76px;height:76px;border-radius:50%;border:3px solid transparent;cursor:pointer;font-size:12px;font-weight:700;padding:4px;box-shadow:0 1px 3px rgba(0,0,0,.15);position:relative}
+.circ.on{border-color:var(--ink);transform:scale(1.06)}
+.circ.on::after{content:'✔';position:absolute;top:-4px;right:-4px;background:var(--green);color:#fff;border-radius:50%;width:22px;height:22px;font-size:12px;line-height:22px}
+.editor{background:#fbf7f2;border:1px dashed var(--wood);border-radius:10px;padding:12px;margin-top:10px}
+.stepper{display:flex;align-items:center;gap:12px}
+.stepper button{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);background:#fff;font-size:20px;cursor:pointer}
+.seg{display:flex;background:#efe7de;border-radius:10px;padding:4px;margin-bottom:14px}
+.seg button{flex:1;border:0;background:none;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted)}
+.seg button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.pedido{border-left:5px solid var(--amber)}
+.cart-item.cancel span:first-child{text-decoration:line-through;color:var(--muted)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#efe7de}
 .badge.g{background:var(--green-l);color:var(--green)} .badge.a{background:var(--amber-l);color:var(--amber)} .badge.r{background:var(--berry-l);color:var(--red)}
 .alert{padding:10px 12px;border-radius:10px;background:var(--amber-l);color:#7a5210;margin-bottom:8px;font-size:14px}
@@ -116,7 +128,7 @@ const defaults = () => ({
     fijos:[{id:'f1',nombre:'Alquiler',monto:800},{id:'f2',nombre:'Agua',monto:10},{id:'f3',nombre:'Luz',monto:40}]
   },
   empleados:[{id:'e1',nombre:'Erika',pago:110},{id:'e2',nombre:'Verónica',pago:110}],
-  ventas:[], cajas:[], produccion:[], gastos:[], sobrantes:[], activos:[], incidencias:[]
+  ventas:[], pedidos:[], cajas:[], produccion:[], gastos:[], sobrantes:[], activos:[], incidencias:[]
 });
 let S = load();
 function load(){
@@ -162,7 +174,7 @@ function descVenta(v){
 
 /* ================== ROLES Y NAVEGACIÓN ================== */
 const TABS = [
-  ['panel','📊 Panel','a'],['vender','🛒 Anotar ventas','at'],['caja','💵 Caja','at'],['sobrantes','🧊 Sobrantes','at'],
+  ['panel','📊 Panel','a'],['vender','🛒 Pedidos','at'],['caja','💵 Caja','at'],['sobrantes','🧊 Sobrantes','a'],
   ['produccion','🧪 Producción','a'],['gastos','🧾 Compras y gastos','a'],['personal','👩‍🍳 Personal','a'],
   ['equipos','🪑 Equipos','a'],['er','📈 Estado de resultados','a'],['config','⚙️ Configuración','a']
 ];
@@ -287,95 +299,109 @@ V.panel = () => {
   ${S.ventas.length?'':`<div class="card"><h3>¿Primera vez?</h3><p class="muted">Carga datos de ejemplo de 45 días para ver cómo funciona todo, o empieza en limpio desde Configuración.</p><button class="btn" onclick="demo()">Cargar datos de ejemplo</button></div>`}`;
 };
 
-/* ================== ANOTAR VENTAS ================== */
-let cart=[], rapidoTxt='';
-function findSabor(w){ if(w.length<3) return null; const L=S.config.sabores;
-  return L.find(s=>norm(s.nombre)===w) || L.find(s=>norm(s.nombre).startsWith(w)) || L.find(s=>w.startsWith(norm(s.nombre))); }
-function findProd(w){ if(w.length<3) return null; // solo por la primera palabra: "refresco", "empanada"
-  return S.config.productos.find(p=>{const k=norm(p.nombre).split(' ')[0]; return k.startsWith(w)||w.startsWith(k);}); }
-function parseRapido(txt){
-  const t=norm(txt).replace(/bs\.?/g,' ')
-    .replace(/(\d+)\s*sabor(es)?\s*(de)?\s*(\d+(?:[.,]\d+)?)/g,'$4')   // "3 sabores de 10" → vaso de 10
-    .replace(/(\d+)\s*[x*]\s*(\d)/g,'$1x$2');
-  const tk=t.split(/[\s,;+\n]+/).filter(Boolean), out=[], warn=[]; let qr=false, last=null;
-  const ign=['de','y','con','un','una','vaso','vasos','sabor','sabores','a','el','la','otro','otra','helado','helados'];
-  for(let i=0;i<tk.length;i++){
-    const w=tk[i]; if(ign.includes(w)) continue;
-    if(w==='qr'){qr=true;continue;}
-    let m=w.match(/^(\d+)x(\d+(?:[.,]\d+)?)$/);
-    if(m){ last={tipo:'helado',cant:+m[1],precio:num(m[2]),sabores:[]}; out.push(last); continue; }
-    if(/^\d+([.,]\d+)?$/.test(w)){
-      const p=tk[i+1]&&findProd(tk[i+1]);
-      if(p){ out.push({tipo:'producto',producto:p.id,cant:num(w),precio:p.precio}); last=null; i++; continue; }
-      last={tipo:'helado',cant:1,precio:num(w),sabores:[]}; out.push(last); continue;
-    }
-    const p=findProd(w); if(p){ out.push({tipo:'producto',producto:p.id,cant:1,precio:p.precio}); last=null; continue; }
-    const s=findSabor(w);
-    if(s){ if(last) { if(!last.sabores.includes(s.id)) last.sabores.push(s.id); } else warn.push(w+' (falta el precio antes)'); continue; }
-    warn.push(w);
-  }
-  return {items:out,warn,qr};
+/* ================== PEDIDOS ================== */
+const COLORES={canela:'#a0522d',leche:'#f3e9d2',chirimoya:'#cfe3b4',maracuya:'#f2c230',frutilla:'#e2445c',cupuazu:'#e8d3a8',pina:'#f7dc6f',oreo:'#3b3b3b',chicle:'#f49ac1'};
+const PALETA=['#8ecae6','#ffb703','#90be6d','#f28482','#cdb4db','#84a59d'];
+const colorSabor = (s,i) => COLORES[norm(s.nombre).split(' ')[0]] || PALETA[i%PALETA.length];
+const oscuro = hex => { const n=parseInt(hex.slice(1),16); return ((n>>16)*299+((n>>8)&255)*587+(n&255)*114)/1000 < 140; };
+let vistaPed='curso', edit=null, payFor=null, verPed=null, filtroHist='todos';
+const pedidosCaja = c => S.pedidos.filter(p=>p.cajaId===c.id);
+const itemsVivos = p => p.items.filter(i=>!i.cancelado);
+const totalPed = p => sum(itemsVivos(p),i=>i.precio*i.cant);
+const pendientes = c => pedidosCaja(c).filter(p=>p.estado==='abierto');
+const pedido = id => S.pedidos.find(p=>p.id===id);
+const ESTADO = {abierto:['a','Pendiente de cobro'],pagado:['g','Pagado'],cancelado:['r','Cancelado']};
+
+function editorHTML(){
+  const act=S.config.sabores.filter(s=>s.activo);
+  return `<div class="editor"><b>${edit.itemId?'Modificar vaso':'Nuevo vaso'}</b>
+    <p class="muted">Sabores (toca uno o varios):</p>
+    <div class="circles">${act.map((s,i)=>{const col=colorSabor(s,i);return `<button class="circ ${edit.sabores.includes(s.id)?'on':''}" style="background:${col};color:${oscuro(col)?'#fff':'#2b2420'}" onclick="togSab('${s.id}')">${esc(s.nombre)}</button>`}).join('')}</div>
+    <p class="muted">Precio del vaso:</p>
+    <div class="pad">${S.config.precios.map(p=>`<button class="${edit.precio===p?'on':''}" onclick="edit.precio=${p};render()">${p}<small>Bs</small></button>`).join('')}</div>
+    <div class="row" style="margin-top:10px"><div><label>Otro precio</label><input type="number" inputmode="decimal" value="${edit.precio&&!S.config.precios.includes(edit.precio)?edit.precio:''}" onchange="edit.precio=num(this.value);render()"></div>
+      <div><label>Vasos iguales</label><div class="stepper"><button onclick="edit.cant=Math.max(1,edit.cant-1);render()">−</button><b>${edit.cant}</b><button onclick="edit.cant++;render()">+</button></div></div></div>
+    <p style="margin:10px 0">${edit.cant} × Vaso ${edit.precio?bs(edit.precio):'(elige precio)'}${edit.sabores.length?' · '+edit.sabores.map(s=>esc(sabor(s).nombre)).join(', '):''}</p>
+    <div class="row"><button class="btn ok" ${edit.precio?'':'disabled'} onclick="guardarVaso()">✔ ${edit.itemId?'Guardar cambios':'Agregar vaso'}</button>
+      <button class="btn sec" onclick="edit=null;render()">Cancelar</button></div></div>`;
+}
+function itemRow(p,i,editable){
+  return `<div class="cart-item ${i.cancelado?'cancel':''}"><span>${i.cant} × ${esc(descVenta(i))}</span><span style="white-space:nowrap">${bs(i.precio*i.cant)}
+    ${i.cancelado?' <span class="badge r">cancelado</span>':editable?(i.tipo==='helado'
+      ?` <button class="btn sec sm" onclick="editarVaso('${p.id}','${i.id}')">✏️</button>`
+      :` <button class="btn sec sm" onclick="cantProd('${p.id}','${i.id}',-1)">−</button> <button class="btn sec sm" onclick="cantProd('${p.id}','${i.id}',1)">+</button>`)
+      +` <button class="btn x" title="Cancelar" onclick="cancelarItem('${p.id}','${i.id}')">✕</button>`:''}</span></div>`;
+}
+function pedidoCard(p){
+  const tot=totalPed(p), editing=edit&&edit.pid===p.id;
+  return `<div class="card pedido">
+    <div class="row" style="align-items:center"><div><b style="font-size:17px">Pedido #${p.num}</b> <span class="muted">${p.hora} · ${esc(p.vendedor)}</span></div>
+      <div style="flex:0;white-space:nowrap"><span class="badge a">Pendiente de cobro</span></div></div>
+    ${p.items.map(i=>itemRow(p,i,true)).join('')||'<p class="muted">Todavía no tiene nada.</p>'}
+    ${editing?editorHTML():`<div class="chips" style="margin-top:10px"><button class="btn" onclick="abrirEditor('${p.id}')">+ Vaso</button>
+      ${S.config.productos.map(pr=>`<button class="btn sec" onclick="addProd('${p.id}','${pr.id}')">+ ${esc(pr.nombre)}</button>`).join('')}</div>`}
+    <div class="row" style="margin-top:12px;align-items:center"><div><span class="muted">Total</span> <span class="total-big">${bs(tot)}</span></div>
+      <div style="flex:0;white-space:nowrap"><button class="btn ok" ${tot?'':'disabled'} onclick="payFor='${p.id}';edit=null;render()">💵 Cobrar</button>
+      <button class="btn sec" onclick="cancelarPedido('${p.id}')">Cancelar pedido</button></div></div>
+    ${payFor===p.id?`<div class="alert ok" style="margin-top:10px"><b>Cobrar ${bs(tot)}</b>
+      <div class="row" style="margin-top:6px"><div><label>Recibido (para el cambio)</label><input type="number" inputmode="decimal" oninput="$('cambio').textContent=bs(num(this.value)-${tot})"></div><div><div class="muted">Cambio</div><b id="cambio">${bs(0)}</b></div></div>
+      <div class="row" style="margin-top:8px"><button class="btn ok" onclick="pagar('${p.id}','efectivo')">💵 Pagó en efectivo</button><button class="btn" onclick="pagar('${p.id}','qr')">📱 Pagó por QR</button><button class="btn sec" onclick="payFor=null;render()">Todavía no paga</button></div></div>`:''}
+  </div>`;
+}
+function historialHTML(c){
+  const H=pedidosCaja(c).filter(p=>p.estado!=='abierto'&&(filtroHist==='todos'||p.estado===filtroHist)).slice().reverse();
+  const pag=pedidosCaja(c).filter(p=>p.estado==='pagado'), can=pedidosCaja(c).filter(p=>p.estado==='cancelado');
+  return `<div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['pagado','Pagados ('+pag.length+')'],['cancelado','Cancelados ('+can.length+')']].map(([k,l])=>`<span class="chip ${filtroHist===k?'on':''}" onclick="filtroHist='${k}';render()">${l}</span>`).join('')}</div>
+    <p class="muted">Cobrado: <b>${bs(sum(pag,totalPed))}</b> en ${pag.length} pedidos.</p>
+    ${H.map(p=>{const [cl,tx]=ESTADO[p.estado];return `<div class="card" style="padding:10px 14px;cursor:pointer" onclick="verPed=verPed==='${p.id}'?null:'${p.id}';render()">
+      <div class="row" style="align-items:center"><div><b>Pedido #${p.num}</b> <span class="muted">${p.hora} · ${esc(p.vendedor)} · ${itemsVivos(p).length} ítems</span></div>
+      <div style="flex:0;white-space:nowrap"><b>${bs(totalPed(p))}</b> <span class="badge ${cl}">${tx}${p.metodo?' · '+p.metodo:''}</span></div></div>
+      ${verPed===p.id?`<div style="margin-top:8px">${p.items.map(i=>itemRow(p,i,false)).join('')}<p class="muted">${p.estado==='pagado'?'Pagado a las '+p.horaPago:'Cancelado a las '+p.horaCancel}</p></div>`:''}</div>`}).join('')||'<p class="muted">Sin pedidos aquí todavía.</p>'}`;
 }
 V.vender = () => {
   const c=cajaSel();
-  if(!c) return `<h2>Anotar ventas</h2><div class="alert">Este celular no tiene una caja abierta. Primero abre tu caja con el monto inicial en monedas.</div><button class="btn" onclick="go('caja')">Ir a Caja</button>`;
-  const tot=sum(cart,i=>i.precio*i.cant), r=cajaResumen(c), last=cart[cart.length-1];
-  const vh=S.ventas.filter(v=>v.cajaId===c.id).slice().reverse();
-  const pr=parseRapido(rapidoTxt);
-  const re=reempActivo(c);
-  return `<h2>Anotar ventas <span class="badge g">Caja de ${esc(c.responsable)} · ${esc(puntoNom(c.punto))}</span></h2>
-  ${re?`<div class="alert">🔄 <b>${esc(re.quien)}</b> está atendiendo por ${esc(c.responsable)} desde las ${re.inicio}. Lo que anotes ahora queda a nombre de ${esc(re.quien)}.
+  if(!c) return `<h2>Pedidos</h2><div class="alert">Este celular no tiene una caja abierta. Primero abre tu caja con el monto inicial en monedas.</div><button class="btn" onclick="go('caja')">Ir a Caja</button>`;
+  const re=reempActivo(c), ab=pendientes(c).slice().reverse(), r=cajaResumen(c), nh=pedidosCaja(c).length-ab.length;
+  return `<div class="row" style="align-items:center;margin-bottom:12px"><div><h2 style="margin:0">Pedidos</h2><span class="muted">Caja de ${esc(c.responsable)} · ${esc(puntoNom(c.punto))}</span></div>
+    <div style="flex:0"><button class="btn" style="font-size:16px;padding:12px 18px;white-space:nowrap" onclick="nuevoPedido()">+ Nuevo pedido</button></div></div>
+  ${re?`<div class="alert">🔄 <b>${esc(re.quien)}</b> está atendiendo por ${esc(c.responsable)} desde las ${re.inicio}. Lo que se cobre ahora queda a nombre de ${esc(re.quien)}.
     Cuando ${esc(c.responsable)} vuelva: <a href="#" onclick="volverForm='${c.id}';go('caja');return false">entregar ventas</a></div>`:''}
-  <div class="grid g2">
-    <div>
-      <div class="card"><h3>✍️ Escribir rápido (como en WhatsApp)</h3>
-        <textarea id="rt" rows="3" placeholder="Ej: 10 canela leche chirimoya, 8 frutilla maracuya, 5 canela, 2 empanada, refresco">${esc(rapidoTxt)}</textarea>
-        <p class="muted">Precio del vaso y luego sus sabores (opcional). <code>3x5</code> = 3 vasos de 5 · <code>2 empanada</code> · <code>refresco</code> · <code>qr</code> si pagó con QR. También vale "3 sabores de 10".</p>
-        <div id="prev">${previewHTML(pr)}</div>
-        <button class="btn sec" onclick="agregarRapido()">Agregar al pedido</button>
-      </div>
-      <div class="card"><h3>👆 O toca botones</h3>
-        <p class="muted" style="margin-top:0">Vaso de:</p>
-        <div class="pad">${S.config.precios.map(p=>`<button onclick="addCart({tipo:'helado',cant:1,precio:${p},sabores:[]})">${p}<small>Bs</small></button>`).join('')}
-          ${S.config.productos.map(p=>`<button onclick="addCart({tipo:'producto',producto:'${p.id}',cant:1,precio:${p.precio}})" style="font-size:13px">${esc(p.nombre)}<small>${bs(p.precio)}${p.id==='emp'?' · stock '+stockEmpanadas():''}</small></button>`).join('')}</div>
-        <p class="muted">Sabores del último vaso (opcional):</p>
-        <div class="chips">${S.config.sabores.filter(s=>s.activo).map(s=>`<span class="chip ${last&&last.tipo==='helado'&&last.sabores.includes(s.id)?'on':''}" onclick="toggleSabor('${s.id}')">${esc(s.nombre)}</span>`).join('')}</div>
-      </div>
-    </div>
-    <div>
-      <div class="card"><h3>Pedido</h3>
-        ${cart.map((i,k)=>`<div class="cart-item ${k===cart.length-1?'last':''}"><span>${i.cant} × ${esc(descVenta(i))}</span><span style="white-space:nowrap">${bs(i.precio*i.cant)} <button class="btn x" onclick="cart.splice(${k},1);render()">✕</button></span></div>`).join('')||'<p class="muted">Vacío.</p>'}
-        <div class="row" style="margin-top:12px"><div><div class="muted">Total</div><div class="total-big">${bs(tot)}</div></div>
-          <div><label>Recibido (para el cambio)</label><input id="recib" type="number" inputmode="decimal" oninput="$('cambio').textContent=bs(num(this.value)-${tot})"></div></div>
-        <p>Cambio: <b id="cambio">${bs(0)}</b></p>
-        <div class="row"><button class="btn ok" ${cart.length?'':'disabled'} onclick="cobrar('efectivo')">💵 Efectivo</button>
-        <button class="btn sec" ${cart.length?'':'disabled'} onclick="cobrar('qr')">📱 QR</button>
-        <button class="btn sec" onclick="cart=[];render()">Vaciar</button></div>
-      </div>
-      <div class="card kpi"><div class="lbl">Mi caja</div><div class="val">${bs(r.esperado)}</div><div class="sub">Empecé con ${bs(c.montoInicial)} · vendí ${bs(r.total)} (${r.vasos} vasos) · QR ${bs(r.qr)}</div></div>
-    </div>
-  </div>
-  <div class="card"><h3>Ventas de esta caja (${vh.length})</h3>${tablaVentas(S.ventas.filter(v=>v.cajaId===c.id),true)}</div>`;
+  <div class="seg"><button class="${vistaPed==='curso'?'on':''}" onclick="vistaPed='curso';render()">En curso (${ab.length})</button><button class="${vistaPed==='hist'?'on':''}" onclick="vistaPed='hist';render()">Historial (${nh})</button></div>
+  ${vistaPed==='curso'?(ab.map(pedidoCard).join('')||'<div class="card muted">No hay pedidos en curso. Toca <b>+ Nuevo pedido</b> cuando llegue un cliente.</div>'):historialHTML(c)}
+  <div class="card kpi"><div class="lbl">Mi caja</div><div class="val">${bs(r.esperado)}</div><div class="sub">Empecé con ${bs(c.montoInicial)} · cobrado ${bs(r.total)} (QR ${bs(r.qr)}) · por cobrar ${bs(sum(ab,totalPed))}</div></div>`;
 };
-function previewHTML(pr){
-  if(!pr.items.length && !pr.warn.length) return '';
-  return `<div style="margin:8px 0">${pr.items.map(i=>`<span class="badge g" style="margin:2px">${i.cant} × ${esc(descVenta(i))} = ${bs(i.cant*i.precio)}</span>`).join('')}
-    ${pr.qr?'<span class="badge a">QR</span>':''}${pr.warn.length?`<div class="muted neg">No entendí: ${pr.warn.map(esc).join(', ')}</div>`:''}</div>`;
+function nuevoPedido(){
+  const c=cajaSel(), re=reempActivo(c);
+  const p={id:uid(),num:pedidosCaja(c).length+1,cajaId:c.id,fecha:c.fecha,hora:hora(),vendedor:re?re.quien:c.responsable,estado:'abierto',items:[]};
+  S.pedidos.push(p); save(); vistaPed='curso'; payFor=null; abrirEditor(p.id);
 }
-V.venderAfter = () => { const t=$('rt'); if(!t) return;
-  t.oninput=()=>{ rapidoTxt=t.value; $('prev').innerHTML=previewHTML(parseRapido(t.value)); };
-  t.onkeydown=e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); agregarRapido(); } }; };
-let rapidoQR=false;
-function agregarRapido(){ const pr=parseRapido(rapidoTxt); if(!pr.items.length) return; cart.push(...pr.items); rapidoQR=pr.qr; rapidoTxt=''; render(); $('rt')&&$('rt').focus(); }
-function addCart(it){ cart.push(it); render(); }
-function toggleSabor(id){ const l=cart[cart.length-1]; if(!l||l.tipo!=='helado') return alert('Primero toca el precio del vaso');
-  l.sabores.includes(id)?l.sabores.splice(l.sabores.indexOf(id),1):l.sabores.push(id); render(); }
-function cobrar(metodo){
-  const c=cajaSel(); if(!c) return; if(rapidoQR) metodo='qr';
+function abrirEditor(pid){ edit={pid,itemId:null,sabores:[],precio:null,cant:1}; payFor=null; render(); }
+function editarVaso(pid,iid){ const i=pedido(pid).items.find(x=>x.id===iid); edit={pid,itemId:iid,sabores:[...i.sabores],precio:i.precio,cant:i.cant}; payFor=null; render(); }
+function togSab(id){ const k=edit.sabores.indexOf(id); k<0?edit.sabores.push(id):edit.sabores.splice(k,1); render(); }
+function guardarVaso(){
+  const p=pedido(edit.pid);
+  if(edit.itemId) Object.assign(p.items.find(x=>x.id===edit.itemId),{sabores:edit.sabores,precio:edit.precio,cant:edit.cant});
+  else p.items.push({id:uid(),tipo:'helado',sabores:edit.sabores,precio:edit.precio,cant:edit.cant});
+  edit=null; save(); render();
+}
+function addProd(pid,prid){
+  const p=pedido(pid), pr=prod(prid), ex=p.items.find(i=>i.producto===prid&&!i.cancelado);
+  ex?ex.cant++:p.items.push({id:uid(),tipo:'producto',producto:prid,precio:pr.precio,cant:1,sabores:[]}); save(); render();
+}
+function cantProd(pid,iid,d){ const i=pedido(pid).items.find(x=>x.id===iid); i.cant+=d; if(i.cant<1){ i.cant=1; return cancelarItem(pid,iid); } save(); render(); }
+function cancelarItem(pid,iid){ if(!confirm('¿Cancelar este ítem del pedido?')) return; pedido(pid).items.find(x=>x.id===iid).cancelado=true; if(edit&&edit.itemId===iid) edit=null; save(); render(); }
+function cancelarPedido(pid){
+  const p=pedido(pid); if(!confirm(`¿Cancelar el pedido #${p.num}?`)) return;
+  if(!p.items.length) S.pedidos=S.pedidos.filter(x=>x.id!==pid); else { p.estado='cancelado'; p.horaCancel=hora(); }
+  edit=null; payFor=null; save(); render();
+}
+function ventasDePedido(p,c,metodo,hh){ // al cobrar, el pedido se vuelve ventas (lo que lee caja y estado de resultados)
   const re=reempActivo(c);
-  cart.forEach(i=>S.ventas.push({id:uid(),fecha:c.fecha,hora:hora(),cajaId:c.id,punto:c.punto,vendedor:re?re.quien:c.responsable,reempId:re?re.id:null,tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:i.precio*i.cant,metodo}));
-  cart=[]; rapidoQR=false; save(); render();
+  itemsVivos(p).forEach(i=>S.ventas.push({id:uid(),fecha:p.fecha,hora:hh,cajaId:c.id,punto:c.punto,vendedor:re?re.quien:c.responsable,reempId:re?re.id:null,pedidoId:p.id,
+    tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:i.precio*i.cant,metodo}));
+  p.estado='pagado'; p.metodo=metodo; p.horaPago=hh;
 }
+function pagar(pid,metodo){ const p=pedido(pid); ventasDePedido(p,S.cajas.find(c=>c.id===p.cajaId),metodo,hora()); payFor=null; save(); render(); }
 function delItem(col,id){ if(!confirm('¿Eliminar este registro?')) return; S[col]=S[col].filter(x=>x.id!==id); save(); render(); }
 
 /* ================== CAJA ================== */
@@ -412,6 +438,7 @@ function cajaCard(c){
       <div class="kpi"><div class="lbl">Debe haber en caja</div><div class="val" style="font-size:18px">${bs(r.esperado)}</div></div>
       <div class="kpi"><div class="lbl">Vasos</div><div class="val" style="font-size:18px">${r.vasos}</div></div>
       <div class="kpi"><div class="lbl">Cobrado por QR</div><div class="val" style="font-size:18px">${bs(r.qr)}</div></div></div>
+    ${pendientes(c).length?`<p class="muted" style="margin-bottom:0">🕒 ${pendientes(c).length} pedido(s) por cobrar: ${bs(sum(pendientes(c),totalPed))}</p>`:''}
     ${re?`<p class="muted" style="margin-bottom:0">${esc(re.quien)} atiende desde las ${re.inicio} y lleva ${bs(sum(ventasReemp(c,re),v=>v.total))} vendido (${bs(r.fuera)} en efectivo que aún tiene ella).</p>`:''}
     <div class="chips" style="margin-top:10px">
       ${mia?'<span class="badge g">En uso en este dispositivo</span>':`<button class="btn sec sm" onclick="dev.set('heladeria_caja','${c.id}');render()">Usar en este dispositivo</button>`}
@@ -450,10 +477,11 @@ function detalleMiCaja(c){
       ${(c.retiros||[]).map(x=>`<div class="cart-item"><span>${esc(x.motivo)}</span><span>${bs(x.monto)}</span></div>`).join('')}
     </div>
     <div class="card"><h3>Cerrar caja</h3>
-      ${re?`<div class="alert">Antes de cerrar, ${esc(re.quien)} tiene que entregar lo que vendió mientras reemplazaba.</div>`:`
-      <p class="muted">1. ¿Qué sobró y se guarda en el refrigerador? (deja vacío lo que se acabó)</p>
-      <table>${items().filter(i=>i.reventa||S.config.sabores.some(s=>s.id===i.id&&s.activo)||!S.config.sabores.some(s=>s.id===i.id)).map(i=>`<tr><td>${esc(i.nombre)}</td><td style="width:110px"><input id="sb_${i.id}" type="number" inputmode="decimal" placeholder="${i.unidad}"></td></tr>`).join('')}</table>
-      <p class="muted" style="margin-top:12px">2. Cuenta el dinero:</p>
+      ${re?`<div class="alert">Antes de cerrar, ${esc(re.quien)} tiene que entregar lo que vendió mientras reemplazaba.</div>`
+      :pendientes(c).length?`<div class="alert">Hay ${pendientes(c).length} pedido(s) sin cobrar. Cóbralos o cancélalos en <a href="#" onclick="vistaPed='curso';go('vender');return false">Pedidos</a> antes de cerrar.</div>`:`
+      ${rol==='admin'?`<p class="muted">¿Qué sobró y se guarda en el refrigerador? (deja vacío lo que se acabó)</p>
+      <table>${items().filter(i=>i.reventa||S.config.sabores.some(s=>s.id===i.id&&s.activo)||!S.config.sabores.some(s=>s.id===i.id)).map(i=>`<tr><td>${esc(i.nombre)}</td><td style="width:110px"><input id="sb_${i.id}" type="number" inputmode="decimal" placeholder="${i.unidad}"></td></tr>`).join('')}</table>`:''}
+      <p class="muted" style="margin-top:12px">Cuenta el dinero:</p>
       <div class="row"><div><label>Dinero contado</label><input id="cc" type="number" inputmode="decimal" oninput="const d=num(this.value)-${r.esperado};$('dif').innerHTML=(d<0?'<span class=neg>Faltante ':'<span class=pos>Sobrante ')+bs(Math.abs(d))+'</span>'"></div>
       <div><button class="btn ok" onclick="cerrarCaja()">Cerrar caja</button></div></div><p id="dif"></p>`}</div></div>`;
 }
@@ -785,9 +813,20 @@ function demo(){
   const t=hoy(), c1={id:uid(),fecha:t,horaAp:'09:05',responsable:'Erika',punto:'pp',montoInicial:50,retiros:[],reemplazos:[],cerrada:false},
     c2={id:uid(),fecha:t,horaAp:'09:20',responsable:'Verónica',punto:'p3',montoInicial:30,retiros:[],reemplazos:[{id:uid(),quien:'Dueña',inicio:'13:10',fin:null}],cerrada:false};
   S.cajas.push(c1,c2);
-  for(let j=0;j<25;j++) V_(t,c1,{tipo:'helado',cant:1,precio:[3,5,5,8,10][RI(0,4)],sabores:[act[RI(0,5)].id],vendedor:'Erika',hora:pad(9+(j/4|0))+':'+pad(RI(0,59))});
-  for(let j=0;j<12;j++) V_(t,c2,{tipo:'helado',cant:1,precio:[3,5,8][RI(0,2)],sabores:[act[RI(0,5)].id],vendedor:'Verónica',hora:pad(9+(j/3|0))+':'+pad(RI(0,59))});
-  for(let j=0;j<3;j++) V_(t,c2,{tipo:'helado',cant:1,precio:5,sabores:[act[0].id],vendedor:'Dueña',reempId:c2.reemplazos[0].id,hora:'13:'+pad(15+j*5),metodo:'efectivo'});
+  const vaso=()=>({id:uid(),tipo:'helado',cant:1,precio:[3,5,8,10][RI(0,3)],sabores:[...act].sort(()=>Math.random()-.5).slice(0,RI(1,3)).map(s=>s.id)});
+  const mkPed=(cx,j,n,estado,vend)=>{ const hh=pad(9+((j*23)/60|0))+':'+pad((j*23)%60);
+    const p={id:uid(),num:pedidosCaja(cx).length+1,cajaId:cx.id,fecha:t,hora:hh,vendedor:vend||cx.responsable,estado:'abierto',items:Array.from({length:n},vaso)};
+    if(Math.random()<.3) p.items.push({id:uid(),tipo:'producto',producto:Math.random()<.5?'ref':'emp',precio:Math.random()<.5?3:5,cant:RI(1,2),sabores:[]});
+    S.pedidos.push(p);
+    if(estado==='cancelado'){ p.estado='cancelado'; p.horaCancel=hh; }
+    if(estado==='pagado') ventasDePedido(p,cx,Math.random()<.8?'efectivo':'qr',hh);
+    return p; };
+  for(let j=0;j<14;j++) mkPed(c1,j,RI(1,3),j===6?'cancelado':'pagado');
+  const fam=mkPed(c1,15,5,'abierto'); fam.items[1].cancelado=true; mkPed(c1,16,2,'abierto');
+  const reV=c2.reemplazos.pop();
+  for(let j=0;j<6;j++) mkPed(c2,j*2,RI(1,2),'pagado');
+  c2.reemplazos.push(reV);
+  for(let j=0;j<2;j++) mkPed(c2,18+j,1,'pagado','Dueña');
   S.sobrantes.filter(s=>s.recuperado!=null).forEach(s=>s.valorMerma=+(s.merma*costoUnit(s.item)).toFixed(2));
   const sil=S.activos.find(a=>a.nombre==='Sillas'), ref=S.activos.find(a=>a.nombre==='Refrigerador'), bal=S.activos.find(a=>a.nombre.startsWith('Baldes'));
   S.incidencias.push({id:uid(),fecha:dias[8],activoId:sil.id,tipo:'rotura',unidades:1,costo:0,detalle:'Se rompió una pata'}); sil.cantidad--;

@@ -4,7 +4,7 @@ Aplicación web de un solo archivo (`index.html`). No necesita instalación ni i
 
 ## Dos modos
 
-- **Trabajadora**: solo ve *Anotar ventas*, *Caja* y *Sobrantes*.
+- **Trabajadora**: solo ve *Pedidos* y *Caja*.
 - **Administradora** (PIN, por defecto `1234`): ve todo, incluido el estado de resultados.
 
 Se cambia con el botón de arriba a la derecha.
@@ -13,9 +13,9 @@ Se cambia con el botón de arriba a la derecha.
 
 | Módulo | Qué hace |
 |---|---|
-| **Anotar ventas** | Escritura rápida estilo WhatsApp (`10 canela leche, 8 frutilla, 3x5, 2 empanada, refresco, qr`) o botones de precio. Los sabores son opcionales. |
-| **Caja** | Cada vendedora abre su caja con su monto inicial en monedas (en el puesto o en otro lugar). Pagos con la caja, retiros, y al cerrar: sobrantes + arqueo. |
-| **Sobrantes** | Lo guardado en el refrigerador; al día siguiente se anota cuánto se recuperó. Lo perdido es merma y se valoriza al costo. |
+| **Pedidos** | *+ Nuevo pedido* → *+ Vaso*: sabores en botones redondos + precio → se agrega a la lista. Cada vaso se puede modificar o cancelar; también refresco y empanadas. El pedido queda *pendiente de cobro* hasta marcarlo pagado (efectivo/QR). Pestañas *En curso* e *Historial* (pagados y cancelados), lo más reciente arriba. |
+| **Caja** | Cada vendedora abre su caja con su monto inicial en monedas en un lugar de venta. La administradora ve todas las cajas abiertas. Reemplazos (baño, almuerzo) con entrega de ventas. No se cierra con pedidos sin cobrar. |
+| **Sobrantes** (solo administradora) | Lo guardado en el refrigerador; al día siguiente se anota cuánto se recuperó. Lo perdido es merma y se valoriza al costo. |
 | **Panel** | Ventas del día, cajas abiertas, utilidad del mes, alertas. |
 | **Producción** | Lotes de helado y refresco de canela: insumos, litros, costo por litro. |
 | **Compras y gastos** | Hielo, sal, garrafas, empanadas, insumos y otros. |
