@@ -13,10 +13,11 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
-header{background:linear-gradient(90deg,var(--wood-d),var(--wood));color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+header{background:linear-gradient(90deg,var(--wood-d),var(--wood));color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
 header h1{font-size:18px;margin:0;flex:1}
 header .hoy{font-size:13px;opacity:.85}
-nav{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--line);padding:6px 8px;position:sticky;top:46px;z-index:9}
+header .rol{background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:999px;padding:5px 12px;font-size:13px;cursor:pointer}
+nav{display:flex;gap:4px;overflow-x:auto;background:#fff;border-bottom:1px solid var(--line);padding:6px 8px;position:sticky;top:50px;z-index:9}
 nav button{border:0;background:none;padding:8px 12px;border-radius:8px;cursor:pointer;white-space:nowrap;color:var(--muted);font-size:14px}
 nav button.on{background:var(--berry-l);color:var(--berry);font-weight:600}
 main{max-width:1150px;margin:0 auto;padding:16px}
@@ -36,11 +37,12 @@ th{font-size:12px;color:var(--muted);font-weight:600;text-transform:uppercase}
 td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}
 .tbl-wrap{overflow-x:auto}
 label{display:block;font-size:12px;color:var(--muted);margin-bottom:3px}
-input,select{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink)}
+input,select,textarea{width:100%;padding:8px 9px;border:1px solid var(--line);border-radius:8px;font-size:14px;background:#fff;color:var(--ink);font-family:inherit}
 input[type=checkbox]{width:auto}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .row>div{flex:1;min-width:120px}
 .btn{border:0;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;background:var(--berry);color:#fff;font-weight:600}
+.btn:disabled{opacity:.45;cursor:default}
 .btn.sec{background:#efe7de;color:var(--ink)}
 .btn.ok{background:var(--green)}
 .btn.sm{padding:5px 9px;font-size:12px}
@@ -48,16 +50,17 @@ input[type=checkbox]{width:auto}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 12px;cursor:pointer;font-size:13px}
 .chip:hover{border-color:var(--wood)}
-.flav{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
-.flav button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:14px 6px;cursor:pointer;font-size:14px;font-weight:600}
-.flav button.on{border-color:var(--berry);background:var(--berry-l)}
-.flav button small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.chip.on{background:var(--berry-l);border-color:var(--berry);color:var(--berry);font-weight:600}
+.pad{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px}
+.pad button{border:2px solid var(--line);background:#fff;border-radius:10px;padding:14px 4px;cursor:pointer;font-size:18px;font-weight:700}
+.pad button small{display:block;font-weight:400;color:var(--muted);font-size:11px}
+.pad button:active{background:var(--berry-l);border-color:var(--berry)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:#efe7de}
 .badge.g{background:var(--green-l);color:var(--green)} .badge.a{background:var(--amber-l);color:var(--amber)} .badge.r{background:var(--berry-l);color:var(--red)}
 .alert{padding:10px 12px;border-radius:10px;background:var(--amber-l);color:#7a5210;margin-bottom:8px;font-size:14px}
 .alert.ok{background:var(--green-l);color:#1d5e3a}
 .bars{display:flex;align-items:flex-end;gap:4px;height:150px;padding-top:10px}
-.bars div{flex:1;background:var(--berry);border-radius:4px 4px 0 0;position:relative;min-height:2px;opacity:.85}
+.bars div{flex:1;background:var(--berry);border-radius:4px 4px 0 0;min-height:2px;opacity:.85}
 .bars div:hover{opacity:1}
 .bars-x{display:flex;gap:4px;font-size:10px;color:var(--muted)} .bars-x span{flex:1;text-align:center}
 .er td{padding:6px 8px}
@@ -67,25 +70,25 @@ input[type=checkbox]{width:auto}
 .er .big.neg td{background:var(--berry-l)}
 .er .ind td:first-child{padding-left:22px}
 .muted{color:var(--muted);font-size:13px}
-.cart-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line)}
+.cart-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line);gap:8px}
+.cart-item.last{background:var(--berry-l);border-radius:6px;padding:6px}
 .total-big{font-size:28px;font-weight:800}
-@media print{
-  header,nav,.noprint{display:none!important}
-  body{background:#fff} .card{border:0}
-}
+code{background:#f3ece4;padding:1px 5px;border-radius:4px;font-size:13px}
+@media print{ header,nav,.noprint{display:none!important} body{background:#fff} .card{border:0} }
 </style>
 </head>
 <body>
 <header>
   <h1 id="tit">🍦 Heladería Artesanal</h1>
   <span class="hoy" id="hoy"></span>
+  <button class="rol" id="rol" onclick="cambiarRol()"></button>
 </header>
 <nav id="nav"></nav>
 <main id="main"></main>
 
 <script>
 /* ================== DATOS ================== */
-const KEY = 'heladeria_v1';
+const KEY = 'heladeria_v2';
 const CATS = {
   hielo:'Hielo (barras)', sal:'Sal', gas:'Gas (garrafas)', insumos:'Insumos varios',
   empanadas:'Compra de empanadas', sueldos:'Sueldos personal', reparaciones:'Roturas y reparaciones',
@@ -93,21 +96,27 @@ const CATS = {
 };
 const defaults = () => ({
   config:{
-    negocio:'Heladería Artesanal',
-    presentaciones:[{id:'p1',nombre:'Vaso chico',precio:3},{id:'p2',nombre:'Vaso mediano',precio:5},{id:'p3',nombre:'Vaso grande',precio:7}],
+    negocio:'Heladería Artesanal', pin:'1234',
+    precios:[3,5,8,10,15],
     sabores:['Canela:agua','Leche:leche','Chirimoya:leche','Maracuyá:agua','Frutilla:agua','Cupuazú:leche','Piña:agua','Oreo:leche','Chicle:leche']
       .map((s,i)=>{const [n,b]=s.split(':');return {id:'s'+i,nombre:n,base:b,activo:i<6}}),
-    empanada:{costo:3.5,precio:5},
+    // reventa: se compra hecho (stock y costo fijo). Si no, se elabora (costo sale de Producción).
+    productos:[{id:'ref',nombre:'Refresco de canela',precio:3,reventa:false},{id:'emp',nombre:'Empanada',precio:5,costo:3.5,reventa:true}],
     hielo:{precio:11,barras:5},
     pagoDiario:110,
     fijos:[{id:'f1',nombre:'Alquiler',monto:800},{id:'f2',nombre:'Agua',monto:10},{id:'f3',nombre:'Luz',monto:40}]
   },
   empleados:[{id:'e1',nombre:'Empleada 1',pago:110},{id:'e2',nombre:'Empleada 2',pago:110}],
-  ventas:[], cajas:[], produccion:[], gastos:[], salidas:[], activos:[], incidencias:[]
+  ventas:[], cajas:[], produccion:[], gastos:[], sobrantes:[], activos:[], incidencias:[]
 });
 let S = load();
-function load(){ try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d) return Object.assign(defaults(),d); }catch(e){} return defaults(); }
+function load(){
+  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d){ const b=defaults(); d.config=Object.assign(b.config,d.config); return Object.assign(b,d); } }catch(e){}
+  return defaults();
+}
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ alert('No se pudo guardar: '+e.message); } }
+// Preferencias de este dispositivo (rol y caja en uso)
+const dev = { get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}} };
 
 /* ================== UTILIDADES ================== */
 const uid = () => Date.now().toString(36)+Math.random().toString(36).slice(2,6);
@@ -118,36 +127,59 @@ const hora = () => { const d=new Date(); return pad(d.getHours())+':'+pad(d.getM
 const bs = n => 'Bs '+(Number(n)||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
 const num = v => parseFloat(String(v).replace(',','.'))||0;
 const esc = s => String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
 const $ = id => document.getElementById(id);
 const val = id => $(id).value;
 const sum = (arr,f) => arr.reduce((a,x)=>a+(f?f(x):x),0);
 const inR = (f,d,h) => f>=d && f<=h;
 const sabor = id => S.config.sabores.find(s=>s.id===id) || {nombre:'(eliminado)'};
-const pres = id => S.config.presentaciones.find(p=>p.id===id) || {nombre:'-',precio:0};
+const prod = id => S.config.productos.find(p=>p.id===id) || {nombre:'(eliminado)',precio:0};
 const mesDe = f => f.slice(0,7);
 const diasMes = f => { const [y,m]=f.split('-').map(Number); return new Date(y,m,0).getDate(); };
 function rangoDias(d,h){ const out=[]; let x=new Date(d+'T12:00'); const e=new Date(h+'T12:00'); while(x<=e){out.push(ymd(x)); x.setDate(x.getDate()+1);} return out; }
 function opts(list,sel,lab='nombre'){ return list.map(o=>`<option value="${o.id}" ${o.id===sel?'selected':''}>${esc(o[lab])}</option>`).join(''); }
+// "Ítems" = lo que se elabora o se guarda: sabores de helado y productos (refresco, empanada…)
+const items = () => [...S.config.sabores.map(s=>({id:s.id,nombre:'Helado de '+s.nombre,unidad:'L',reventa:false})),
+                     ...S.config.productos.map(p=>({id:p.id,nombre:p.nombre,unidad:p.reventa?'unid.':'L',reventa:p.reventa}))];
+const item = id => items().find(i=>i.id===id) || {nombre:'(eliminado)',unidad:''};
+function costoUnit(id){ // costo por litro (elaborados) o por unidad (reventa)
+  const p=S.config.productos.find(x=>x.id===id); if(p&&p.reventa) return p.costo||0;
+  const L=S.produccion.filter(x=>x.item===id); const l=sum(L,x=>x.litros); return l? sum(L,x=>x.costo)/l : 0;
+}
+function descVenta(v){
+  if(v.tipo==='producto') return prod(v.producto).nombre;
+  return 'Vaso '+bs(v.precio).replace('Bs ','Bs ')+(v.sabores&&v.sabores.length?' · '+v.sabores.map(s=>sabor(s).nombre).join(', '):'');
+}
 
-/* ================== NAVEGACIÓN ================== */
+/* ================== ROLES Y NAVEGACIÓN ================== */
 const TABS = [
-  ['panel','📊 Panel'],['vender','🛒 Vender'],['caja','💵 Caja'],['produccion','🧪 Producción'],
-  ['gastos','🧾 Compras y gastos'],['personal','👩‍🍳 Personal'],['salidas','🚶‍♀️ Ventas externas'],
-  ['equipos','🧊 Equipos'],['er','📈 Estado de resultados'],['config','⚙️ Configuración']
+  ['panel','📊 Panel','a'],['vender','🛒 Anotar ventas','at'],['caja','💵 Caja','at'],['sobrantes','🧊 Sobrantes','at'],
+  ['produccion','🧪 Producción','a'],['gastos','🧾 Compras y gastos','a'],['personal','👩‍🍳 Personal','a'],
+  ['equipos','🪑 Equipos','a'],['er','📈 Estado de resultados','a'],['config','⚙️ Configuración','a']
 ];
-let tab = 'panel';
+let rol = dev.get('heladeria_rol') || 'admin';
+let tab = rol==='admin' ? 'panel' : 'vender';
+const permitido = t => (TABS.find(x=>x[0]===t)||[])[2]?.includes(rol==='admin'?'a':'t');
+function cambiarRol(){
+  if(rol==='admin'){ rol='trab'; }
+  else { const p=prompt('PIN de administradora:'); if(p===null) return; if(p!==S.config.pin) return alert('PIN incorrecto'); rol='admin'; }
+  dev.set('heladeria_rol',rol); render();
+}
 function go(t){ tab=t; render(); window.scrollTo(0,0); }
 function render(){
+  if(!permitido(tab)) tab = rol==='admin'?'panel':'vender';
   $('tit').textContent = '🍦 '+S.config.negocio;
   $('hoy').textContent = new Date().toLocaleDateString('es-BO',{weekday:'long',day:'numeric',month:'long'});
-  $('nav').innerHTML = TABS.map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
+  $('rol').textContent = rol==='admin' ? '👑 Administradora' : '🙋‍♀️ Trabajadora';
+  $('nav').innerHTML = TABS.filter(x=>permitido(x[0])).map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
   $('main').innerHTML = V[tab]();
   if(V[tab+'After']) V[tab+'After']();
 }
 const V = {};
 
 /* ================== CÁLCULOS ================== */
-function cajaAbierta(f=hoy()){ return S.cajas.find(c=>c.fecha===f && !c.cerrada); }
+const cajaSel = () => { const c=S.cajas.find(x=>x.id===dev.get('heladeria_caja')); return c&&!c.cerrada ? c : null; };
+const cajasAbiertas = () => S.cajas.filter(c=>!c.cerrada);
 function cajaResumen(c){
   const vs = S.ventas.filter(v=>v.cajaId===c.id);
   const efectivo = sum(vs.filter(v=>v.metodo==='efectivo'),v=>v.total);
@@ -155,249 +187,328 @@ function cajaResumen(c){
   const gastosCaja = sum(S.gastos.filter(g=>g.cajaId===c.id),g=>g.monto);
   const retiros = sum(c.retiros||[],r=>r.monto);
   const esperado = c.montoInicial + efectivo - gastosCaja - retiros;
-  return {efectivo,qr,gastosCaja,retiros,esperado,total:efectivo+qr,n:sum(vs,v=>v.cant)};
+  return {efectivo,qr,gastosCaja,retiros,esperado,total:efectivo+qr,vasos:sum(vs.filter(v=>v.tipo==='helado'),v=>v.cant),n:vs.length};
 }
 function stockEmpanadas(){
-  const comp = sum(S.gastos.filter(g=>g.categoria==='empanadas'),g=>g.cantidad||0);
-  const vend = sum(S.ventas.filter(v=>v.tipo==='empanada'),v=>v.cant);
-  const merma = sum(S.gastos.filter(g=>g.categoria==='empanadas'),g=>g.merma||0);
-  return comp - vend - merma;
+  return sum(S.gastos.filter(g=>g.categoria==='empanadas'),g=>g.cantidad||0)
+       - sum(S.ventas.filter(v=>v.producto==='emp'),v=>v.cant)
+       - sum(S.sobrantes.filter(s=>s.item==='emp'&&s.recuperado!=null),s=>s.merma);
 }
-function depMensual(f){ // depreciación del mes de la fecha f
+function depMensual(f){
   return sum(S.activos,a=>{
     if(!a.vidaMeses || a.fechaCompra > f) return 0;
     const [y1,m1]=a.fechaCompra.split('-').map(Number), [y2,m2]=f.split('-').map(Number);
-    const meses=(y2-y1)*12+(m2-m1);
-    return meses < a.vidaMeses ? a.cantidad*a.costo/a.vidaMeses : 0;
+    return (y2-y1)*12+(m2-m1) < a.vidaMeses ? a.cantidad*a.costo/a.vidaMeses : 0;
   });
 }
 function calcER(d,h){
-  const V_ = S.ventas.filter(v=>inR(v.fecha,d,h));
-  const G = S.gastos.filter(g=>inR(g.fecha,d,h));
-  const P = S.produccion.filter(p=>inR(p.fecha,d,h));
-  const I = S.incidencias.filter(i=>inR(i.fecha,d,h));
-  const C = S.cajas.filter(c=>c.cerrada && inR(c.fecha,d,h));
-  const SX = S.salidas.filter(s=>s.liquidada && inR(s.fecha,d,h));
-  const gc = k => sum(G.filter(g=>g.categoria===k),g=>g.monto);
-  const dias = rangoDias(d,h);
-  const fijos = S.config.fijos.map(fx=>({nombre:fx.nombre,monto:sum(dias,x=>fx.monto/diasMes(x))}));
-  const dep = sum(dias,x=>depMensual(x)/diasMes(x));
-  const r = {
-    vHeladoPuesto: sum(V_.filter(v=>v.tipo==='helado'&&v.punto==='puesto'),v=>v.total),
-    vHeladoExt: sum(V_.filter(v=>v.tipo==='helado'&&v.punto!=='puesto'),v=>v.total),
-    vEmp: sum(V_.filter(v=>v.tipo==='empanada'),v=>v.total),
-    cInsumos: sum(P,p=>p.costo) + gc('insumos'),
-    cHielo: gc('hielo'), cSal: gc('sal'), cGas: gc('gas'), cEmp: gc('empanadas'),
-    gSueldos: gc('sueldos'), fijos,
-    gRep: gc('reparaciones') + sum(I,i=>i.costo),
-    gDep: dep,
-    gDif: -(sum(C,c=>c.diferencia||0) + sum(SX,s=>s.diferencia||0)), // faltante = gasto (+), sobrante = (-)
-    gOtros: gc('otros'),
-    porciones: sum(V_.filter(v=>v.tipo==='helado'),v=>v.cant), dias:dias.length
+  const V_=S.ventas.filter(v=>inR(v.fecha,d,h)), G=S.gastos.filter(g=>inR(g.fecha,d,h)), P=S.produccion.filter(p=>inR(p.fecha,d,h));
+  const I=S.incidencias.filter(i=>inR(i.fecha,d,h)), C=S.cajas.filter(c=>c.cerrada&&inR(c.fecha,d,h));
+  const M=S.sobrantes.filter(s=>s.recuperado!=null&&inR(s.fechaRec,d,h));
+  const gc=k=>sum(G.filter(g=>g.categoria===k),g=>g.monto);
+  const dias=rangoDias(d,h);
+  const fijos=S.config.fijos.map(fx=>({nombre:fx.nombre,monto:sum(dias,x=>fx.monto/diasMes(x))}));
+  const HV=V_.filter(v=>v.tipo==='helado');
+  const mermaElab=sum(M.filter(m=>!item(m.item).reventa),m=>m.valorMerma), mermaRev=sum(M.filter(m=>item(m.item).reventa),m=>m.valorMerma);
+  const r={
+    vHeladoPuesto:sum(HV.filter(v=>v.punto==='puesto'),v=>v.total),
+    vHeladoExt:sum(HV.filter(v=>v.punto!=='puesto'),v=>v.total),
+    vProd:S.config.productos.map(p=>({nombre:p.nombre,monto:sum(V_.filter(v=>v.producto===p.id),v=>v.total)})),
+    // las mermas se separan del costo para verlas aparte (el total no cambia)
+    cInsumos:sum(P,p=>p.costo)+gc('insumos')-mermaElab,
+    cHielo:gc('hielo'), cSal:gc('sal'), cGas:gc('gas'), cEmp:gc('empanadas')-mermaRev,
+    cMerma:mermaElab+mermaRev,
+    gSueldos:gc('sueldos'), fijos,
+    gRep:gc('reparaciones')+sum(I,i=>i.costo),
+    gDep:sum(dias,x=>depMensual(x)/diasMes(x)),
+    gDif:-sum(C,c=>c.diferencia||0),
+    gOtros:gc('otros'),
+    vasos:sum(HV,v=>v.cant), dias:dias.length
   };
-  r.ingresos = r.vHeladoPuesto + r.vHeladoExt + r.vEmp;
-  r.costoVentas = r.cInsumos + r.cHielo + r.cSal + r.cGas + r.cEmp;
-  r.bruta = r.ingresos - r.costoVentas;
-  r.gFijos = sum(fijos,f=>f.monto);
-  r.gastosOp = r.gSueldos + r.gFijos + r.gRep + r.gDep + r.gDif + r.gOtros;
-  r.neta = r.bruta - r.gastosOp;
-  // rentabilidad por sabor
-  r.sabores = S.config.sabores.map(s=>{
-    const vs=V_.filter(v=>v.sabor===s.id), ps=P.filter(p=>p.sabor===s.id);
-    return {nombre:s.nombre,porc:sum(vs,v=>v.cant),venta:sum(vs,v=>v.total),costo:sum(ps,p=>p.costo),prod:sum(ps,p=>p.porciones)};
-  }).filter(x=>x.porc||x.costo).sort((a,b)=>b.venta-a.venta);
+  r.ingresos=r.vHeladoPuesto+r.vHeladoExt+sum(r.vProd,p=>p.monto);
+  r.costoVentas=r.cInsumos+r.cHielo+r.cSal+r.cGas+r.cEmp+r.cMerma;
+  r.bruta=r.ingresos-r.costoVentas;
+  r.gFijos=sum(fijos,f=>f.monto);
+  r.gastosOp=r.gSueldos+r.gFijos+r.gRep+r.gDep+r.gDif+r.gOtros;
+  r.neta=r.bruta-r.gastosOp;
+  // rentabilidad por sabor/producto: un vaso con varios sabores reparte su precio entre ellos
+  const acc={};
+  const A=id=>acc[id]||(acc[id]={id,venta:0,vasos:0,costo:0,merma:0});
+  HV.forEach(v=>{ const ss=v.sabores&&v.sabores.length?v.sabores:['_sin']; ss.forEach(s=>{const a=A(s); a.venta+=v.total/ss.length; a.vasos+=v.cant/ss.length;}); });
+  V_.filter(v=>v.tipo==='producto').forEach(v=>{const a=A(v.producto); a.venta+=v.total; a.vasos+=v.cant;});
+  P.forEach(p=>A(p.item).costo+=p.costo);
+  M.forEach(m=>A(m.item).merma+=m.valorMerma);
+  r.rent=Object.values(acc).map(a=>({...a,nombre:a.id==='_sin'?'(sin sabor anotado)':(S.config.productos.some(p=>p.id===a.id)?prod(a.id).nombre:sabor(a.id).nombre)})).sort((a,b)=>b.venta-a.venta);
   return r;
 }
 
 /* ================== PANEL ================== */
 V.panel = () => {
-  const f=hoy(), mes=f.slice(0,8)+'01';
-  const rHoy = calcER(f,f), rMes = calcER(mes,f);
-  const c = cajaAbierta();
-  const alerts=[];
-  if(!c && !S.cajas.some(x=>x.fecha===f)) alerts.push(`La caja de hoy no está abierta. <a href="#" onclick="go('caja');return false">Abrir caja</a>`);
-  if(!S.gastos.some(g=>g.fecha===f&&g.categoria==='hielo')) alerts.push(`Todavía no se registró la compra de hielo de hoy. <a href="#" onclick="go('gastos');return false">Registrar</a>`);
+  const f=hoy(), mes=f.slice(0,8)+'01', rHoy=calcER(f,f), rMes=calcER(mes,f);
+  const ab=cajasAbiertas(), alerts=[];
+  if(!S.cajas.some(x=>x.fecha===f)) alerts.push(`Hoy todavía no se abrió ninguna caja. <a href="#" onclick="go('caja');return false">Abrir caja</a>`);
+  const viejas=ab.filter(c=>c.fecha<f); if(viejas.length) alerts.push(`Hay ${viejas.length} caja(s) de días anteriores sin cerrar. <a href="#" onclick="go('caja');return false">Ver</a>`);
+  if(!S.gastos.some(g=>g.fecha===f&&g.categoria==='hielo')) alerts.push(`No se registró la compra de hielo de hoy. <a href="#" onclick="go('gastos');return false">Registrar</a>`);
   if(!S.gastos.some(g=>g.fecha===f&&g.categoria==='sueldos') && S.empleados.length) alerts.push(`Falta registrar la jornada del personal de hoy. <a href="#" onclick="go('personal');return false">Registrar</a>`);
-  const pend = S.salidas.filter(s=>!s.liquidada);
-  if(pend.length) alerts.push(`Hay ${pend.length} venta(s) externa(s) sin liquidar. <a href="#" onclick="go('salidas');return false">Ver</a>`);
-  const st = stockEmpanadas(); if(st<0) alerts.push(`El stock de empanadas está en negativo (${st}). Registra la compra.`);
-  const dias = rangoDias(ymd(new Date(Date.now()-13*864e5)),f);
-  const vd = dias.map(x=>sum(S.ventas.filter(v=>v.fecha===x),v=>v.total));
-  const mx = Math.max(1,...vd);
-  return `<h2>Panel del día</h2>
+  const pend=S.sobrantes.filter(s=>s.recuperado==null); if(pend.length) alerts.push(`Hay ${pend.length} sobrante(s) guardados sin revisar cuánto se recuperó. <a href="#" onclick="go('sobrantes');return false">Revisar</a>`);
+  const st=stockEmpanadas(); if(st<0) alerts.push(`El stock de empanadas está en negativo (${st}). Falta registrar una compra.`);
+  const dias=rangoDias(ymd(new Date(Date.now()-13*864e5)),f), vd=dias.map(x=>sum(S.ventas.filter(v=>v.fecha===x),v=>v.total)), mx=Math.max(1,...vd);
+  return `<h2>Panel</h2>
   ${alerts.map(a=>`<div class="alert">⚠️ ${a}</div>`).join('') || '<div class="alert ok">✅ Todo al día.</div>'}
   <div class="grid g4">
-    <div class="card kpi"><div class="lbl">Ventas de hoy</div><div class="val">${bs(rHoy.ingresos)}</div><div class="sub">${rHoy.porciones} porciones de helado</div></div>
-    <div class="card kpi"><div class="lbl">Caja</div><div class="val">${c?bs(cajaResumen(c).esperado):'—'}</div><div class="sub">${c?'Abierta · '+esc(c.responsable):'Sin caja abierta'}</div></div>
+    <div class="card kpi"><div class="lbl">Ventas de hoy</div><div class="val">${bs(rHoy.ingresos)}</div><div class="sub">${rHoy.vasos} vasos de helado</div></div>
+    <div class="card kpi"><div class="lbl">Cajas abiertas</div><div class="val">${ab.length}</div><div class="sub">${ab.map(c=>esc(c.responsable)+': '+bs(cajaResumen(c).esperado)).join(' · ')||'—'}</div></div>
     <div class="card kpi"><div class="lbl">Ingresos del mes</div><div class="val">${bs(rMes.ingresos)}</div><div class="sub">${rMes.dias} días</div></div>
-    <div class="card kpi"><div class="lbl">Utilidad del mes</div><div class="val ${rMes.neta>=0?'pos':'neg'}">${bs(rMes.neta)}</div><div class="sub">margen ${rMes.ingresos?(rMes.neta/rMes.ingresos*100).toFixed(1):0}%</div></div>
+    <div class="card kpi"><div class="lbl">Utilidad del mes</div><div class="val ${rMes.neta>=0?'pos':'neg'}">${bs(rMes.neta)}</div><div class="sub">margen ${rMes.ingresos?(rMes.neta/rMes.ingresos*100).toFixed(1):0}% · mermas ${bs(rMes.cMerma)}</div></div>
   </div>
   <div class="grid g2">
     <div class="card"><h3>Ventas de los últimos 14 días</h3>
       <div class="bars">${vd.map((v,i)=>`<div style="height:${v/mx*100}%" title="${dias[i]}: ${bs(v)}"></div>`).join('')}</div>
-      <div class="bars-x">${dias.map(d=>`<span>${d.slice(8)}</span>`).join('')}</div>
-    </div>
-    <div class="card"><h3>Sabores más vendidos (mes)</h3>
-      <table><tr><th>Sabor</th><th class="n">Porciones</th><th class="n">Ventas</th></tr>
-      ${rMes.sabores.slice(0,6).map(s=>`<tr><td>${esc(s.nombre)}</td><td class="n">${s.porc}</td><td class="n">${bs(s.venta)}</td></tr>`).join('')||'<tr><td colspan=3 class="muted">Sin ventas aún</td></tr>'}
-      </table>
-      <p class="muted">Empanadas en stock: <b>${st}</b></p>
-    </div>
+      <div class="bars-x">${dias.map(d=>`<span>${d.slice(8)}</span>`).join('')}</div></div>
+    <div class="card"><h3>Lo más vendido (mes)</h3><table><tr><th>Sabor / producto</th><th class="n">Ventas</th></tr>
+      ${rMes.rent.slice(0,7).map(s=>`<tr><td>${esc(s.nombre)}</td><td class="n">${bs(s.venta)}</td></tr>`).join('')||'<tr><td colspan=2 class="muted">Sin ventas aún</td></tr>'}</table>
+      <p class="muted">Empanadas en stock: <b>${st}</b></p></div>
   </div>
-  ${S.ventas.length?'':`<div class="card"><h3>¿Primera vez?</h3><p class="muted">Puedes cargar datos de ejemplo de 45 días para ver cómo funciona todo, o empezar en limpio desde Configuración.</p><button class="btn" onclick="demo()">Cargar datos de ejemplo</button></div>`}`;
+  ${S.ventas.length?'':`<div class="card"><h3>¿Primera vez?</h3><p class="muted">Carga datos de ejemplo de 45 días para ver cómo funciona todo, o empieza en limpio desde Configuración.</p><button class="btn" onclick="demo()">Cargar datos de ejemplo</button></div>`}`;
 };
 
-/* ================== VENDER (POS) ================== */
-let cart=[], selSabor=null;
+/* ================== ANOTAR VENTAS ================== */
+let cart=[], rapidoTxt='';
+function findSabor(w){ if(w.length<3) return null; const L=S.config.sabores;
+  return L.find(s=>norm(s.nombre)===w) || L.find(s=>norm(s.nombre).startsWith(w)) || L.find(s=>w.startsWith(norm(s.nombre))); }
+function findProd(w){ if(w.length<3) return null; // solo por la primera palabra: "refresco", "empanada"
+  return S.config.productos.find(p=>{const k=norm(p.nombre).split(' ')[0]; return k.startsWith(w)||w.startsWith(k);}); }
+function parseRapido(txt){
+  const t=norm(txt).replace(/bs\.?/g,' ')
+    .replace(/(\d+)\s*sabor(es)?\s*(de)?\s*(\d+(?:[.,]\d+)?)/g,'$4')   // "3 sabores de 10" → vaso de 10
+    .replace(/(\d+)\s*[x*]\s*(\d)/g,'$1x$2');
+  const tk=t.split(/[\s,;+\n]+/).filter(Boolean), out=[], warn=[]; let qr=false, last=null;
+  const ign=['de','y','con','un','una','vaso','vasos','sabor','sabores','a','el','la','otro','otra','helado','helados'];
+  for(let i=0;i<tk.length;i++){
+    const w=tk[i]; if(ign.includes(w)) continue;
+    if(w==='qr'){qr=true;continue;}
+    let m=w.match(/^(\d+)x(\d+(?:[.,]\d+)?)$/);
+    if(m){ last={tipo:'helado',cant:+m[1],precio:num(m[2]),sabores:[]}; out.push(last); continue; }
+    if(/^\d+([.,]\d+)?$/.test(w)){
+      const p=tk[i+1]&&findProd(tk[i+1]);
+      if(p){ out.push({tipo:'producto',producto:p.id,cant:num(w),precio:p.precio}); last=null; i++; continue; }
+      last={tipo:'helado',cant:1,precio:num(w),sabores:[]}; out.push(last); continue;
+    }
+    const p=findProd(w); if(p){ out.push({tipo:'producto',producto:p.id,cant:1,precio:p.precio}); last=null; continue; }
+    const s=findSabor(w);
+    if(s){ if(last) { if(!last.sabores.includes(s.id)) last.sabores.push(s.id); } else warn.push(w+' (falta el precio antes)'); continue; }
+    warn.push(w);
+  }
+  return {items:out,warn,qr};
+}
 V.vender = () => {
-  const c = cajaAbierta();
-  if(!c) return `<h2>Vender</h2><div class="alert">Primero hay que abrir la caja del día (monto inicial en monedas para el cambio).</div><button class="btn" onclick="go('caja')">Ir a Caja</button>`;
-  const tot = sum(cart,i=>i.precio*i.cant);
-  const vh = S.ventas.filter(v=>v.cajaId===c.id).slice().reverse();
-  return `<h2>Vender <span class="badge g">Caja abierta · ${esc(c.responsable)}</span></h2>
+  const c=cajaSel();
+  if(!c) return `<h2>Anotar ventas</h2><div class="alert">Este celular no tiene una caja abierta. Primero abre tu caja con el monto inicial en monedas.</div><button class="btn" onclick="go('caja')">Ir a Caja</button>`;
+  const tot=sum(cart,i=>i.precio*i.cant), r=cajaResumen(c), last=cart[cart.length-1];
+  const vh=S.ventas.filter(v=>v.cajaId===c.id).slice().reverse();
+  const pr=parseRapido(rapidoTxt);
+  return `<h2>Anotar ventas <span class="badge g">${esc(c.responsable)} · ${c.punto==='puesto'?'Puesto':'Externo: '+esc(c.lugar)}</span></h2>
   <div class="grid g2">
     <div>
-      <div class="card"><h3>1. Elige el sabor</h3>
-        <div class="flav">${S.config.sabores.filter(s=>s.activo).map(s=>`<button class="${selSabor===s.id?'on':''}" onclick="selSabor='${s.id}';render()">${esc(s.nombre)}<small>${s.base==='leche'?'con leche':'con agua'}</small></button>`).join('')}</div>
+      <div class="card"><h3>✍️ Escribir rápido (como en WhatsApp)</h3>
+        <textarea id="rt" rows="3" placeholder="Ej: 10 canela leche chirimoya, 8 frutilla maracuya, 5 canela, 2 empanada, refresco">${esc(rapidoTxt)}</textarea>
+        <p class="muted">Precio del vaso y luego sus sabores (opcional). <code>3x5</code> = 3 vasos de 5 · <code>2 empanada</code> · <code>refresco</code> · <code>qr</code> si pagó con QR. También vale "3 sabores de 10".</p>
+        <div id="prev">${previewHTML(pr)}</div>
+        <button class="btn sec" onclick="agregarRapido()">Agregar al pedido</button>
       </div>
-      <div class="card"><h3>2. Elige el tamaño ${selSabor?'— '+esc(sabor(selSabor).nombre):''}</h3>
-        <div class="flav">${S.config.presentaciones.map(p=>`<button ${selSabor?'':'disabled style="opacity:.4"'} onclick="addCart('helado','${p.id}')">${esc(p.nombre)}<small>${bs(p.precio)}</small></button>`).join('')}
-        <button onclick="addCart('empanada')">🥟 Empanada<small>${bs(S.config.empanada.precio)} · stock ${stockEmpanadas()}</small></button></div>
+      <div class="card"><h3>👆 O toca botones</h3>
+        <p class="muted" style="margin-top:0">Vaso de:</p>
+        <div class="pad">${S.config.precios.map(p=>`<button onclick="addCart({tipo:'helado',cant:1,precio:${p},sabores:[]})">${p}<small>Bs</small></button>`).join('')}
+          ${S.config.productos.map(p=>`<button onclick="addCart({tipo:'producto',producto:'${p.id}',cant:1,precio:${p.precio}})" style="font-size:13px">${esc(p.nombre)}<small>${bs(p.precio)}${p.id==='emp'?' · stock '+stockEmpanadas():''}</small></button>`).join('')}</div>
+        <p class="muted">Sabores del último vaso (opcional):</p>
+        <div class="chips">${S.config.sabores.filter(s=>s.activo).map(s=>`<span class="chip ${last&&last.tipo==='helado'&&last.sabores.includes(s.id)?'on':''}" onclick="toggleSabor('${s.id}')">${esc(s.nombre)}</span>`).join('')}</div>
       </div>
     </div>
-    <div class="card"><h3>Pedido</h3>
-      ${cart.map((i,k)=>`<div class="cart-item"><span>${i.cant} × ${esc(i.desc)}</span><span>${bs(i.precio*i.cant)} <button class="btn x" onclick="cart[${k}].cant>1?cart[${k}].cant--:cart.splice(${k},1);render()">−</button></span></div>`).join('')||'<p class="muted">Toca un sabor y luego el tamaño.</p>'}
-      <div class="row" style="margin-top:12px"><div><div class="muted">Total</div><div class="total-big">${bs(tot)}</div></div>
-        <div><label>Recibido (para calcular cambio)</label><input id="recib" type="number" inputmode="decimal" oninput="$('cambio').textContent=bs(num(this.value)-${tot})"></div></div>
-      <p>Cambio: <b id="cambio">${bs(0)}</b></p>
-      <div class="row"><button class="btn ok" ${cart.length?'':'disabled'} onclick="cobrar('efectivo')">💵 Cobrar efectivo</button>
-      <button class="btn sec" ${cart.length?'':'disabled'} onclick="cobrar('qr')">📱 Cobrar QR</button>
-      <button class="btn sec" onclick="cart=[];render()">Vaciar</button></div>
+    <div>
+      <div class="card"><h3>Pedido</h3>
+        ${cart.map((i,k)=>`<div class="cart-item ${k===cart.length-1?'last':''}"><span>${i.cant} × ${esc(descVenta(i))}</span><span style="white-space:nowrap">${bs(i.precio*i.cant)} <button class="btn x" onclick="cart.splice(${k},1);render()">✕</button></span></div>`).join('')||'<p class="muted">Vacío.</p>'}
+        <div class="row" style="margin-top:12px"><div><div class="muted">Total</div><div class="total-big">${bs(tot)}</div></div>
+          <div><label>Recibido (para el cambio)</label><input id="recib" type="number" inputmode="decimal" oninput="$('cambio').textContent=bs(num(this.value)-${tot})"></div></div>
+        <p>Cambio: <b id="cambio">${bs(0)}</b></p>
+        <div class="row"><button class="btn ok" ${cart.length?'':'disabled'} onclick="cobrar('efectivo')">💵 Efectivo</button>
+        <button class="btn sec" ${cart.length?'':'disabled'} onclick="cobrar('qr')">📱 QR</button>
+        <button class="btn sec" onclick="cart=[];render()">Vaciar</button></div>
+      </div>
+      <div class="card kpi"><div class="lbl">Mi caja</div><div class="val">${bs(r.esperado)}</div><div class="sub">Empecé con ${bs(c.montoInicial)} · vendí ${bs(r.total)} (${r.vasos} vasos) · QR ${bs(r.qr)}</div></div>
     </div>
   </div>
-  <div class="card"><h3>Ventas de esta caja (${vh.length})</h3><div class="tbl-wrap"><table>
-    <tr><th>Hora</th><th>Producto</th><th class="n">Cant.</th><th class="n">Total</th><th>Pago</th><th></th></tr>
-    ${vh.slice(0,40).map(v=>`<tr><td>${v.hora||''}</td><td>${v.tipo==='empanada'?'Empanada':esc(sabor(v.sabor).nombre)+' · '+esc(pres(v.pres).nombre)}</td><td class="n">${v.cant}</td><td class="n">${bs(v.total)}</td><td>${v.metodo}</td><td><button class="btn x" onclick="delItem('ventas','${v.id}')">✕</button></td></tr>`).join('')}
+  <div class="card"><h3>Lo que anoté (${vh.length})</h3><div class="tbl-wrap"><table>
+    <tr><th>Hora</th><th>Detalle</th><th class="n">Cant.</th><th class="n">Total</th><th>Pago</th><th></th></tr>
+    ${vh.slice(0,50).map(v=>`<tr><td>${v.hora||''}</td><td>${esc(descVenta(v))}</td><td class="n">${v.cant}</td><td class="n">${bs(v.total)}</td><td>${v.metodo}</td><td><button class="btn x" onclick="delItem('ventas','${v.id}')">✕</button></td></tr>`).join('')}
   </table></div></div>`;
 };
-function addCart(tipo,pid){
-  let it;
-  if(tipo==='empanada') it={tipo,desc:'Empanada',precio:S.config.empanada.precio,key:'emp'};
-  else { const p=pres(pid); it={tipo,sabor:selSabor,pres:pid,desc:sabor(selSabor).nombre+' · '+p.nombre,precio:p.precio,key:selSabor+pid}; }
-  const ex=cart.find(c=>c.key===it.key); ex?ex.cant++:cart.push({...it,cant:1}); render();
+function previewHTML(pr){
+  if(!pr.items.length && !pr.warn.length) return '';
+  return `<div style="margin:8px 0">${pr.items.map(i=>`<span class="badge g" style="margin:2px">${i.cant} × ${esc(descVenta(i))} = ${bs(i.cant*i.precio)}</span>`).join('')}
+    ${pr.qr?'<span class="badge a">QR</span>':''}${pr.warn.length?`<div class="muted neg">No entendí: ${pr.warn.map(esc).join(', ')}</div>`:''}</div>`;
 }
+V.venderAfter = () => { const t=$('rt'); if(!t) return;
+  t.oninput=()=>{ rapidoTxt=t.value; $('prev').innerHTML=previewHTML(parseRapido(t.value)); };
+  t.onkeydown=e=>{ if(e.key==='Enter'&&!e.shiftKey){ e.preventDefault(); agregarRapido(); } }; };
+let rapidoQR=false;
+function agregarRapido(){ const pr=parseRapido(rapidoTxt); if(!pr.items.length) return; cart.push(...pr.items); rapidoQR=pr.qr; rapidoTxt=''; render(); $('rt')&&$('rt').focus(); }
+function addCart(it){ cart.push(it); render(); }
+function toggleSabor(id){ const l=cart[cart.length-1]; if(!l||l.tipo!=='helado') return alert('Primero toca el precio del vaso');
+  l.sabores.includes(id)?l.sabores.splice(l.sabores.indexOf(id),1):l.sabores.push(id); render(); }
 function cobrar(metodo){
-  const c=cajaAbierta(); if(!c) return;
-  cart.forEach(i=>S.ventas.push({id:uid(),fecha:c.fecha,hora:hora(),cajaId:c.id,punto:'puesto',tipo:i.tipo,sabor:i.sabor||null,pres:i.pres||null,cant:i.cant,precio:i.precio,total:i.precio*i.cant,metodo}));
-  cart=[]; selSabor=null; save(); render();
+  const c=cajaSel(); if(!c) return; if(rapidoQR) metodo='qr';
+  cart.forEach(i=>S.ventas.push({id:uid(),fecha:c.fecha,hora:hora(),cajaId:c.id,punto:c.punto,tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:i.precio*i.cant,metodo}));
+  cart=[]; rapidoQR=false; save(); render();
 }
 function delItem(col,id){ if(!confirm('¿Eliminar este registro?')) return; S[col]=S[col].filter(x=>x.id!==id); save(); render(); }
 
 /* ================== CAJA ================== */
 V.caja = () => {
-  const c = cajaAbierta();
-  const responsables = ['Dueña',...S.empleados.map(e=>e.nombre)];
-  let html = `<h2>Caja</h2>`;
+  const c=cajaSel(), otras=cajasAbiertas().filter(x=>!c||x.id!==c.id);
+  const responsables=['Dueña',...S.empleados.map(e=>e.nombre)];
+  let html=`<h2>Caja</h2>`;
   if(!c){
-    html += `<div class="card"><h3>Abrir caja</h3><p class="muted">Registra con cuánto se empieza (monedas y billetes para el cambio).</p>
+    html+=`<div class="card"><h3>Abrir mi caja</h3><p class="muted">Cada vendedora abre su caja con las monedas que le dieron para el cambio. Al final se ve cuánto vendió.</p>
     <div class="row"><div><label>Fecha</label><input id="cf" type="date" value="${hoy()}"></div>
-    <div><label>Quién cobra</label><select id="cr">${responsables.map(r=>`<option>${esc(r)}</option>`).join('')}</select></div>
-    <div><label>Monto inicial (Bs)</label><input id="cm" type="number" inputmode="decimal" value="50"></div>
+    <div><label>Quién vende</label><input id="cr" list="resp" value="${esc(S.empleados[0]?.nombre||'')}"><datalist id="resp">${responsables.map(r=>`<option>${esc(r)}</option>`).join('')}</datalist></div>
+    <div><label>Dónde</label><select id="cp" onchange="$('cl').parentNode.style.display=this.value==='externo'?'':'none'"><option value="puesto">Puesto principal</option><option value="externo">Venta en otro lugar</option></select></div>
+    <div style="display:none"><label>Lugar</label><input id="cl" placeholder="Ej: feria"></div>
+    <div><label>Monto inicial en monedas (Bs)</label><input id="cm" type="number" inputmode="decimal" value="50"></div>
     <div><button class="btn" onclick="abrirCaja()">Abrir caja</button></div></div></div>`;
   } else {
-    const r = cajaResumen(c);
-    html += `<div class="grid g2"><div class="card"><h3>Caja abierta · ${c.fecha} · ${esc(c.responsable)}</h3><table>
-      <tr><td>Monto inicial (cambio)</td><td class="n">${bs(c.montoInicial)}</td></tr>
+    const r=cajaResumen(c);
+    html+=`<div class="grid g2"><div class="card"><h3>Mi caja · ${c.fecha} · ${esc(c.responsable)} · ${c.punto==='puesto'?'Puesto':'Externo: '+esc(c.lugar)}</h3><table>
+      <tr><td>Monto inicial (monedas)</td><td class="n">${bs(c.montoInicial)}</td></tr>
       <tr><td>+ Ventas en efectivo</td><td class="n">${bs(r.efectivo)}</td></tr>
-      <tr><td>− Gastos pagados con dinero de caja</td><td class="n">${bs(r.gastosCaja)}</td></tr>
-      <tr><td>− Retiros (dueña, depósitos)</td><td class="n">${bs(r.retiros)}</td></tr>
+      <tr><td>− Pagos hechos con la caja</td><td class="n">${bs(r.gastosCaja)}</td></tr>
+      <tr><td>− Retiros (la dueña se llevó)</td><td class="n">${bs(r.retiros)}</td></tr>
       <tr class="tot"><td><b>Debe haber en caja</b></td><td class="n"><b>${bs(r.esperado)}</b></td></tr>
-      <tr><td class="muted">Ventas por QR (no están en caja)</td><td class="n muted">${bs(r.qr)}</td></tr>
-      <tr><td class="muted">Total vendido</td><td class="n muted">${bs(r.total)}</td></tr></table></div>
-    <div class="card"><h3>Retiro de dinero</h3>
-      <div class="row"><div><label>Monto</label><input id="rm" type="number" inputmode="decimal"></div><div><label>Motivo</label><input id="rmo" placeholder="Ej: lo llevó la dueña"></div><div><button class="btn sec" onclick="retiro()">Registrar</button></div></div>
+      <tr><td class="muted">Ventas por QR</td><td class="n muted">${bs(r.qr)}</td></tr>
+      <tr><td class="muted">Total vendido</td><td class="n muted">${bs(r.total)}</td></tr></table>
+      <h3 style="margin-top:16px">Pagué algo con la caja</h3>
+      <div class="row"><div><select id="pc">${['hielo','sal','gas','insumos','otros'].map(k=>`<option value="${k}">${CATS[k]}</option>`).join('')}</select></div>
+      <div><input id="pm" type="number" inputmode="decimal" placeholder="Bs"></div><div><input id="pd" placeholder="Detalle"></div><div style="flex:0"><button class="btn sec" onclick="pagoCaja()">Anotar</button></div></div>
+      <h3 style="margin-top:16px">Retiro de dinero</h3>
+      <div class="row"><div><input id="rm" type="number" inputmode="decimal" placeholder="Bs"></div><div><input id="rmo" placeholder="Ej: lo llevó la dueña"></div><div style="flex:0"><button class="btn sec" onclick="retiro()">Anotar</button></div></div>
       ${(c.retiros||[]).map(x=>`<div class="cart-item"><span>${esc(x.motivo)}</span><span>${bs(x.monto)}</span></div>`).join('')}
-      <h3 style="margin-top:18px">Cerrar caja (arqueo)</h3>
-      <div class="row"><div><label>Dinero contado al cierre</label><input id="cc" type="number" inputmode="decimal" oninput="const d=num(this.value)-${r.esperado};$('dif').innerHTML=(d<0?'<span class=neg>Faltante ':'<span class=pos>Sobrante ')+bs(Math.abs(d))+'</span>'"></div>
+    </div>
+    <div class="card"><h3>Cerrar caja</h3>
+      <p class="muted">1. ¿Qué sobró y se guarda en el refrigerador? (deja vacío lo que se acabó)</p>
+      <table>${items().filter(i=>i.reventa||S.config.sabores.some(s=>s.id===i.id&&s.activo)||!S.config.sabores.some(s=>s.id===i.id)).map(i=>`<tr><td>${esc(i.nombre)}</td><td style="width:110px"><input id="sb_${i.id}" type="number" inputmode="decimal" placeholder="${i.unidad}"></td></tr>`).join('')}</table>
+      <p class="muted" style="margin-top:12px">2. Cuenta el dinero:</p>
+      <div class="row"><div><label>Dinero contado</label><input id="cc" type="number" inputmode="decimal" oninput="const d=num(this.value)-${r.esperado};$('dif').innerHTML=(d<0?'<span class=neg>Faltante ':'<span class=pos>Sobrante ')+bs(Math.abs(d))+'</span>'"></div>
       <div><button class="btn ok" onclick="cerrarCaja()">Cerrar caja</button></div></div><p id="dif"></p></div></div>`;
   }
-  const hist = S.cajas.filter(x=>x.cerrada).slice().reverse().slice(0,30);
-  html += `<div class="card"><h3>Historial de cajas</h3><div class="tbl-wrap"><table>
-    <tr><th>Fecha</th><th>Cobró</th><th class="n">Inicial</th><th class="n">Vendido</th><th class="n">Esperado</th><th class="n">Contado</th><th class="n">Diferencia</th></tr>
-    ${hist.map(x=>{const r=cajaResumen(x);return `<tr><td>${x.fecha}</td><td>${esc(x.responsable)}</td><td class="n">${bs(x.montoInicial)}</td><td class="n">${bs(r.total)}</td><td class="n">${bs(r.esperado)}</td><td class="n">${bs(x.contado)}</td><td class="n ${x.diferencia<0?'neg':''}">${bs(x.diferencia)}</td></tr>`}).join('')||'<tr><td colspan=7 class="muted">Sin cierres todavía</td></tr>'}
-  </table></div></div>`;
+  if(otras.length) html+=`<div class="card"><h3>Otras cajas abiertas</h3><table>${otras.map(x=>`<tr><td>${x.fecha}</td><td>${esc(x.responsable)}</td><td>${x.punto==='puesto'?'Puesto':'Externo: '+esc(x.lugar)}</td><td class="n">${bs(cajaResumen(x).esperado)}</td><td><button class="btn sec sm" onclick="dev.set('heladeria_caja','${x.id}');render()">Usar en este celular</button></td></tr>`).join('')}</table></div>`;
+  if(rol==='admin'){
+    const hist=S.cajas.filter(x=>x.cerrada).slice().reverse().slice(0,30);
+    html+=`<div class="card"><h3>Historial de cajas</h3><div class="tbl-wrap"><table>
+      <tr><th>Fecha</th><th>Vendió</th><th>Dónde</th><th class="n">Inicial</th><th class="n">Vendido</th><th class="n">Esperado</th><th class="n">Contado</th><th class="n">Diferencia</th></tr>
+      ${hist.map(x=>{const r=cajaResumen(x);return `<tr><td>${x.fecha}</td><td>${esc(x.responsable)}</td><td>${x.punto==='puesto'?'Puesto':esc(x.lugar)}</td><td class="n">${bs(x.montoInicial)}</td><td class="n">${bs(r.total)}</td><td class="n">${bs(r.esperado)}</td><td class="n">${bs(x.contado)}</td><td class="n ${x.diferencia<0?'neg':''}">${bs(x.diferencia)}</td></tr>`}).join('')||'<tr><td colspan=8 class="muted">Sin cierres todavía</td></tr>'}
+    </table></div></div>`;
+  }
   return html;
 };
-function abrirCaja(){ const f=val('cf'); if(cajaAbierta(f)) return alert('Ya hay una caja abierta ese día');
-  S.cajas.push({id:uid(),fecha:f,responsable:val('cr'),montoInicial:num(val('cm')),retiros:[],cerrada:false}); save(); render(); }
-function retiro(){ const c=cajaAbierta(); const m=num(val('rm')); if(!m) return; c.retiros.push({monto:m,motivo:val('rmo')||'Retiro'}); save(); render(); }
-function cerrarCaja(){ const c=cajaAbierta(); if(val('cc')==='') return alert('Ingresa el dinero contado');
-  const r=cajaResumen(c); c.contado=num(val('cc')); c.diferencia=+(c.contado-r.esperado).toFixed(2); c.cerrada=true; save(); render(); }
+function abrirCaja(){
+  if(!val('cr')) return alert('Escribe quién vende');
+  const c={id:uid(),fecha:val('cf'),responsable:val('cr'),punto:val('cp'),lugar:val('cl')||'Externo',montoInicial:num(val('cm')),retiros:[],cerrada:false};
+  S.cajas.push(c); dev.set('heladeria_caja',c.id); save(); go('vender');
+}
+function pagoCaja(){ const c=cajaSel(), m=num(val('pm')); if(!m) return;
+  S.gastos.push({id:uid(),fecha:c.fecha,categoria:val('pc'),desc:val('pd')||CATS[val('pc')],cantidad:1,monto:m,cajaId:c.id}); save(); render(); }
+function retiro(){ const c=cajaSel(), m=num(val('rm')); if(!m) return; c.retiros.push({monto:m,motivo:val('rmo')||'Retiro'}); save(); render(); }
+function cerrarCaja(){
+  const c=cajaSel(); if(val('cc')==='') return alert('Ingresa el dinero contado');
+  items().forEach(i=>{ const el=$('sb_'+i.id); const q=el?num(el.value):0;
+    if(q>0) S.sobrantes.push({id:uid(),fecha:c.fecha,cajaId:c.id,item:i.id,cantidad:q,recuperado:null}); });
+  const r=cajaResumen(c); c.contado=num(val('cc')); c.diferencia=+(c.contado-r.esperado).toFixed(2); c.cerrada=true;
+  save(); alert(`Caja cerrada.\nVendido: ${bs(r.total)}\n${c.diferencia<0?'Faltante':'Sobrante'}: ${bs(Math.abs(c.diferencia))}`); render();
+}
+
+/* ================== SOBRANTES ================== */
+V.sobrantes = () => {
+  const pend=S.sobrantes.filter(s=>s.recuperado==null), hechos=S.sobrantes.filter(s=>s.recuperado!=null).slice().reverse().slice(0,40);
+  return `<h2>Sobrantes guardados</h2><p class="muted">Lo que no se acabó se guarda en los refrigeradores. Al día siguiente anota cuánto se pudo recuperar; lo que no, cuenta como pérdida (merma).</p>
+  <div class="card"><h3>Por revisar (${pend.length})</h3>
+  ${pend.length?`<div class="tbl-wrap"><table><tr><th>Guardado el</th><th>Producto</th><th class="n">Guardado</th><th>Se recuperó</th><th></th></tr>
+    ${pend.map(s=>{const i=item(s.item);return `<tr><td>${s.fecha}</td><td>${esc(i.nombre)}</td><td class="n">${s.cantidad} ${i.unidad}</td><td style="width:120px"><input id="rc_${s.id}" type="number" inputmode="decimal" value="${s.cantidad}"></td>
+      <td style="white-space:nowrap"><button class="btn ok sm" onclick="recuperar('${s.id}')">Guardar</button> <button class="btn sec sm" onclick="$('rc_${s.id}').value=0;recuperar('${s.id}')">Se perdió todo</button></td></tr>`}).join('')}</table></div>`:'<p class="muted">Nada pendiente.</p>'}
+  <details style="margin-top:10px"><summary class="muted">Anotar un sobrante a mano</summary>
+    <div class="row" style="margin-top:8px"><div><label>Fecha</label><input id="sf" type="date" value="${hoy()}"></div><div><label>Producto</label><select id="si">${opts(items())}</select></div><div><label>Cantidad</label><input id="sq" type="number"></div><div style="flex:0"><button class="btn sec" onclick="if(num(val('sq'))){S.sobrantes.push({id:uid(),fecha:val('sf'),item:val('si'),cantidad:num(val('sq')),recuperado:null});save();render()}">Agregar</button></div></div></details></div>
+  <div class="card"><h3>Historial</h3><div class="tbl-wrap"><table>
+    <tr><th>Guardado</th><th>Revisado</th><th>Producto</th><th class="n">Guardado</th><th class="n">Recuperado</th><th class="n">Perdido</th>${rol==='admin'?'<th class="n">Pérdida Bs</th>':''}<th></th></tr>
+    ${hechos.map(s=>{const i=item(s.item);return `<tr><td>${s.fecha}</td><td>${s.fechaRec}</td><td>${esc(i.nombre)}</td><td class="n">${s.cantidad} ${i.unidad}</td><td class="n">${s.recuperado}</td><td class="n ${s.merma>0?'neg':''}">${s.merma}</td>${rol==='admin'?`<td class="n">${bs(s.valorMerma)}</td>`:''}<td>${rol==='admin'?`<button class="btn x" onclick="delItem('sobrantes','${s.id}')">✕</button>`:''}</td></tr>`}).join('')||'<tr><td colspan=8 class="muted">Sin registros</td></tr>'}
+  </table></div></div>`;
+};
+function recuperar(id){
+  const s=S.sobrantes.find(x=>x.id===id), rec=Math.min(s.cantidad,Math.max(0,num(val('rc_'+id))));
+  s.recuperado=rec; s.merma=+(s.cantidad-rec).toFixed(2); s.fechaRec=hoy()<s.fecha?s.fecha:hoy(); s.valorMerma=+(s.merma*costoUnit(s.item)).toFixed(2);
+  save(); render();
+}
 
 /* ================== PRODUCCIÓN ================== */
 let insRows=[];
 V.produccion = () => {
-  const mes=hoy().slice(0,7), P=S.produccion.filter(p=>mesDe(p.fecha)===mes).slice().reverse();
-  const tot=sum(insRows,i=>num(i.costo));
-  return `<h2>Producción de helados</h2>
+  const mes=hoy().slice(0,7), P=S.produccion.filter(p=>mesDe(p.fecha)===mes).slice().reverse(), tot=sum(insRows,i=>num(i.costo));
+  const elab=items().filter(i=>!i.reventa);
+  return `<h2>Producción</h2><p class="muted">Helados y refresco de canela que se preparan. De aquí sale el costo por litro.</p>
   <div class="card"><h3>Nuevo lote</h3>
     <div class="row"><div><label>Fecha</label><input id="pf" type="date" value="${hoy()}"></div>
-    <div><label>Sabor</label><select id="ps" onchange="$('pb').value=sabor(this.value).base">${opts(S.config.sabores)}</select></div>
+    <div><label>Qué se preparó</label><select id="ps">${opts(elab)}</select></div>
     <div><label>Base</label><select id="pb"><option value="agua">Agua hervida</option><option value="leche">Leche</option></select></div>
-    <div><label>Porciones que rinde (aprox.)</label><input id="pp" type="number" value="60"></div></div>
+    <div><label>Litros que rinde</label><input id="pl" type="number" value="10"></div></div>
     <p class="muted" style="margin-top:12px">Insumos usados (toca para agregar):</p>
-    <div class="chips">${['Fruta','Esencia','Leche','Azúcar','Canela','Galletas Oreo','Colorante','Otros'].map(x=>`<span class="chip" onclick="insRows.push({desc:'${x}',costo:''});render()">+ ${x}</span>`).join('')}</div>
+    <div class="chips">${['Fruta','Esencia','Leche','Azúcar','Canela','Galletas Oreo','Colorante','Clavo de olor','Otros'].map(x=>`<span class="chip" onclick="insRows.push({desc:'${x}',costo:''});render()">+ ${x}</span>`).join('')}</div>
     ${insRows.map((r,i)=>`<div class="row" style="margin-top:8px"><div><input value="${esc(r.desc)}" onchange="insRows[${i}].desc=this.value"></div><div><input type="number" inputmode="decimal" placeholder="Costo Bs" value="${r.costo}" onchange="insRows[${i}].costo=this.value;render()"></div><div style="flex:0"><button class="btn x" onclick="insRows.splice(${i},1);render()">✕</button></div></div>`).join('')}
-    <p>Costo del lote: <b>${bs(tot)}</b> · costo por porción ≈ <b id="cpp"></b></p>
-    <button class="btn" onclick="guardarLote()">Guardar lote</button>
-  </div>
+    <p>Costo del lote: <b>${bs(tot)}</b> · costo por litro ≈ <b id="cpl"></b></p>
+    <button class="btn" onclick="guardarLote()">Guardar lote</button></div>
   <div class="card"><h3>Lotes del mes</h3><div class="tbl-wrap"><table>
-    <tr><th>Fecha</th><th>Sabor</th><th>Base</th><th>Insumos</th><th class="n">Porciones</th><th class="n">Costo</th><th class="n">Costo/porción</th><th></th></tr>
-    ${P.map(p=>`<tr><td>${p.fecha}</td><td>${esc(sabor(p.sabor).nombre)}</td><td>${p.base}</td><td class="muted">${p.insumos.map(i=>esc(i.desc)).join(', ')}</td><td class="n">${p.porciones}</td><td class="n">${bs(p.costo)}</td><td class="n">${bs(p.porciones?p.costo/p.porciones:0)}</td><td><button class="btn x" onclick="delItem('produccion','${p.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan=8 class="muted">Sin lotes este mes</td></tr>'}
+    <tr><th>Fecha</th><th>Producto</th><th>Base</th><th>Insumos</th><th class="n">Litros</th><th class="n">Costo</th><th class="n">Costo/L</th><th></th></tr>
+    ${P.map(p=>`<tr><td>${p.fecha}</td><td>${esc(item(p.item).nombre)}</td><td>${p.base}</td><td class="muted">${p.insumos.map(i=>esc(i.desc)).join(', ')}</td><td class="n">${p.litros}</td><td class="n">${bs(p.costo)}</td><td class="n">${bs(p.litros?p.costo/p.litros:0)}</td><td><button class="btn x" onclick="delItem('produccion','${p.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan=8 class="muted">Sin lotes este mes</td></tr>'}
   </table></div></div>`;
 };
-V.produccionAfter = () => { const s=$('ps'); $('pb').value=sabor(s.value).base;
-  const upd=()=>$('cpp').textContent=bs(sum(insRows,i=>num(i.costo))/(num(val('pp'))||1)); $('pp').oninput=upd; upd(); };
+V.produccionAfter = () => {
+  const s=$('ps'), setBase=()=>{ const x=S.config.sabores.find(y=>y.id===s.value); $('pb').value=x?x.base:'agua'; };
+  s.onchange=setBase; setBase();
+  const upd=()=>$('cpl').textContent=bs(sum(insRows,i=>num(i.costo))/(num(val('pl'))||1)); $('pl').oninput=upd; upd();
+};
 function guardarLote(){
   if(!insRows.length) return alert('Agrega al menos un insumo con su costo');
   const ins=insRows.map(r=>({desc:r.desc,costo:num(r.costo)}));
-  S.produccion.push({id:uid(),fecha:val('pf'),sabor:val('ps'),base:val('pb'),porciones:num(val('pp')),insumos:ins,costo:sum(ins,i=>i.costo)});
+  S.produccion.push({id:uid(),fecha:val('pf'),item:val('ps'),base:val('pb'),litros:num(val('pl')),insumos:ins,costo:sum(ins,i=>i.costo)});
   insRows=[]; save(); render();
 }
 
 /* ================== COMPRAS Y GASTOS ================== */
 V.gastos = () => {
-  const mes=hoy().slice(0,7), G=S.gastos.filter(g=>mesDe(g.fecha)===mes && g.categoria!=='sueldos').slice().reverse();
-  const h=S.config.hielo, e=S.config.empanada, c=cajaAbierta();
+  const mes=hoy().slice(0,7), G=S.gastos.filter(g=>mesDe(g.fecha)===mes&&g.categoria!=='sueldos').slice().reverse();
+  const h=S.config.hielo, e=prod('emp');
   return `<h2>Compras y gastos</h2>
-  <div class="card"><h3>Registro rápido de hoy</h3><div class="chips">
+  <div class="card"><h3>Registro rápido</h3><div class="chips">
     <span class="chip" onclick="rapido('hielo','${h.barras} barras de hielo',${h.barras},${h.precio})">🧊 Hielo ${h.barras} barras (${bs(h.barras*h.precio)})</span>
-    <span class="chip" onclick="rapido('sal','Sal',1,5)">🧂 Sal (${bs(5)})</span>
-    <span class="chip" onclick="rapido('gas','Garrafa de gas',1,22.5)">🔥 Garrafa (${bs(22.5)})</span>
-    <span class="chip" onclick="rapido('empanadas','Empanadas',30,${e.costo})">🥟 30 empanadas (${bs(30*e.costo)})</span>
-  </div><p class="muted">Ajusta cantidad y precio abajo antes de guardar.</p></div>
+    <span class="chip" onclick="rapido('sal','Sal',1,5)">🧂 Sal</span>
+    <span class="chip" onclick="rapido('gas','Garrafa de gas',1,22.5)">🔥 Garrafa</span>
+    <span class="chip" onclick="rapido('empanadas','Empanadas',30,${e.costo||0})">🥟 Empanadas</span>
+  </div><p class="muted">Ajusta cantidad y precio abajo antes de guardar. Lo que las vendedoras pagan con la caja ya aparece aquí.</p></div>
   <div class="card"><h3>Registrar compra / gasto</h3>
     <div class="row"><div><label>Fecha</label><input id="gf" type="date" value="${hoy()}"></div>
     <div><label>Categoría</label><select id="gc">${Object.entries(CATS).filter(([k])=>k!=='sueldos').map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></div>
     <div><label>Descripción</label><input id="gd"></div></div>
     <div class="row" style="margin-top:8px"><div><label>Cantidad</label><input id="gq" type="number" value="1"></div>
     <div><label>Precio unitario (Bs)</label><input id="gp" type="number" inputmode="decimal"></div>
-    <div><label><input type="checkbox" id="gcaja" ${c?'checked':''} ${c?'':'disabled'}> Pagado con dinero de la caja</label></div>
-    <div><button class="btn" onclick="guardarGasto()">Guardar</button></div></div>
-  </div>
-  <div class="card"><h3>Gastos fijos mensuales</h3><p class="muted">Se cargan solos en el estado de resultados (prorrateados por día). Se editan en Configuración.</p>
+    <div><button class="btn" onclick="guardarGasto()">Guardar</button></div></div></div>
+  <div class="card"><h3>Gastos fijos mensuales</h3><p class="muted">Entran solos al estado de resultados (prorrateados por día). Se editan en Configuración.</p>
     ${S.config.fijos.map(f=>`<span class="badge">${esc(f.nombre)}: ${bs(f.monto)}</span> `).join('')}</div>
   <div class="card"><h3>Gastos del mes</h3><div class="tbl-wrap"><table>
-    <tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th class="n">Cant.</th><th class="n">P. unit.</th><th class="n">Total</th><th></th></tr>
-    ${G.map(g=>`<tr><td>${g.fecha}</td><td>${CATS[g.categoria]}</td><td>${esc(g.desc)}${g.cajaId?' <span class="badge">de caja</span>':''}</td><td class="n">${g.cantidad||''}</td><td class="n">${g.cantidad?bs(g.monto/g.cantidad):''}</td><td class="n">${bs(g.monto)}</td><td><button class="btn x" onclick="delItem('gastos','${g.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan=7 class="muted">Sin gastos este mes</td></tr>'}
-    <tr class="tot"><td colspan=5><b>Total</b></td><td class="n"><b>${bs(sum(G,g=>g.monto))}</b></td><td></td></tr>
+    <tr><th>Fecha</th><th>Categoría</th><th>Detalle</th><th class="n">Cant.</th><th class="n">Total</th><th></th></tr>
+    ${G.map(g=>`<tr><td>${g.fecha}</td><td>${CATS[g.categoria]}</td><td>${esc(g.desc)}${g.cajaId?' <span class="badge">de caja</span>':''}</td><td class="n">${g.cantidad||''}</td><td class="n">${bs(g.monto)}</td><td><button class="btn x" onclick="delItem('gastos','${g.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan=6 class="muted">Sin gastos este mes</td></tr>'}
+    <tr class="tot"><td colspan=4><b>Total</b></td><td class="n"><b>${bs(sum(G,g=>g.monto))}</b></td><td></td></tr>
   </table></div></div>`;
 };
 function rapido(cat,desc,q,p){ $('gc').value=cat; $('gd').value=desc; $('gq').value=q; $('gp').value=p; $('gp').focus(); }
 function guardarGasto(){
   const q=num(val('gq'))||1, p=num(val('gp')); if(!p) return alert('Ingresa el precio');
-  const c=cajaAbierta(val('gf'));
-  S.gastos.push({id:uid(),fecha:val('gf'),categoria:val('gc'),desc:val('gd')||CATS[val('gc')],cantidad:q,monto:+(q*p).toFixed(2),cajaId:($('gcaja').checked&&c)?c.id:null});
+  S.gastos.push({id:uid(),fecha:val('gf'),categoria:val('gc'),desc:val('gd')||CATS[val('gc')],cantidad:q,monto:+(q*p).toFixed(2),cajaId:null});
   save(); render();
 }
 
@@ -405,14 +516,12 @@ function guardarGasto(){
 V.personal = () => {
   const mes=hoy().slice(0,7), G=S.gastos.filter(g=>g.categoria==='sueldos'&&mesDe(g.fecha)===mes);
   return `<h2>Personal</h2>
-  <div class="card"><h3>Registrar jornada</h3><p class="muted">Horario 9:00 a 19:30. El pago diario incluye almuerzo.</p>
+  <div class="card"><h3>Registrar jornada</h3><p class="muted">Horario 9:00 a 19:30. El pago diario incluye almuerzo. Si alguien salió a vender a otro lugar, también se le paga aquí.</p>
     <div class="row"><div><label>Fecha</label><input id="jf" type="date" value="${hoy()}"></div></div>
     ${S.empleados.map(e=>`<div class="row" style="margin-top:8px"><div><label><input type="checkbox" id="j_${e.id}" checked> ${esc(e.nombre)}</label></div><div><input id="jm_${e.id}" type="number" value="${e.pago}"></div></div>`).join('')}
-    <div class="row" style="margin-top:10px"><div><label><input type="checkbox" id="jcaja" ${cajaAbierta()?'checked':''}> Pagado con dinero de la caja</label></div><div><button class="btn" onclick="jornada()">Registrar pagos</button></div></div>
-  </div>
-  <div class="grid g2"><div class="card"><h3>Empleadas</h3><table>
-    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="if(confirm('¿Quitar?')){S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()}">✕</button></td></tr>`).join('')}
-    </table>
+    <div style="margin-top:10px"><button class="btn" onclick="jornada()">Registrar pagos</button></div></div>
+  <div class="grid g2"><div class="card"><h3>Trabajadoras</h3><table>
+    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="if(confirm('¿Quitar?')){S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()}">✕</button></td></tr>`).join('')}</table>
     <div class="row" style="margin-top:10px"><div><input id="en" placeholder="Nombre"></div><div><input id="ep" type="number" value="${S.config.pagoDiario}"></div><div><button class="btn sec" onclick="if(val('en')){S.empleados.push({id:uid(),nombre:val('en'),pago:num(val('ep'))});save();render()}">Agregar</button></div></div></div>
   <div class="card"><h3>Pagos del mes</h3><div class="tbl-wrap"><table>
     <tr><th>Fecha</th><th>Persona</th><th class="n">Monto</th><th></th></tr>
@@ -420,52 +529,17 @@ V.personal = () => {
     <tr class="tot"><td colspan=2>Total</td><td class="n">${bs(sum(G,g=>g.monto))}</td><td></td></tr></table></div></div></div>`;
 };
 function jornada(){
-  const f=val('jf'), c=cajaAbierta(f);
-  S.empleados.forEach(e=>{ if($('j_'+e.id).checked){
-    if(S.gastos.some(g=>g.categoria==='sueldos'&&g.fecha===f&&g.empleadoId===e.id)) return;
-    S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:e.nombre,empleadoId:e.id,monto:num(val('jm_'+e.id)),cajaId:($('jcaja').checked&&c)?c.id:null}); }});
-  save(); render();
-}
-
-/* ================== VENTAS EXTERNAS ================== */
-let salRows=[];
-V.salidas = () => {
-  const pend=S.salidas.filter(s=>!s.liquidada), hechas=S.salidas.filter(s=>s.liquidada).slice().reverse().slice(0,20);
-  return `<h2>Ventas externas</h2><p class="muted">Cuando una chica sale a vender a otro lugar con algunos sabores y ella cobra allá.</p>
-  <div class="card"><h3>Nueva salida</h3>
-    <div class="row"><div><label>Fecha</label><input id="sf" type="date" value="${hoy()}"></div><div><label>Vendedora</label><input id="sv" list="emps"><datalist id="emps">${S.empleados.map(e=>`<option>${esc(e.nombre)}</option>`).join('')}</datalist></div>
-    <div><label>Lugar</label><input id="sl" placeholder="Ej: feria, plaza"></div><div><label>Precio por porción</label><input id="spr" type="number" value="${S.config.presentaciones[0]?.precio||3}"></div></div>
-    <p class="muted" style="margin-top:10px">Sabores que lleva:</p>
-    <div class="chips">${S.config.sabores.filter(s=>s.activo).map(s=>`<span class="chip" onclick="salRows.push({sabor:'${s.id}',llevadas:30});render()">+ ${esc(s.nombre)}</span>`).join('')}</div>
-    ${salRows.map((r,i)=>`<div class="row" style="margin-top:8px"><div>${esc(sabor(r.sabor).nombre)}</div><div><input type="number" value="${r.llevadas}" onchange="salRows[${i}].llevadas=num(this.value)"> </div><div style="flex:0"><button class="btn x" onclick="salRows.splice(${i},1);render()">✕</button></div></div>`).join('')}
-    <div style="margin-top:10px"><button class="btn" onclick="nuevaSalida()">Registrar salida</button></div></div>
-  ${pend.map(s=>`<div class="card"><h3>Liquidar: ${esc(s.vendedora)} · ${esc(s.lugar)} · ${s.fecha} <span class="badge a">pendiente</span></h3>
-    <table><tr><th>Sabor</th><th class="n">Llevó</th><th>Devolvió</th></tr>
-    ${s.items.map((it,i)=>`<tr><td>${esc(sabor(it.sabor).nombre)}</td><td class="n">${it.llevadas}</td><td><input id="dv_${s.id}_${i}" type="number" value="0"></td></tr>`).join('')}</table>
-    <div class="row" style="margin-top:8px"><div><label>Dinero que entregó</label><input id="en_${s.id}" type="number" inputmode="decimal"></div>
-    <div><label>Pago a la vendedora (Bs)</label><input id="pv_${s.id}" type="number" value="${S.config.pagoDiario}"></div>
-    <div><button class="btn ok" onclick="liquidar('${s.id}')">Liquidar</button> <button class="btn x" onclick="delItem('salidas','${s.id}')">Eliminar</button></div></div></div>`).join('')}
-  <div class="card"><h3>Salidas liquidadas</h3><div class="tbl-wrap"><table>
-    <tr><th>Fecha</th><th>Vendedora</th><th>Lugar</th><th class="n">Vendidas</th><th class="n">Esperado</th><th class="n">Entregó</th><th class="n">Diferencia</th></tr>
-    ${hechas.map(s=>`<tr><td>${s.fecha}</td><td>${esc(s.vendedora)}</td><td>${esc(s.lugar)}</td><td class="n">${s.vendidas}</td><td class="n">${bs(s.esperado)}</td><td class="n">${bs(s.entregado)}</td><td class="n ${s.diferencia<0?'neg':''}">${bs(s.diferencia)}</td></tr>`).join('')||'<tr><td colspan=7 class="muted">Sin salidas</td></tr>'}
-  </table></div></div>`;
-};
-function nuevaSalida(){ if(!salRows.length||!val('sv')) return alert('Indica la vendedora y al menos un sabor');
-  S.salidas.push({id:uid(),fecha:val('sf'),vendedora:val('sv'),lugar:val('sl')||'Externo',precio:num(val('spr')),items:salRows,liquidada:false}); salRows=[]; save(); render(); }
-function liquidar(id){
-  const s=S.salidas.find(x=>x.id===id); let vend=0;
-  s.items.forEach((it,i)=>{ it.devueltas=num(val(`dv_${id}_${i}`)); const q=Math.max(0,it.llevadas-it.devueltas); vend+=q;
-    if(q) S.ventas.push({id:uid(),fecha:s.fecha,hora:'',cajaId:null,punto:'externo:'+s.lugar,tipo:'helado',sabor:it.sabor,pres:null,cant:q,precio:s.precio,total:q*s.precio,metodo:'efectivo',salidaId:s.id}); });
-  s.vendidas=vend; s.esperado=vend*s.precio; s.entregado=num(val('en_'+id)); s.diferencia=+(s.entregado-s.esperado).toFixed(2); s.liquidada=true;
-  const pv=num(val('pv_'+id)); if(pv) S.gastos.push({id:uid(),fecha:s.fecha,categoria:'sueldos',desc:s.vendedora+' (venta externa)',monto:pv});
+  const f=val('jf');
+  S.empleados.forEach(e=>{ if($('j_'+e.id).checked && !S.gastos.some(g=>g.categoria==='sueldos'&&g.fecha===f&&g.empleadoId===e.id))
+    S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:e.nombre,empleadoId:e.id,monto:num(val('jm_'+e.id))}); });
   save(); render();
 }
 
 /* ================== EQUIPOS ================== */
 V.equipos = () => {
-  const mes=hoy().slice(0,7), I=S.incidencias.slice().reverse().slice(0,30);
+  const I=S.incidencias.slice().reverse().slice(0,30);
   return `<h2>Equipos y mobiliario</h2>
-  <div class="card"><h3>Inventario</h3><p class="muted">La depreciación reparte el costo de cada equipo en su vida útil, así se ahorra para reponerlo cuando se rompa o gaste.</p>
+  <div class="card"><h3>Inventario</h3><p class="muted">La depreciación reparte el costo de cada equipo en su vida útil: es lo que conviene ahorrar al mes para reponerlo cuando se rompa o gaste.</p>
   <div class="tbl-wrap"><table><tr><th>Equipo</th><th class="n">Cant.</th><th class="n">Costo unit.</th><th class="n">Vida útil</th><th>Compra</th><th class="n">Depreciación/mes</th><th></th></tr>
     ${S.activos.map(a=>`<tr><td>${esc(a.nombre)}</td><td class="n">${a.cantidad}</td><td class="n">${bs(a.costo)}</td><td class="n">${a.vidaMeses} meses</td><td>${a.fechaCompra}</td><td class="n">${bs(a.cantidad*a.costo/a.vidaMeses)}</td><td><button class="btn x" onclick="delItem('activos','${a.id}')">✕</button></td></tr>`).join('')}
     <tr class="tot"><td colspan=5>Depreciación de este mes</td><td class="n">${bs(depMensual(hoy()))}</td><td></td></tr></table></div>
@@ -495,7 +569,7 @@ function preset(p){
   if(p==='hoy'){erD=erH=f}
   if(p==='semana'){const d=new Date(t);d.setDate(d.getDate()-((d.getDay()+6)%7));erD=ymd(d);erH=f}
   if(p==='mes'){erD=f.slice(0,8)+'01';erH=f}
-  if(p==='mesant'){const d=new Date(t.getFullYear(),t.getMonth()-1,1);erD=ymd(d);erH=ymd(new Date(t.getFullYear(),t.getMonth(),0))}
+  if(p==='mesant'){erD=ymd(new Date(t.getFullYear(),t.getMonth()-1,1));erH=ymd(new Date(t.getFullYear(),t.getMonth(),0))}
   if(p==='anio'){erD=f.slice(0,4)+'-01-01';erH=f}
   render();
 }
@@ -504,9 +578,8 @@ V.er = () => {
   const r=calcER(erD,erH), pct=x=>r.ingresos?(x/r.ingresos*100).toFixed(1)+'%':'—';
   const L=(t,v,c='ind')=>`<tr class="${c}"><td>${t}</td><td class="n">${bs(v)}</td><td class="n muted">${pct(v)}</td></tr>`;
   const S_=t=>`<tr class="sec"><td colspan=3>${t}</td></tr>`;
-  const margen = r.ingresos? r.bruta/r.ingresos : 0;
-  const fijosMes = sum(S.config.fijos,f=>f.monto) + (r.dias? (r.gSueldos+r.gDep)/r.dias*30 : 0);
-  const equilibrio = margen>0 ? fijosMes/margen : 0;
+  const margen=r.ingresos?r.bruta/r.ingresos:0;
+  const fijosMes=sum(S.config.fijos,f=>f.monto)+(r.dias?(r.gSueldos+r.gDep)/r.dias*30:0);
   return `<h2>Estado de resultados</h2>
   <div class="card noprint"><div class="chips" style="margin-bottom:10px">
     ${[['hoy','Hoy'],['semana','Esta semana'],['mes','Este mes'],['mesant','Mes anterior'],['anio','Este año']].map(([k,l])=>`<span class="chip" onclick="preset('${k}')">${l}</span>`).join('')}</div>
@@ -516,9 +589,11 @@ V.er = () => {
     <div style="text-align:center;margin-bottom:12px"><b style="font-size:18px">${esc(S.config.negocio)}</b><br>ESTADO DE RESULTADOS<br><span class="muted">Del ${erD} al ${erH} (${r.dias} días) · Expresado en bolivianos</span></div>
     <div class="tbl-wrap"><table class="er">
       <tr><th></th><th class="n">Monto</th><th class="n">% ventas</th></tr>
-      ${S_('Ingresos')}${L('Ventas de helado en el puesto',r.vHeladoPuesto)}${L('Ventas de helado externas',r.vHeladoExt)}${L('Ventas de empanadas',r.vEmp)}
+      ${S_('Ingresos')}${L('Helados vendidos en el puesto',r.vHeladoPuesto)}${L('Helados vendidos en otros lugares',r.vHeladoExt)}
+      ${r.vProd.map(p=>L('Ventas de '+esc(p.nombre.toLowerCase()),p.monto)).join('')}
       ${L('Total ingresos',r.ingresos,'tot')}
-      ${S_('(−) Costo de ventas')}${L('Insumos de helado (frutas, esencias, leche, azúcar…)',r.cInsumos)}${L('Hielo',r.cHielo)}${L('Sal',r.cSal)}${L('Gas (garrafas)',r.cGas)}${L('Compra de empanadas',r.cEmp)}
+      ${S_('(−) Costo de ventas')}${L('Insumos de helado y refresco (frutas, esencias, leche, azúcar…)',r.cInsumos)}${L('Hielo',r.cHielo)}${L('Sal',r.cSal)}${L('Gas (garrafas)',r.cGas)}${L('Empanadas',r.cEmp)}
+      ${L('Mermas: sobrantes que no se recuperaron',r.cMerma)}
       ${L('Total costo de ventas',r.costoVentas,'tot')}
       ${L('UTILIDAD BRUTA',r.bruta,'tot')}
       ${S_('(−) Gastos de operación')}${L('Sueldos del personal (incluye almuerzo)',r.gSueldos)}
@@ -527,28 +602,28 @@ V.er = () => {
       ${L('Total gastos de operación',r.gastosOp,'tot')}
       <tr class="big ${r.neta<0?'neg':''}"><td>UTILIDAD (PÉRDIDA) NETA</td><td class="n">${bs(r.neta)}</td><td class="n">${pct(r.neta)}</td></tr>
     </table></div>
-    <p class="muted">Antes de impuestos. Los gastos fijos y la depreciación se prorratean por día según el periodo elegido.</p>
-  </div>
+    <p class="muted">Antes de impuestos. Gastos fijos y depreciación se prorratean por día según el periodo.</p></div>
   <div class="grid g2">
     <div class="card"><h3>Indicadores</h3><table>
       <tr><td>Venta promedio por día</td><td class="n">${bs(r.ingresos/(r.dias||1))}</td></tr>
-      <tr><td>Porciones de helado vendidas</td><td class="n">${r.porciones}</td></tr>
+      <tr><td>Vasos de helado vendidos</td><td class="n">${Math.round(r.vasos)}</td></tr>
+      <tr><td>Precio promedio por vaso</td><td class="n">${bs(r.vasos?(r.vHeladoPuesto+r.vHeladoExt)/r.vasos:0)}</td></tr>
       <tr><td>Margen bruto</td><td class="n">${(margen*100).toFixed(1)}%</td></tr>
-      <tr><td>Punto de equilibrio mensual (ventas mínimas para no perder)</td><td class="n">${bs(equilibrio)}</td></tr>
+      <tr><td>Punto de equilibrio mensual (ventas mínimas para no perder)</td><td class="n">${bs(margen>0?fijosMes/margen:0)}</td></tr>
       <tr><td>Fondo sugerido para reponer equipos (por mes)</td><td class="n">${bs(depMensual(erH))}</td></tr></table></div>
-    <div class="card"><h3>Rentabilidad por sabor</h3><div class="tbl-wrap"><table>
-      <tr><th>Sabor</th><th class="n">Vendidas</th><th class="n">Ventas</th><th class="n">Costo insumos</th><th class="n">Margen</th></tr>
-      ${r.sabores.map(s=>`<tr><td>${esc(s.nombre)}</td><td class="n">${s.porc}</td><td class="n">${bs(s.venta)}</td><td class="n">${bs(s.costo)}</td><td class="n ${s.venta-s.costo<0?'neg':'pos'}">${bs(s.venta-s.costo)}</td></tr>`).join('')||'<tr><td colspan=5 class="muted">Sin datos</td></tr>'}
-    </table></div></div>
+    <div class="card"><h3>Rentabilidad por sabor y producto</h3><div class="tbl-wrap"><table>
+      <tr><th>Sabor / producto</th><th class="n">Ventas</th><th class="n">Insumos</th><th class="n">Mermas</th><th class="n">Margen</th></tr>
+      ${r.rent.map(s=>{const m=s.venta-s.costo; return `<tr><td>${esc(s.nombre)}</td><td class="n">${bs(s.venta)}</td><td class="n">${bs(s.costo)}</td><td class="n">${bs(s.merma)}</td><td class="n ${m<0?'neg':'pos'}">${bs(m)}</td></tr>`}).join('')||'<tr><td colspan=5 class="muted">Sin datos</td></tr>'}
+    </table></div><p class="muted">Si un vaso tiene varios sabores, su precio se reparte entre ellos. El costo de insumos ya incluye lo que se perdió como merma.</p></div>
   </div>`;
 };
 function exportER(){
   const r=calcER(erD,erH), rows=[['Estado de resultados',S.config.negocio],['Periodo',erD+' a '+erH],[],
-    ['INGRESOS'],['Ventas helado puesto',r.vHeladoPuesto],['Ventas helado externas',r.vHeladoExt],['Ventas empanadas',r.vEmp],['Total ingresos',r.ingresos],
-    ['COSTO DE VENTAS'],['Insumos helado',r.cInsumos],['Hielo',r.cHielo],['Sal',r.cSal],['Gas',r.cGas],['Empanadas',r.cEmp],['Total costo de ventas',r.costoVentas],
+    ['INGRESOS'],['Helados en el puesto',r.vHeladoPuesto],['Helados en otros lugares',r.vHeladoExt],...r.vProd.map(p=>['Ventas '+p.nombre,p.monto]),['Total ingresos',r.ingresos],
+    ['COSTO DE VENTAS'],['Insumos helado y refresco',r.cInsumos],['Hielo',r.cHielo],['Sal',r.cSal],['Gas',r.cGas],['Empanadas',r.cEmp],['Mermas',r.cMerma],['Total costo de ventas',r.costoVentas],
     ['UTILIDAD BRUTA',r.bruta],['GASTOS DE OPERACION'],['Sueldos',r.gSueldos],...r.fijos.map(f=>[f.nombre,f.monto]),
     ['Roturas y reparaciones',r.gRep],['Depreciacion',r.gDep],['Faltantes de caja',r.gDif],['Otros',r.gOtros],['Total gastos de operacion',r.gastosOp],['UTILIDAD NETA',r.neta]];
-  descargar(`estado_resultados_${erD}_${erH}.csv`, '﻿'+rows.map(x=>x.map(c=>typeof c==='number'?c.toFixed(2):'"'+String(c??'').replace(/"/g,'""')+'"').join(';')).join('\n'),'text/csv');
+  descargar(`estado_resultados_${erD}_${erH}.csv`,'﻿'+rows.map(x=>x.map(c=>typeof c==='number'?c.toFixed(2):'"'+String(c??'').replace(/"/g,'""')+'"').join(';')).join('\n'),'text/csv');
 }
 function descargar(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); }
 
@@ -557,21 +632,26 @@ V.config = () => {
   const c=S.config;
   return `<h2>Configuración</h2>
   <div class="grid g2">
-  <div class="card"><h3>Negocio y precios</h3>
-    <label>Nombre del negocio</label><input value="${esc(c.negocio)}" onchange="S.config.negocio=this.value;save();render()">
-    <div class="row" style="margin-top:8px"><div><label>Empanada: costo</label><input type="number" value="${c.empanada.costo}" onchange="S.config.empanada.costo=num(this.value);save()"></div>
-    <div><label>Empanada: precio venta</label><input type="number" value="${c.empanada.precio}" onchange="S.config.empanada.precio=num(this.value);save()"></div></div>
+  <div class="card"><h3>Negocio</h3>
+    <div class="row"><div><label>Nombre</label><input value="${esc(c.negocio)}" onchange="S.config.negocio=this.value;save();render()"></div>
+    <div><label>PIN de administradora</label><input value="${esc(c.pin)}" onchange="S.config.pin=this.value;save()"></div></div>
     <div class="row" style="margin-top:8px"><div><label>Hielo: precio por barra</label><input type="number" value="${c.hielo.precio}" onchange="S.config.hielo.precio=num(this.value);save()"></div>
     <div><label>Hielo: barras por día</label><input type="number" value="${c.hielo.barras}" onchange="S.config.hielo.barras=num(this.value);save()"></div>
     <div><label>Pago diario personal</label><input type="number" value="${c.pagoDiario}" onchange="S.config.pagoDiario=num(this.value);save()"></div></div>
-    <h3 style="margin-top:16px">Tamaños de helado</h3>
-    ${c.presentaciones.map((p,i)=>`<div class="row" style="margin-bottom:6px"><div><input value="${esc(p.nombre)}" onchange="S.config.presentaciones[${i}].nombre=this.value;save()"></div><div><input type="number" value="${p.precio}" onchange="S.config.presentaciones[${i}].precio=num(this.value);save()"></div><div style="flex:0"><button class="btn x" onclick="S.config.presentaciones.splice(${i},1);save();render()">✕</button></div></div>`).join('')}
-    <button class="btn sec sm" onclick="S.config.presentaciones.push({id:uid(),nombre:'Nuevo',precio:5});save();render()">+ Tamaño</button>
+    <h3 style="margin-top:16px">Precios de vaso (botones)</h3>
+    <input value="${c.precios.join(', ')}" onchange="S.config.precios=this.value.split(/[ ,;]+/).map(num).filter(Boolean);save();render()">
+    <p class="muted">Separados por coma. Al escribir rápido se puede usar cualquier precio.</p>
+    <h3 style="margin-top:16px">Otros productos</h3>
+    <table><tr><th>Nombre</th><th>Precio</th><th>¿Se compra hecho?</th><th>Costo unid.</th><th></th></tr>
+    ${c.productos.map((p,i)=>`<tr><td><input value="${esc(p.nombre)}" onchange="S.config.productos[${i}].nombre=this.value;save()"></td><td><input type="number" value="${p.precio}" onchange="S.config.productos[${i}].precio=num(this.value);save()"></td>
+      <td><input type="checkbox" ${p.reventa?'checked':''} onchange="S.config.productos[${i}].reventa=this.checked;save();render()"></td><td>${p.reventa?`<input type="number" value="${p.costo||0}" onchange="S.config.productos[${i}].costo=num(this.value);save()">`:'<span class="muted">de Producción</span>'}</td>
+      <td>${p.id==='emp'?'':`<button class="btn x" onclick="S.config.productos.splice(${i},1);save();render()">✕</button>`}</td></tr>`).join('')}</table>
+    <button class="btn sec sm" style="margin-top:6px" onclick="S.config.productos.push({id:uid(),nombre:'Nuevo producto',precio:5,reventa:false});save();render()">+ Producto</button>
     <h3 style="margin-top:16px">Gastos fijos mensuales</h3>
     ${c.fijos.map((f,i)=>`<div class="row" style="margin-bottom:6px"><div><input value="${esc(f.nombre)}" onchange="S.config.fijos[${i}].nombre=this.value;save()"></div><div><input type="number" value="${f.monto}" onchange="S.config.fijos[${i}].monto=num(this.value);save()"></div><div style="flex:0"><button class="btn x" onclick="S.config.fijos.splice(${i},1);save();render()">✕</button></div></div>`).join('')}
     <button class="btn sec sm" onclick="S.config.fijos.push({id:uid(),nombre:'Nuevo gasto',monto:0});save();render()">+ Gasto fijo</button>
   </div>
-  <div class="card"><h3>Sabores</h3><p class="muted">Marca los que hay hoy para que aparezcan en Vender.</p>
+  <div class="card"><h3>Sabores</h3><p class="muted">Marca los que hay hoy: aparecen como botones y al cerrar caja.</p>
     <table>${c.sabores.map((s,i)=>`<tr><td><input type="checkbox" ${s.activo?'checked':''} onchange="S.config.sabores[${i}].activo=this.checked;save()"></td><td><input value="${esc(s.nombre)}" onchange="S.config.sabores[${i}].nombre=this.value;save()"></td><td><select onchange="S.config.sabores[${i}].base=this.value;save()"><option value="agua" ${s.base==='agua'?'selected':''}>Agua hervida</option><option value="leche" ${s.base==='leche'?'selected':''}>Leche</option></select></td></tr>`).join('')}</table>
     <button class="btn sec sm" style="margin-top:8px" onclick="S.config.sabores.push({id:uid(),nombre:'Nuevo sabor',base:'agua',activo:true});save();render()">+ Sabor</button>
     <h3 style="margin-top:20px">Respaldo de datos</h3><p class="muted">Los datos se guardan en este navegador. Descarga un respaldo seguido.</p>
@@ -581,7 +661,7 @@ V.config = () => {
     <button class="btn" onclick="if(confirm('¿Borrar TODOS los datos?')){S=defaults();save();render()}">Borrar todo</button></div>
   </div></div>`;
 };
-function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ S=Object.assign(defaults(),JSON.parse(r.result)); save(); render(); alert('Datos restaurados'); }catch(e){ alert('Archivo inválido'); } }; r.readAsText(file); }
+function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result), b=defaults(); d.config=Object.assign(b.config,d.config); S=Object.assign(b,d); save(); render(); alert('Datos restaurados'); }catch(e){ alert('Archivo inválido'); } }; r.readAsText(file); }
 
 /* ================== DATOS DE EJEMPLO ================== */
 function demo(){
@@ -590,29 +670,38 @@ function demo(){
   const ini=ymd(new Date(Date.now()-75*864e5));
   S.activos=[['Cocina a gas',1,650,60],['Refrigerador',2,2800,84],['Baldes de madera con lata',6,180,24],['Garrafas',2,350,60],['Estantes',2,250,48],['Mesas',3,150,36],['Sillas',8,45,24],['Carpas',2,400,24]]
     .map(([n,q,p,v])=>({id:uid(),nombre:n,cantidad:q,costo:p,vidaMeses:v,fechaCompra:ini}));
-  const dias=rangoDias(ymd(new Date(Date.now()-44*864e5)),ymd(new Date(Date.now()-864e5)));
+  const act=c.sabores.filter(s=>s.activo), dias=rangoDias(ymd(new Date(Date.now()-44*864e5)),ymd(new Date(Date.now()-864e5)));
+  const V_=(f,caja,o)=>S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:caja.punto,producto:null,sabores:[],metodo:Math.random()<.8?'efectivo':'qr',...o,total:o.cant*o.precio});
+  let pendSob=[], empRec=0;
   dias.forEach((f,di)=>{
-    const dow=new Date(f+'T12:00').getDay(), fin=dow===0||dow===6, k=fin?1.4:1;
-    const caja={id:uid(),fecha:f,responsable:S.empleados[0].nombre,montoInicial:50,retiros:[],cerrada:true};
+    const dow=new Date(f+'T12:00').getDay(), k=(dow===0||dow===6)?1.4:1;
+    // recuperar lo guardado ayer
+    empRec=0; pendSob.forEach(s=>{ s.recuperado=s.item==='emp'?Math.max(0,s.cantidad-RI(0,1)):+(s.cantidad*R(.6,1)).toFixed(1); s.merma=+(s.cantidad-s.recuperado).toFixed(2); s.fechaRec=f; if(s.item==='emp') empRec=s.recuperado; }); pendSob=[];
+    const caja={id:uid(),fecha:f,responsable:S.empleados[0].nombre,punto:'puesto',lugar:'',montoInicial:50,retiros:[],cerrada:true};
     S.cajas.push(caja);
     S.gastos.push({id:uid(),fecha:f,categoria:'hielo',desc:'5 barras de hielo',cantidad:5,monto:55,cajaId:caja.id});
     if(di%3===0) S.gastos.push({id:uid(),fecha:f,categoria:'sal',desc:'Sal',cantidad:1,monto:5});
     if(di%4===0) S.gastos.push({id:uid(),fecha:f,categoria:'gas',desc:'Garrafa de gas',cantidad:1,monto:22.5});
-    const emp=RI(24,36); S.gastos.push({id:uid(),fecha:f,categoria:'empanadas',desc:'Empanadas',cantidad:emp,monto:emp*c.empanada.costo});
+    const emp=RI(24,32); S.gastos.push({id:uid(),fecha:f,categoria:'empanadas',desc:'Empanadas',cantidad:emp,monto:emp*3.5});
     S.empleados.forEach(e=>S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:e.nombre,empleadoId:e.id,monto:110}));
-    c.sabores.filter(s=>s.activo).forEach(s=>{
-      if(di%2===0){ const fr=R(25,55), es=R(5,9), base=s.base==='leche'?R(20,32):0, az=R(8,14);
-        S.produccion.push({id:uid(),fecha:f,sabor:s.id,base:s.base,porciones:RI(55,75),insumos:[{desc:'Fruta/insumo',costo:+fr.toFixed(2)},{desc:'Esencia',costo:+es.toFixed(2)},{desc:'Azúcar',costo:+az.toFixed(2)}].concat(base?[{desc:'Leche',costo:+base.toFixed(2)}]:[]),costo:+(fr+es+az+base).toFixed(2)}); }
-      c.presentaciones.forEach((p,pi)=>{ const q=RI([10,7,3][pi]*k*.7,[10,7,3][pi]*k*1.3); if(q) S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:'puesto',tipo:'helado',sabor:s.id,pres:p.id,cant:q,precio:p.precio,total:q*p.precio,metodo:Math.random()<.8?'efectivo':'qr'}); });
-    });
-    const ev=Math.min(emp,RI(18,emp)); S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:'puesto',tipo:'empanada',cant:ev,precio:c.empanada.precio,total:ev*c.empanada.precio,metodo:'efectivo'});
+    act.forEach(s=>{ if(di%2===0){ const fr=R(25,55), es=R(5,9), base=s.base==='leche'?R(20,32):0, az=R(8,14);
+      S.produccion.push({id:uid(),fecha:f,item:s.id,base:s.base,litros:RI(9,12),insumos:[{desc:'Fruta/insumo',costo:+fr.toFixed(2)},{desc:'Esencia',costo:+es.toFixed(2)},{desc:'Azúcar',costo:+az.toFixed(2)}].concat(base?[{desc:'Leche',costo:+base.toFixed(2)}]:[]),costo:+(fr+es+az+base).toFixed(2)}); }});
+    S.produccion.push({id:uid(),fecha:f,item:'ref',base:'agua',litros:15,insumos:[{desc:'Canela',costo:8},{desc:'Azúcar',costo:12},{desc:'Clavo de olor',costo:3}],costo:23});
+    [[3,20],[5,36],[8,18],[10,14],[15,4]].forEach(([p,n])=>{ for(let j=0;j<RI(n*k*.7,n*k*1.3);j++){
+      const ns=p<=3?1:p<=5?RI(1,2):RI(2,3), ss=[...act].sort(()=>Math.random()-.5).slice(0,ns).map(s=>s.id);
+      V_(f,caja,{tipo:'helado',cant:1,precio:p,sabores:ss}); }});
+    V_(f,caja,{tipo:'producto',producto:'ref',cant:RI(15,30)*k|0,precio:3,metodo:'efectivo'});
+    const sobE=RI(0,4), ev=emp+empRec-sobE; V_(f,caja,{tipo:'producto',producto:'emp',cant:ev,precio:5,metodo:'efectivo'});
+    const sob=[...act].sort(()=>Math.random()-.5).slice(0,2).map(s=>({id:uid(),fecha:f,cajaId:caja.id,item:s.id,cantidad:RI(1,3),recuperado:null}));
+    if(sobE) sob.push({id:uid(),fecha:f,cajaId:caja.id,item:'emp',cantidad:sobE,recuperado:null});
+    S.sobrantes.push(...sob); pendSob=sob;
     const r=cajaResumen(caja); caja.diferencia=[0,0,0,-2,1,0,-5,0][RI(0,7)]; caja.contado=+(r.esperado+caja.diferencia).toFixed(2);
-    if(dow===0){ const items=c.sabores.filter(s=>s.activo).slice(0,3).map(s=>({sabor:s.id,llevadas:30,devueltas:RI(2,10)}));
-      const sx={id:uid(),fecha:f,vendedora:'Chica de apoyo',lugar:'Feria dominical',precio:3,items,liquidada:true};
-      sx.vendidas=sum(items,i=>i.llevadas-i.devueltas); sx.esperado=sx.vendidas*3; sx.entregado=sx.esperado-RI(0,1)*3; sx.diferencia=sx.entregado-sx.esperado;
-      items.forEach(i=>S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:null,punto:'externo:Feria dominical',tipo:'helado',sabor:i.sabor,pres:null,cant:i.llevadas-i.devueltas,precio:3,total:(i.llevadas-i.devueltas)*3,metodo:'efectivo',salidaId:sx.id}));
-      S.salidas.push(sx); S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:'Chica de apoyo (venta externa)',monto:80}); }
+    if(dow===0){ const cx={id:uid(),fecha:f,responsable:'Chica de apoyo',punto:'externo',lugar:'Feria dominical',montoInicial:20,retiros:[],cerrada:true}; S.cajas.push(cx);
+      for(let j=0;j<RI(40,60);j++) V_(f,cx,{tipo:'helado',cant:1,precio:[3,5,5,8][RI(0,3)],sabores:[act[RI(0,2)].id],metodo:'efectivo'});
+      const rx=cajaResumen(cx); cx.diferencia=-RI(0,1)*3; cx.contado=rx.esperado+cx.diferencia;
+      S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:'Chica de apoyo (venta externa)',monto:80}); }
   });
+  S.sobrantes.filter(s=>s.recuperado!=null).forEach(s=>s.valorMerma=+(s.merma*costoUnit(s.item)).toFixed(2));
   const sil=S.activos.find(a=>a.nombre==='Sillas'), ref=S.activos.find(a=>a.nombre==='Refrigerador'), bal=S.activos.find(a=>a.nombre.startsWith('Baldes'));
   S.incidencias.push({id:uid(),fecha:dias[8],activoId:sil.id,tipo:'rotura',unidades:1,costo:0,detalle:'Se rompió una pata'}); sil.cantidad--;
   S.incidencias.push({id:uid(),fecha:dias[20],activoId:ref.id,tipo:'reparacion',unidades:1,costo:180,detalle:'Recarga de gas del refrigerador'});
