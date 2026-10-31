@@ -13,7 +13,8 @@
 }
 *{box-sizing:border-box}
 body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);font-size:15px}
-header{background:linear-gradient(90deg,var(--wood-d),var(--wood));color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:10}
+header{background:linear-gradient(90deg,var(--wood-d),var(--wood));color:#fff;padding:10px 16px;display:flex;align-items:center;gap:12px;position:sticky;top:env(safe-area-inset-top,0px);z-index:10}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--wood-d)}
 header .ttl{flex:1;min-width:0}
 header h1{font-size:17px;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 header .sec-name{font-size:13px;opacity:.85}
@@ -95,6 +96,14 @@ input[type=checkbox]{width:auto}
 .total-big{font-size:28px;font-weight:800}
 code{background:#f3ece4;padding:1px 5px;border-radius:4px;font-size:13px}
 .badge.b{background:#efe6fb;color:#6b3fa0}
+[hidden]{display:none!important}
+.zona{margin-top:28px;color:var(--muted)}
+.zona summary{cursor:pointer;font-size:13px;padding:8px 0}
+.zona-in{border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-top:6px;background:var(--card);color:var(--ink)}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:30;display:flex;align-items:center;justify-content:center;padding:16px}
+.modal-box{background:var(--card);color:var(--ink);border-radius:14px;padding:18px;width:min(380px,100%);box-shadow:0 10px 30px rgba(0,0,0,.25)}
+.modal-box p{margin:0 0 12px;white-space:pre-line;font-size:16px}
+.modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
 /* celulares */
 @media (max-width:600px){
   body{font-size:15px}
@@ -120,9 +129,10 @@ code{background:#f3ece4;padding:1px 5px;border-radius:4px;font-size:13px}
 <body>
 <header>
   <button class="burger" onclick="menu(true)" aria-label="Menú">☰</button>
-  <div class="ttl"><h1 id="tit">🍦 Heladería Artesanal</h1><div class="sec-name" id="secn"></div></div>
+  <div class="ttl"><h1 id="tit">🍦 Heladería Artesanal</h1><div class="sec-name"><span id="secn"></span></div></div>
   <button class="rol" id="rol" onclick="cambiarRol()"></button>
 </header>
+<div class="modal" id="modal" hidden><div class="modal-box" role="dialog" aria-modal="true"><p id="mmsg"></p><input id="minp" hidden autocomplete="off"><div class="modal-btns"><button class="btn sec" id="mno">Cancelar</button><button class="btn" id="msi">Aceptar</button></div></div></div>
 <div class="drawer" id="drawer"><div class="bg" onclick="menu(false)"></div>
   <aside><div class="top"><b id="dtit"></b><small id="hoy"></small></div><nav id="nav"></nav></aside></div>
 <main id="main"></main>
@@ -137,7 +147,7 @@ const CATS = {
 };
 const defaults = () => ({
   config:{
-    negocio:'Heladería Artesanal', pin:'1234',
+    negocio:'Heladería Artesanal', pin:'71757',
     puntos:[{id:'pp',nombre:'Tienda principal'}],
     precios:[3,5,8,10,15],
     sabores:['Canela:agua','Leche:leche','Chirimoya:leche','Maracuyá:agua','Frutilla:agua','Cupuazú:leche','Piña:agua','Oreo:leche','Chicle:leche']
@@ -156,7 +166,20 @@ function load(){
   try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d){ const b=defaults(); d.config=Object.assign(b.config,d.config); return Object.assign(b,d); } }catch(e){}
   return defaults();
 }
-function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ alert('No se pudo guardar: '+e.message); } }
+function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ aviso('No se pudo guardar en este celular: '+e.message); } }
+
+/* ================== DIÁLOGOS (dentro de la página) ================== */
+function modal(msg,{input=false,type='text',ok='Aceptar',cancel='Cancelar'}={},cb){
+  const m=$('modal'), i=$('minp'); $('mmsg').textContent=msg;
+  i.hidden=!input; i.value=''; i.type=type; $('mno').hidden=!cancel; $('mno').textContent=cancel||''; $('msi').textContent=ok; m.hidden=false;
+  setTimeout(()=>(input?i:$('msi')).focus(),30);
+  const cerrar=()=>{ m.hidden=true; };
+  $('msi').onclick=()=>{ const v=i.value; cerrar(); if(cb) cb(input?v:true); };
+  $('mno').onclick=cerrar; i.onkeydown=e=>{ if(e.key==='Enter') $('msi').click(); };
+}
+const aviso=msg=>modal(msg,{cancel:null});
+const pregunta=(msg,cb)=>modal(msg,{ok:'Sí',cancel:'No'},cb);
+const pedirTexto=(msg,cb,type)=>modal(msg,{input:true,type},v=>{ if(v&&v.trim()) cb(v.trim()); });
 // Preferencias de este dispositivo (rol y caja en uso)
 const dev = { get:k=>{try{return localStorage.getItem(k)}catch(e){return null}}, set:(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}} };
 
@@ -204,7 +227,7 @@ let tab = rol==='admin' ? 'panel' : 'vender';
 const permitido = t => (TABS.find(x=>x[0]===t)||[])[2]?.includes(rol==='admin'?'a':'t');
 function cambiarRol(){
   if(rol==='admin'){ rol='trab'; }
-  else { const p=prompt('PIN de administradora:'); if(p===null) return; if(p!==S.config.pin) return alert('PIN incorrecto'); rol='admin'; }
+  else return pedirTexto('PIN de administradora:',p=>{ if(p!==S.config.pin) return aviso('PIN incorrecto'); rol='admin'; dev.set('heladeria_rol',rol); render(); },'password');
   dev.set('heladeria_rol',rol); render();
 }
 function menu(on){ $('drawer').classList.toggle('open',on); }
@@ -422,25 +445,35 @@ function addProd(pid,prid){
   ex?ex.cant++:p.items.push({id:uid(),tipo:'producto',producto:prid,precio:pr.precio,cant:1,sabores:[]}); save(); render();
 }
 function cantProd(pid,iid,d){ const i=pedido(pid).items.find(x=>x.id===iid); i.cant+=d; if(i.cant<1){ i.cant=1; return cancelarItem(pid,iid); } save(); render(); }
-function cancelarItem(pid,iid){ if(!confirm('¿Quitar este ítem del pedido?')) return; const p=pedido(pid); p.items=p.items.filter(x=>x.id!==iid); if(edit&&edit.itemId===iid) edit=null; save(); render(); }
+function cancelarItem(pid,iid){ pregunta('¿Quitar este ítem del pedido?',()=>{ const p=pedido(pid); p.items=p.items.filter(x=>x.id!==iid); if(edit&&edit.itemId===iid) edit=null; save(); render(); }); }
 function cancelarPedido(pid){
-  const p=pedido(pid); if(!confirm(`¿Cancelar el pedido #${p.num}?`)) return;
-  if(!p.items.length) S.pedidos=S.pedidos.filter(x=>x.id!==pid); else { p.estado='cancelado'; p.horaCancel=hora(); }
-  edit=null; payFor=null; save(); render();
+  const p=pedido(pid);
+  pregunta(`¿Cancelar el pedido #${p.num}?`,()=>{
+    if(!p.items.length) S.pedidos=S.pedidos.filter(x=>x.id!==pid); else { p.estado='cancelado'; p.horaCancel=hora(); }
+    edit=null; payFor=null; save(); render();
+  });
 }
-function ventasDePedido(p,c,metodo,hh){ // al cobrar, el pedido se vuelve ventas (lo que lee caja y estado de resultados)
-  // invitado: no entra dinero (total 0) pero se guarda su valor para ver cuánto se regala
-  const re=reempActivo(c), inv=metodo==='invitado';
-  itemsVivos(p).forEach(i=>S.ventas.push({id:uid(),fecha:p.fecha,hora:hh,cajaId:c.id,punto:c.punto,vendedor:re?re.quien:c.responsable,reempId:re?re.id:null,pedidoId:p.id,
-    tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:inv?0:i.precio*i.cant,valor:i.precio*i.cant,metodo,invitado:inv?p.para:undefined}));
-  p.estado=inv?'invitado':'pagado'; p.metodo=metodo; p.horaPago=hh;
+function ventasDePedido(p,c,metodo,hh){ // al cobrar, el pedido guarda quién cobró; sus ventas se rearman desde él
+  const re=reempActivo(c);
+  Object.assign(p,{estado:metodo==='invitado'?'invitado':'pagado',metodo,horaPago:hh,punto:c.punto,cobroVend:re?re.quien:c.responsable,reempId:re?re.id:null});
+  rebuildVentas();
+}
+// Ventas = las anotadas sueltas + las de cada pedido pagado o invitado.
+// Invitado: no entra dinero (total 0) pero se guarda su valor para ver cuánto se regala.
+function rebuildVentas(){
+  const der=[];
+  S.pedidos.forEach(p=>{ if(p.estado!=='pagado'&&p.estado!=='invitado') return;
+    const c=S.cajas.find(x=>x.id===p.cajaId)||{}, inv=p.estado==='invitado';
+    itemsVivos(p).forEach(i=>der.push({id:p.id+'_'+i.id,fecha:p.fecha,hora:p.horaPago,cajaId:p.cajaId,punto:p.punto||c.punto,vendedor:p.cobroVend||c.responsable,reempId:p.reempId||null,pedidoId:p.id,
+      tipo:i.tipo,producto:i.producto||null,sabores:i.sabores||[],cant:i.cant,precio:i.precio,total:inv?0:i.precio*i.cant,valor:i.precio*i.cant,metodo:p.metodo,invitado:inv?p.para:undefined})); });
+  S.ventas=S.ventas.filter(v=>!v.pedidoId).concat(der);
 }
 function pagar(pid,metodo){
   const p=pedido(pid);
-  if(metodo==='invitado'){ p.para=val('para').trim(); if(!p.para) return alert('Escribe para quién es la invitación'); }
+  if(metodo==='invitado'){ p.para=val('para').trim(); if(!p.para) return aviso('Escribe para quién es la invitación'); }
   ventasDePedido(p,S.cajas.find(c=>c.id===p.cajaId),metodo,hora()); payFor=null; invMode=false; save(); render();
 }
-function delItem(col,id){ if(!confirm('¿Eliminar este registro?')) return; S[col]=S[col].filter(x=>x.id!==id); save(); render(); }
+function delItem(col,id){ pregunta('¿Eliminar este registro?',()=>{ S[col]=S[col].filter(x=>x.id!==id); save(); render(); }); }
 
 /* ================== CAJA ================== */
 const puntoNom = id => (S.config.puntos.find(p=>p.id===id)||{nombre:'(sin lugar)'}).nombre;
@@ -481,6 +514,7 @@ function cajaCard(c){
     <div class="chips" style="margin-top:10px">
       ${mia?'<span class="badge g">En uso en este dispositivo</span>':`<button class="btn sec sm" onclick="dev.set('heladeria_caja','${c.id}');render()">Usar en este dispositivo</button>`}
       ${re?`<button class="btn ok sm" onclick="volverForm='${c.id}';render()">✅ ${esc(c.responsable)} volvió: recibir ventas</button>`:`<button class="btn sec sm" onclick="reempForm='${c.id}';render()">🔄 Reemplazar un rato</button>`}
+      <button class="btn sec sm" onclick="resumenPDF('${c.id}')">📄 Resumen PDF</button>
       ${rol==='admin'?`<button class="btn sec sm" onclick="verVentas=verVentas==='${c.id}'?null:'${c.id}';render()">${verVentas===c.id?'Ocultar':'Ver'} ventas</button>`:''}
     </div>${extra}
     ${verVentas===c.id?tablaVentas(S.ventas.filter(v=>v.cajaId===c.id)):''}
@@ -531,21 +565,23 @@ V.caja = () => {
     if(c) html+=`<h3 style="margin-top:20px">Caja en uso en este dispositivo</h3>`+detalleMiCaja(c);
     const hist=S.cajas.filter(x=>x.cerrada).slice().reverse().slice(0,30);
     html+=`<div class="card"><h3>Historial de cajas</h3><div class="tbl-wrap"><table>
-      <tr><th>Fecha</th><th>Cobró</th><th>Dónde</th><th class="n">Inicial</th><th class="n">Vendido</th><th class="n">Reemplazos</th><th class="n">Esperado</th><th class="n">Contado</th><th class="n">Diferencia</th></tr>
-      ${hist.map(x=>{const r=cajaResumen(x), rp=x.reemplazos||[];return `<tr><td>${x.fecha}</td><td>${esc(x.responsable)}</td><td>${esc(puntoNom(x.punto))}</td><td class="n">${bs(x.montoInicial)}</td><td class="n">${bs(r.total)}</td><td class="n" title="${esc(rp.map(p=>p.quien+' '+p.inicio+'-'+p.fin).join(', '))}">${rp.length||''}</td><td class="n">${bs(r.esperado)}</td><td class="n">${bs(x.contado)}</td><td class="n ${x.diferencia<0?'neg':''}">${bs(x.diferencia)}</td></tr>`}).join('')||'<tr><td colspan=9 class="muted">Sin cierres todavía</td></tr>'}
+      <tr><th>Fecha</th><th>Cobró</th><th>Dónde</th><th class="n">Inicial</th><th class="n">Vendido</th><th class="n">Reemplazos</th><th class="n">Esperado</th><th class="n">Contado</th><th class="n">Diferencia</th><th></th></tr>
+      ${hist.map(x=>{const r=cajaResumen(x), rp=x.reemplazos||[];return `<tr><td>${x.fecha}</td><td>${esc(x.responsable)}</td><td>${esc(puntoNom(x.punto))}</td><td class="n">${bs(x.montoInicial)}</td><td class="n">${bs(r.total)}</td><td class="n" title="${esc(rp.map(p=>p.quien+' '+p.inicio+'-'+p.fin).join(', '))}">${rp.length||''}</td><td class="n">${bs(r.esperado)}</td><td class="n">${bs(x.contado)}</td><td class="n ${x.diferencia<0?'neg':''}">${bs(x.diferencia)}</td><td><button class="btn sec sm" title="Resumen PDF" onclick="resumenPDF('${x.id}')">📄</button></td></tr>`}).join('')||'<tr><td colspan=10 class="muted">Sin cierres todavía</td></tr>'}
     </table></div></div>`;
     return html;
   }
   if(c){ html+=cajaCard(c)+detalleMiCaja(c); }
   else html+=formAbrir();
+  const cerradas=S.cajas.filter(x=>x.cerrada&&x.fecha===hoy()).reverse();
+  if(cerradas.length) html+=`<div class="card"><h3>Cajas cerradas hoy</h3><p class="muted">Descarga el resumen y envíaselo a la administradora.</p><table>${cerradas.map(x=>`<tr><td>${esc(x.responsable)}</td><td>${esc(puntoNom(x.punto))}</td><td class="n">${bs(cajaResumen(x).total)}</td><td style="width:1%"><button class="btn sec sm" style="white-space:nowrap" onclick="resumenPDF('${x.id}')">📄 PDF</button></td></tr>`).join('')}</table></div>`;
   const otras=ab.filter(x=>!c||x.id!==c.id);
   if(otras.length) html+=`<h3>Otras cajas abiertas</h3>`+otras.map(cajaCard).join('');
   return html;
 };
-function nuevoPunto(){ const n=prompt('Nombre del lugar de venta (ej: Tienda del mercado):'); if(!n) return; const p={id:uid(),nombre:n}; S.config.puntos.push(p); save(); render(); $('cp').value=p.id; }
+function nuevoPunto(){ pedirTexto('Nombre del lugar de venta (ej: Tienda del mercado):',n=>{ const p={id:uid(),nombre:n}; S.config.puntos.push(p); save(); render(); $('cp').value=p.id; }); }
 function abrirCaja(){
-  if(!val('cr')) return alert('Escribe quién cobra');
-  if(cajasAbiertas().some(x=>x.responsable===val('cr'))) return alert(val('cr')+' ya tiene una caja abierta');
+  if(!val('cr')) return aviso('Escribe quién cobra');
+  if(cajasAbiertas().some(x=>x.responsable===val('cr'))) return aviso(val('cr')+' ya tiene una caja abierta');
   const c={id:uid(),fecha:val('cf'),horaAp:hora(),responsable:val('cr'),punto:val('cp'),montoInicial:num(val('cm')),retiros:[],reemplazos:[],cerrada:false};
   S.cajas.push(c); if(rol!=='admin'||!cajaSel()) dev.set('heladeria_caja',c.id); save(); go(rol==='admin'?'caja':'vender');
 }
@@ -563,11 +599,73 @@ function pagoCaja(){ const c=cajaSel(), m=num(val('pm')); if(!m) return;
   S.gastos.push({id:uid(),fecha:c.fecha,categoria:val('pc'),desc:val('pd')||CATS[val('pc')],cantidad:1,monto:m,cajaId:c.id}); save(); render(); }
 function retiro(){ const c=cajaSel(), m=num(val('rm')); if(!m) return; c.retiros.push({monto:m,motivo:val('rmo')||'Retiro'}); save(); render(); }
 function cerrarCaja(){
-  const c=cajaSel(); if(val('cc')==='') return alert('Ingresa el dinero contado');
+  const c=cajaSel(); if(val('cc')==='') return aviso('Ingresa el dinero contado');
   items().forEach(i=>{ const el=$('sb_'+i.id); const q=el?num(el.value):0;
     if(q>0) S.sobrantes.push({id:uid(),fecha:c.fecha,cajaId:c.id,item:i.id,cantidad:q,recuperado:null}); });
   const r=cajaResumen(c); c.contado=num(val('cc')); c.diferencia=+(c.contado-r.esperado).toFixed(2); c.cerrada=true;
-  save(); alert(`Caja cerrada.\nVendido: ${bs(r.total)}\n${c.diferencia<0?'Faltante':'Sobrante'}: ${bs(Math.abs(c.diferencia))}`); render();
+  save(); render();
+  modal(`Caja cerrada.\nVendido: ${bs(r.total)}\n${c.diferencia<0?'Faltante':'Sobrante'}: ${bs(Math.abs(c.diferencia))}\n\nDescarga el resumen para enviárselo a la administradora.`,{ok:'📄 Descargar resumen PDF',cancel:'Ahora no'},()=>resumenPDF(c.id));
+}
+
+/* ================== RESUMEN EN PDF ================== */
+// PDF armado a mano (sin librerías ni internet): títulos en Helvetica y tablas en Courier para alinear columnas.
+const pdfEsc = s => String(s).replace(/[^\x20-\x7e\xa0-\xff]/g,'').replace(/[\\()]/g,m=>'\\'+m);
+const ANCHO = 85; // caracteres que caben en una línea de Courier 10 en A4
+function partir(t){ const out=[]; let s=String(t); while(s.length>ANCHO){ let k=s.lastIndexOf(' ',ANCHO); if(k<10) k=ANCHO; out.push(s.slice(0,k)); s='      '+s.slice(k).trim(); } out.push(s); return out; }
+function hacerPDF(lineas){
+  const H=842, pags=[[]]; let y=H-50;
+  lineas.forEach(l=>{ const sz=l.s||10, lh=sz*1.45+(l.gap||0); if(y-lh<40){ pags.push([]); y=H-50; } y-=lh;
+    pags[pags.length-1].push(`BT /${l.f||'F3'} ${sz} Tf 40 ${y.toFixed(1)} Td (${pdfEsc(l.t)}) Tj ET`);
+    if(l.linea) pags[pags.length-1].push(`0.5 w 40 ${(y-4).toFixed(1)} m 555 ${(y-4).toFixed(1)} l S`); });
+  const objs=['<< /Type /Catalog /Pages 2 0 R >>',null,
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
+    '<< /Type /Font /Subtype /Type1 /BaseFont /Courier /Encoding /WinAnsiEncoding >>'], kids=[];
+  pags.forEach(p=>{ const c=p.join('\n'); objs.push(`<< /Length ${c.length} >>\nstream\n${c}\nendstream`);
+    objs.push(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 3 0 R /F2 4 0 R /F3 5 0 R >> >> /Contents ${objs.length} 0 R >>`); kids.push(objs.length+' 0 R'); });
+  objs[1]=`<< /Type /Pages /Kids [${kids.join(' ')}] /Count ${kids.length} >>`;
+  let out='%PDF-1.4\n'; const offs=[];
+  objs.forEach((o,i)=>{ offs.push(out.length); out+=`${i+1} 0 obj\n${o}\nendobj\n`; });
+  const x=out.length;
+  out+=`xref\n0 ${objs.length+1}\n0000000000 65535 f \n`+offs.map(o=>String(o).padStart(10,'0')+' 00000 n \n').join('')+`trailer\n<< /Size ${objs.length+1} /Root 1 0 R >>\nstartxref\n${x}\n%%EOF`;
+  return Uint8Array.from(out,ch=>ch.charCodeAt(0)&255);
+}
+function resumenPDF(cid){
+  const c=S.cajas.find(x=>x.id===cid), r=cajaResumen(c), PC=pedidosCaja(c), vs=S.ventas.filter(v=>v.cajaId===c.id);
+  const pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado'), can=PC.filter(p=>p.estado==='cancelado'), pen=PC.filter(p=>p.estado==='abierto');
+  const L=[], T=(t,o={})=>partir(t).forEach(x=>L.push({t:x,...o})), sec=t=>L.push({t,f:'F2',s:12,gap:8,linea:true});
+  const fila=(a,b)=>L.push({t:(String(a)+' ').padEnd(62,'.').slice(0,62)+String(b).padStart(20)});
+  L.push({t:S.config.negocio,f:'F2',s:16},{t:'Resumen de caja',f:'F1',s:12});
+  L.push({t:`${c.responsable} - ${puntoNom(c.punto)} - ${c.fecha}`,f:'F1',s:11,gap:4});
+  L.push({t:`Abrió a las ${c.horaAp||'-'} - ${c.cerrada?'Caja cerrada':'Caja todavía abierta (resumen de las '+hora()+')'}`,f:'F1',s:10});
+  sec('Dinero');
+  fila('Monto inicial en monedas',bs(c.montoInicial)); fila('+ Ventas en efectivo',bs(r.efectivo));
+  if(r.difReemp) fila('+/- Diferencia al entregar reemplazos',bs(r.difReemp));
+  if(r.fuera) fila('- Efectivo que aún tiene quien reemplaza',bs(r.fuera));
+  S.gastos.filter(g=>g.cajaId===c.id).forEach(g=>fila('- Pago: '+g.desc,bs(g.monto)));
+  (c.retiros||[]).forEach(x=>fila('- Retiro: '+x.motivo,bs(x.monto)));
+  fila('DEBE HABER EN CAJA',bs(r.esperado));
+  if(c.cerrada){ fila('Dinero contado al cerrar',bs(c.contado)); fila(c.diferencia<0?'FALTANTE':'Sobrante',bs(Math.abs(c.diferencia))); }
+  fila('Cobrado por QR (no está en la caja)',bs(r.qr)); fila('TOTAL VENDIDO',bs(r.total));
+  sec('Pedidos');
+  fila('Cobrados',pag.length); fila('Cancelados',can.length);
+  if(pen.length) fila('Todavía sin cobrar',pen.length+' ('+bs(sum(pen,totalPed))+')');
+  fila('Invitados (no se cobraron)',inv.length+(inv.length?' ('+bs(sum(inv,totalPed))+')':''));
+  inv.forEach(p=>T(`   Invitado para ${p.para||'-'}: ${bs(totalPed(p))}`));
+  sec('Lo vendido');
+  const cob=vs.filter(v=>v.metodo!=='invitado'), porPrecio={};
+  cob.filter(v=>v.tipo==='helado').forEach(v=>porPrecio[v.precio]=(porPrecio[v.precio]||0)+v.cant);
+  Object.keys(porPrecio).sort((a,b)=>a-b).forEach(p=>fila(`Vasos de Bs ${p} x ${porPrecio[p]}`,bs(p*porPrecio[p])));
+  S.config.productos.forEach(pr=>{ const pv=cob.filter(v=>v.producto===pr.id); if(pv.length) fila(`${pr.nombre} x ${sum(pv,v=>v.cant)}`,bs(sum(pv,v=>v.total))); });
+  const sab={}; vs.filter(v=>v.tipo==='helado').forEach(v=>(v.sabores||[]).forEach(s=>sab[s]=(sab[s]||0)+v.cant));
+  if(Object.keys(sab).length){ T('Vasos por sabor (un vaso puede llevar varios sabores):',{gap:4}); Object.entries(sab).sort((a,b)=>b[1]-a[1]).forEach(([s,n])=>fila('   '+sabor(s).nombre,n+(n===1?' vaso':' vasos'))); }
+  if((c.reemplazos||[]).length){ sec('Reemplazos'); c.reemplazos.forEach(x=>T(`${x.quien}, de ${x.inicio} a ${x.fin||'(sigue)'}: vendió ${bs(x.vendido||sum(ventasReemp(c,x),v=>v.total))}${x.fin?', devolvió '+bs(x.entregado):''}`)); }
+  sec('Detalle de pedidos');
+  PC.slice().reverse().forEach(p=>{ const est={pagado:'Pagado '+(p.metodo==='qr'?'QR':'efectivo'),invitado:'Invitado'+(p.para?' ('+p.para+')':''),cancelado:'Cancelado',abierto:'Sin cobrar'}[p.estado];
+    L.push({t:`#${p.num}  ${p.hora}  ${est}  ${bs(totalPed(p))}  - ${p.vendedor}`,f:'F2',s:10,gap:3});
+    itemsVivos(p).forEach(i=>T(`   ${i.cant} x ${descVenta(i)} = ${bs(i.precio*i.cant)}`)); });
+  L.push({t:'Generado el '+new Date().toLocaleString('es-BO'),f:'F1',s:8,gap:12});
+  descargar(`resumen_${norm(c.responsable).replace(/[^a-z0-9]+/g,'_')}_${c.fecha}.pdf`,hacerPDF(L),'application/pdf');
 }
 
 /* ================== SOBRANTES ================== */
@@ -618,7 +716,7 @@ V.produccionAfter = () => {
   const upd=()=>$('cpl').textContent=bs(sum(insRows,i=>num(i.costo))/(num(val('pl'))||1)); $('pl').oninput=upd; upd();
 };
 function guardarLote(){
-  if(!insRows.length) return alert('Agrega al menos un insumo con su costo');
+  if(!insRows.length) return aviso('Agrega al menos un insumo con su costo');
   const ins=insRows.map(r=>({desc:r.desc,costo:num(r.costo)}));
   S.produccion.push({id:uid(),fecha:val('pf'),item:val('ps'),base:val('pb'),litros:num(val('pl')),insumos:ins,costo:sum(ins,i=>i.costo)});
   insRows=[]; save(); render();
@@ -652,7 +750,7 @@ V.gastos = () => {
 };
 function rapido(cat,desc,q,p){ $('gc').value=cat; $('gd').value=desc; $('gq').value=q; $('gp').value=p; $('gp').focus(); }
 function guardarGasto(){
-  const q=num(val('gq'))||1, p=num(val('gp')); if(!p) return alert('Ingresa el precio');
+  const q=num(val('gq'))||1, p=num(val('gp')); if(!p) return aviso('Ingresa el precio');
   S.gastos.push({id:uid(),fecha:val('gf'),categoria:val('gc'),desc:val('gd')||CATS[val('gc')],cantidad:q,monto:+(q*p).toFixed(2),cajaId:null});
   save(); render();
 }
@@ -666,7 +764,7 @@ V.personal = () => {
     ${S.empleados.map(e=>`<div class="row" style="margin-top:8px"><div><label><input type="checkbox" id="j_${e.id}" checked> ${esc(e.nombre)}</label></div><div><input id="jm_${e.id}" type="number" value="${e.pago}"></div></div>`).join('')}
     <div style="margin-top:10px"><button class="btn" onclick="jornada()">Registrar pagos</button></div></div>
   <div class="grid g2"><div class="card"><h3>Trabajadoras</h3><div class="tbl-wrap"><table>
-    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="if(confirm('¿Quitar?')){S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()}">✕</button></td></tr>`).join('')}</table></div>
+    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="pregunta('¿Quitar a ${esc(e.nombre)} de la lista?',()=>{S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()})">✕</button></td></tr>`).join('')}</table></div>
     <div class="row" style="margin-top:10px"><div><input id="en" placeholder="Nombre"></div><div><input id="ep" type="number" value="${S.config.pagoDiario}"></div><div><button class="btn sec" onclick="if(val('en')){S.empleados.push({id:uid(),nombre:val('en'),pago:num(val('ep'))});save();render()}">Agregar</button></div></div></div>
   <div class="card"><h3>Pagos del mes</h3><div class="tbl-wrap"><table>
     <tr><th>Fecha</th><th>Persona</th><th class="n">Monto</th><th></th></tr>
@@ -772,7 +870,9 @@ function exportER(){
     ['Roturas y reparaciones',r.gRep],['Depreciacion',r.gDep],['Faltantes de caja',r.gDif],['Invitaciones (costo estimado)',r.gInv],['Otros',r.gOtros],['Total gastos de operacion',r.gastosOp],['UTILIDAD NETA',r.neta]];
   descargar(`estado_resultados_${erD}_${erH}.csv`,'﻿'+rows.map(x=>x.map(c=>typeof c==='number'?c.toFixed(2):'"'+String(c??'').replace(/"/g,'""')+'"').join(';')).join('\n'),'text/csv');
 }
-function descargar(name,content,type){ const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click(); }
+async function descargar(name,content,type){
+  const a=document.createElement('a'); a.href=URL.createObjectURL(new Blob([content],{type})); a.download=name; a.click();
+}
 
 /* ================== CONFIGURACIÓN ================== */
 V.config = () => {
@@ -803,16 +903,38 @@ V.config = () => {
     <button class="btn sec sm" style="margin-top:8px" onclick="S.config.sabores.push({id:uid(),nombre:'Nuevo sabor',base:'agua',activo:true});save();render()">+ Sabor</button>
     <h3 style="margin-top:20px">Respaldo de datos</h3><p class="muted">Los datos se guardan en este navegador. Descarga un respaldo seguido.</p>
     <div class="chips"><button class="btn sec" onclick="descargar('respaldo_heladeria_'+hoy()+'.json',JSON.stringify(S),'application/json')">⬇️ Descargar respaldo</button>
-    <label class="btn sec" style="color:var(--ink);font-size:14px;margin:0">⬆️ Restaurar<input type="file" accept=".json" hidden onchange="restaurar(this.files[0])"></label>
-    <button class="btn sec" onclick="demo()">Cargar datos de ejemplo</button>
-    <button class="btn" onclick="if(confirm('¿Borrar TODOS los datos?')){S=defaults();save();render()}">Borrar todo</button></div>
-  </div></div>`;
+    <label class="btn sec" style="color:var(--ink);font-size:14px;margin:0">⬆️ Restaurar<input type="file" accept=".json" hidden onchange="restaurar(this.files[0])"></label></div>
+  </div></div>
+  <details class="zona"><summary>Opciones avanzadas</summary>
+    <div class="zona-in">
+      <h3>Empezar de nuevo</h3>
+      <p class="muted">Borra pedidos, cajas, ventas, gastos, producción, sobrantes y equipos de <b>este celular</b>, y deja todo como la primera vez. No se puede deshacer: descarga antes un respaldo.</p>
+      <div class="chips"><button class="btn sec" onclick="descargar('respaldo_heladeria_'+hoy()+'.json',JSON.stringify(S),'application/json')">⬇️ Descargar respaldo primero</button></div>
+      <label style="margin-top:12px"><input type="checkbox" id="rz_keep"> Conservar sabores, precios, lugares de venta y trabajadoras</label>
+      <div class="row" style="margin-top:8px"><div><label>Escribe BORRAR para confirmar</label><input id="rz_txt" autocomplete="off" oninput="$('rz_btn').disabled=this.value.trim().toUpperCase()!=='BORRAR'"></div>
+        <div><label>PIN de administradora</label><input id="rz_pin" type="password" inputmode="numeric" autocomplete="off"></div>
+        <div style="flex:0"><button class="btn" id="rz_btn" disabled onclick="reiniciar()">Empezar de nuevo</button></div></div>
+      <h3 style="margin-top:20px">Datos de ejemplo</h3>
+      <p class="muted">Reemplaza todo lo de este celular por 45 días inventados, solo para practicar.</p>
+      <button class="btn sec" onclick="demo()">Cargar datos de ejemplo</button>
+    </div></details>`;
 };
-function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result), b=defaults(); d.config=Object.assign(b.config,d.config); S=Object.assign(b,d); save(); render(); alert('Datos restaurados'); }catch(e){ alert('Archivo inválido'); } }; r.readAsText(file); }
+function reiniciar(){
+  if(val('rz_txt').trim().toUpperCase()!=='BORRAR') return;
+  if(val('rz_pin')!==S.config.pin) return aviso('El PIN no es correcto.');
+  const keep=$('rz_keep').checked;
+  pregunta('Última confirmación: se borra todo lo anotado en este celular. ¿Empezar de nuevo?',()=>{
+    const cfg=S.config, emp=S.empleados;
+    S=defaults(); if(keep){ S.config=cfg; S.empleados=emp; }
+    dev.set('heladeria_caja',''); edit=null; payFor=null; insRows=[];
+    save(); go('panel'); aviso('Listo. El sistema quedó como la primera vez.');
+  });
+}
+function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result), b=defaults(); d.config=Object.assign(b.config,d.config); S=Object.assign(b,d); save(); render(); aviso('Datos restaurados'); }catch(e){ aviso('Archivo inválido'); } }; r.readAsText(file); }
 
 /* ================== DATOS DE EJEMPLO ================== */
-function demo(){
-  if(S.ventas.length && !confirm('Esto reemplaza los datos actuales por datos de ejemplo. ¿Continuar?')) return;
+function demo(ok){
+  if(S.ventas.length && !ok) return pregunta('Esto reemplaza los datos actuales por datos de ejemplo. ¿Continuar?',()=>demo(true));
   S=defaults(); const c=S.config, R=(a,b)=>a+Math.random()*(b-a), RI=(a,b)=>Math.round(R(a,b));
   c.puntos.push({id:'p2',nombre:'Feria dominical'},{id:'p3',nombre:'Tienda del mercado'});
   const ini=ymd(new Date(Date.now()-75*864e5));
