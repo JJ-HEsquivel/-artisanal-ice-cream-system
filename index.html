@@ -488,8 +488,7 @@ V.panel = () => {
     <div class="card"><h3>Lo más vendido (mes)</h3><table><tr><th>Sabor / producto</th><th class="n">Ventas</th></tr>
       ${rMes.rent.slice(0,7).map(s=>`<tr><td>${esc(s.nombre)}</td><td class="n">${bs(s.venta)}</td></tr>`).join('')||'<tr><td colspan=2 class="muted">Sin ventas aún</td></tr>'}</table>
       <p class="muted">Empanadas en stock: <b>${st}</b></p></div>
-  </div>
-  ${S.ventas.length?'':`<div class="card"><h3>¿Primera vez?</h3><p class="muted">Carga datos de ejemplo de 45 días para ver cómo funciona todo, o empieza en limpio desde Configuración.</p><button class="btn" onclick="demo()">Cargar datos de ejemplo</button></div>`}`;
+  </div>`;
 };
 
 /* ================== PEDIDOS ================== */
@@ -1135,7 +1134,7 @@ function guardarAdmin(){
 }
 function zonaHTML(){
   const admin=rol==='admin', abiertas=S.cajas.filter(c=>!c.cerrada);
-  return `<details class="zona"><summary>Opciones avanzadas</summary>
+  return `<details class="zona"><summary>Opciones avanzadas (empezar de nuevo)</summary>
     <div class="zona-in">
       <h3>Empezar de nuevo</h3>
       <p class="muted">Borra ${admin?'pedidos, cajas, ventas, gastos, producción, sobrantes y equipos':'los pedidos y cajas'} de <b>este celular</b> y deja todo como la primera vez. No se puede deshacer.</p>
@@ -1147,9 +1146,6 @@ function zonaHTML(){
       <div class="row" style="margin-top:8px"><div><label>Escribe BORRAR para confirmar</label><input id="rz_txt" autocomplete="off" oninput="$('rz_btn').disabled=this.value.trim().toUpperCase()!=='BORRAR'"></div>
         ${admin?'<div><label>Contraseña de administración</label><input id="rz_pin" type="password" autocomplete="off"></div>':''}
         <div style="flex:0"><button class="btn" id="rz_btn" style="white-space:nowrap" disabled onclick="reiniciar()">Empezar de nuevo</button></div></div>
-      <h3 style="margin-top:20px">Datos de ejemplo</h3>
-      <p class="muted">Reemplaza todo lo de este celular por 45 días inventados, solo para practicar.</p>
-      <button class="btn sec" onclick="demo()">Cargar datos de ejemplo</button>
     </div></details>`;
 }
 function reiniciar(){
@@ -1165,75 +1161,6 @@ function reiniciar(){
 }
 function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=()=>{ try{ const d=JSON.parse(r.result), b=defaults(); d.config=Object.assign(b.config,d.config); S=Object.assign(b,d); save(); render(); aviso('Datos restaurados'); }catch(e){ aviso('Archivo inválido'); } }; r.readAsText(file); }
 
-/* ================== DATOS DE EJEMPLO ================== */
-function demo(ok){
-  if(S.ventas.length && !ok) return pregunta('Esto reemplaza los datos actuales por datos de ejemplo. ¿Continuar?',()=>demo(true));
-  const adm=S.config.admin, emp=S.empleados;
-  S=defaults(); S.config.admin=adm; S.empleados=emp;
-  // las cuentas se conservan; si faltan las de ejemplo se crean (usuario erika / veronica, contraseña 1234)
-  [['Erika','erika'],['Verónica','veronica']].forEach(([n,u])=>{ if(!emp.some(e=>e.nombre===n)){ const e={id:uid(),nombre:n,usuario:u,telefono:'',pago:110}; ponerClave(e,'1234'); emp.push(e); } });
-  const c=S.config, R=(a,b)=>a+Math.random()*(b-a), RI=(a,b)=>Math.round(R(a,b));
-  c.puntos.push({id:'p2',nombre:'Feria dominical'},{id:'p3',nombre:'Tienda del mercado'});
-  const ini=ymd(new Date(Date.now()-75*864e5));
-  S.activos=[['Cocina a gas',1,650,60],['Refrigerador',2,2800,84],['Baldes de madera con lata',6,180,24],['Garrafas',2,350,60],['Estantes',2,250,48],['Mesas',3,150,36],['Sillas',8,45,24],['Carpas',2,400,24]]
-    .map(([n,q,p,v])=>({id:uid(),nombre:n,cantidad:q,costo:p,vidaMeses:v,fechaCompra:ini}));
-  const act=c.sabores.filter(s=>s.activo), dias=rangoDias(ymd(new Date(Date.now()-44*864e5)),ymd(new Date(Date.now()-864e5)));
-  const V_=(f,caja,o)=>S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:caja.punto,producto:null,sabores:[],metodo:Math.random()<.8?'efectivo':'qr',...o,total:o.cant*o.precio});
-  let pendSob=[], empRec=0;
-  dias.forEach((f,di)=>{
-    const dow=new Date(f+'T12:00').getDay(), k=(dow===0||dow===6)?1.4:1;
-    // recuperar lo guardado ayer
-    empRec=0; pendSob.forEach(s=>{ s.recuperado=s.item==='emp'?Math.max(0,s.cantidad-RI(0,1)):+(s.cantidad*R(.6,1)).toFixed(1); s.merma=+(s.cantidad-s.recuperado).toFixed(2); s.fechaRec=f; if(s.item==='emp') empRec=s.recuperado; }); pendSob=[];
-    const caja={id:uid(),fecha:f,horaAp:'09:00',responsable:'Erika',punto:'pp',montoInicial:50,retiros:[],cerrada:true,
-      reemplazos:di%3===0?[{id:uid(),quien:di%2?'Dueña':'Verónica',inicio:'13:00',fin:'13:35',diferencia:0}]:[]};
-    S.cajas.push(caja);
-    S.gastos.push({id:uid(),fecha:f,categoria:'hielo',desc:'5 barras de hielo',cantidad:5,monto:55,cajaId:caja.id});
-    if(di%3===0) S.gastos.push({id:uid(),fecha:f,categoria:'sal',desc:'Sal',cantidad:1,monto:5});
-    if(di%4===0) S.gastos.push({id:uid(),fecha:f,categoria:'gas',desc:'Garrafa de gas',cantidad:1,monto:22.5});
-    const emp=RI(24,32); S.gastos.push({id:uid(),fecha:f,categoria:'empanadas',desc:'Empanadas',cantidad:emp,monto:emp*3.5});
-    S.empleados.forEach(e=>S.gastos.push({id:uid(),fecha:f,categoria:'sueldos',desc:e.nombre,empleadoId:e.id,monto:110}));
-    act.forEach(s=>{ if(di%2===0){ const fr=R(25,55), es=R(5,9), base=s.base==='leche'?R(20,32):0, az=R(8,14);
-      S.produccion.push({id:uid(),fecha:f,item:s.id,base:s.base,litros:RI(9,12),insumos:[{desc:'Fruta/insumo',costo:+fr.toFixed(2)},{desc:'Esencia',costo:+es.toFixed(2)},{desc:'Azúcar',costo:+az.toFixed(2)}].concat(base?[{desc:'Leche',costo:+base.toFixed(2)}]:[]),costo:+(fr+es+az+base).toFixed(2)}); }});
-    S.produccion.push({id:uid(),fecha:f,item:'ref',base:'agua',litros:15,insumos:[{desc:'Canela',costo:8},{desc:'Azúcar',costo:12},{desc:'Clavo de olor',costo:3}],costo:23});
-    [[5,34],[8,22],[10,16]].forEach(([p,n])=>{ for(let j=0;j<RI(n*k*.7,n*k*1.3);j++){
-      const ns=p<=3?1:p<=5?RI(1,2):RI(2,3), ss=[...act].sort(()=>Math.random()-.5).slice(0,ns).map(s=>s.id);
-      V_(f,caja,{tipo:'helado',cant:1,precio:p,sabores:ss}); }});
-    V_(f,caja,{tipo:'producto',producto:'ref',cant:RI(15,30)*k|0,precio:3,metodo:'efectivo'});
-    if(di%4===1){ const n=RI(1,3); S.ventas.push({id:uid(),fecha:f,hora:'',cajaId:caja.id,punto:'pp',vendedor:'Dueña',tipo:'helado',producto:null,sabores:[act[RI(0,5)].id],cant:n,precio:5,total:0,valor:n*5,metodo:'invitado',invitado:di%8===1?'Hermano':'Persona que lo necesita'}); }
-    const sobE=RI(0,4), ev=emp+empRec-sobE; V_(f,caja,{tipo:'producto',producto:'emp',cant:ev,precio:5,metodo:'efectivo'});
-    const sob=[...act].sort(()=>Math.random()-.5).slice(0,2).map(s=>({id:uid(),fecha:f,cajaId:caja.id,item:s.id,cantidad:RI(1,3),recuperado:null}));
-    if(sobE) sob.push({id:uid(),fecha:f,cajaId:caja.id,item:'emp',cantidad:sobE,recuperado:null});
-    S.sobrantes.push(...sob); pendSob=sob;
-    const r=cajaResumen(caja); caja.diferencia=[0,0,0,-2,1,0,-5,0][RI(0,7)]; caja.contado=+(r.esperado+caja.diferencia).toFixed(2);
-    if(dow===0){ const cx={id:uid(),fecha:f,horaAp:'10:00',responsable:'Verónica',punto:'p2',montoInicial:20,retiros:[],reemplazos:[],cerrada:true}; S.cajas.push(cx);
-      for(let j=0;j<RI(40,60);j++) V_(f,cx,{tipo:'helado',cant:1,precio:[5,5,8,10][RI(0,3)],sabores:[act[RI(0,2)].id],metodo:'efectivo'});
-      const rx=cajaResumen(cx); cx.diferencia=-RI(0,1)*3; cx.contado=rx.esperado+cx.diferencia; }
-  });
-  // hoy: dos cajas abiertas, y la dueña reemplazando a Verónica
-  const t=hoy(), c1={id:uid(),fecha:t,horaAp:'09:05',responsable:'Erika',punto:'pp',montoInicial:50,retiros:[],reemplazos:[],cerrada:false},
-    c2={id:uid(),fecha:t,horaAp:'09:20',responsable:'Verónica',punto:'p3',montoInicial:30,retiros:[],reemplazos:[{id:uid(),quien:'Dueña',inicio:'13:10',fin:null}],cerrada:false};
-  S.cajas.push(c1,c2);
-  const vaso=()=>({id:uid(),tipo:'helado',cant:1,precio:[5,8,8,10][RI(0,3)],sabores:[...act].sort(()=>Math.random()-.5).slice(0,RI(1,3)).map(s=>s.id)});
-  const mkPed=(cx,j,n,estado,vend)=>{ const hh=pad(9+((j*23)/60|0))+':'+pad((j*23)%60);
-    const p={id:uid(),num:pedidosCaja(cx).length+1,cajaId:cx.id,fecha:t,hora:hh,vendedor:vend||cx.responsable,estado:'abierto',items:Array.from({length:n},vaso)};
-    if(Math.random()<.3){ const pr=Math.random()<.5?'ref':'emp'; p.items.push({id:uid(),tipo:'producto',producto:pr,precio:prod(pr).precio,cant:RI(1,2),sabores:[]}); }
-    S.pedidos.push(p);
-    if(estado==='pagado') ventasDePedido(p,cx,Math.random()<.8?'efectivo':'qr',hh);
-    return p; };
-  for(let j=0;j<14;j++) mkPed(c1,j,RI(1,3),'pagado');
-  const her=mkPed(c1,14,1,'abierto'); her.para='Hermano'; ventasDePedido(her,c1,'invitado','14:30');
-  mkPed(c1,15,5,'abierto'); mkPed(c1,16,2,'abierto');
-  const reV=c2.reemplazos.pop();
-  for(let j=0;j<6;j++) mkPed(c2,j*2,RI(1,2),'pagado');
-  c2.reemplazos.push(reV);
-  for(let j=0;j<2;j++) mkPed(c2,18+j,1,'pagado','Dueña');
-  S.sobrantes.filter(s=>s.recuperado!=null).forEach(s=>s.valorMerma=+(s.merma*costoUnit(s.item)).toFixed(2));
-  const sil=S.activos.find(a=>a.nombre==='Sillas'), ref=S.activos.find(a=>a.nombre==='Refrigerador'), bal=S.activos.find(a=>a.nombre.startsWith('Baldes'));
-  S.incidencias.push({id:uid(),fecha:dias[8],activoId:sil.id,tipo:'rotura',unidades:1,costo:0,detalle:'Se rompió una pata'}); sil.cantidad--;
-  S.incidencias.push({id:uid(),fecha:dias[20],activoId:ref.id,tipo:'reparacion',unidades:1,costo:180,detalle:'Recarga de gas del refrigerador'});
-  S.incidencias.push({id:uid(),fecha:dias[33],activoId:bal.id,tipo:'reparacion',unidades:1,costo:35,detalle:'Cambio de zuncho del balde'});
-  save(); go('panel');
-}
 
 render();
 </script>

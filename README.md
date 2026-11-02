@@ -39,7 +39,7 @@ Se guardan en el navegador de cada dispositivo (`localStorage`). Respaldo en **C
 
 Se hace en cada celular por separado (cada uno guarda sus propios datos), en cualquiera de los dos modos:
 
-1. ☰ → **Configuración** → al final, abrir **Opciones avanzadas**.
+1. ☰ → **Configuración** → al final, abrir **Opciones avanzadas (empezar de nuevo)**.
 2. Escribir `BORRAR` y tocar **Empezar de nuevo**. En administración también se pide la contraseña.
 3. Opcional: marcar *Conservar sabores, precios y lugares de venta*. Las cuentas nunca se borran.
 
