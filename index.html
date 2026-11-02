@@ -8,7 +8,7 @@
 /* Temas: cada uno redefine solo los colores. Los componentes usan siempre estas variables.
    clasico = madera y fresa · oscuro = cacao de noche · noche = negro con degradado azul-turquesa · fresa = fresa y menta */
 :root{
-  --bg:#faf6f1; --card:#fff; --field:#fff; --soft:#efe7de; --soft-2:#f8f2ea;
+  --bg:#faf6f1; --card:#fff; --field:#fff; --soft:#efe7de; --btn-bd:#dccbb8; --soft-2:#f8f2ea;
   --ink:#2b2420; --muted:#7a6d64; --line:#ebe2d8; --edge:#9a6b3f;
   --head-a:#6e4826; --head-b:#9a6b3f; --head-c:#9a6b3f; --head-ink:#fff;
   --accent:#d8344f; --accent-l:#fde8ec; --accent-ink:#fff; --ok-ink:#fff;
@@ -19,7 +19,7 @@
   --radius:12px; color-scheme:light;
 }
 :root[data-tema="oscuro"]{
-  --bg:#13100e; --card:#1d1814; --field:#17130f; --soft:#2a231d; --soft-2:#221c17;
+  --bg:#13100e; --card:#1d1814; --field:#17130f; --soft:#322a22; --btn-bd:#4d4034; --soft-2:#221c17;
   --ink:#f3ece5; --muted:#a8998c; --line:#352c25; --edge:#b0855a;
   --head-a:#24180f; --head-b:#4a3220; --head-c:#4a3220; --head-ink:#f8efe6;
   --accent:#ff6f86; --accent-l:rgba(255,111,134,.15); --accent-ink:#2a0d13; --ok-ink:#06210f;
@@ -29,7 +29,7 @@
   --shadow:rgba(0,0,0,.5); color-scheme:dark;
 }
 :root[data-tema="noche"]{
-  --bg:#0a0e13; --card:#111921; --field:#0d141a; --soft:#18242e; --soft-2:#141e27;
+  --bg:#0a0e13; --card:#111921; --field:#0d141a; --soft:#1c2b36; --btn-bd:#2f4656; --soft-2:#141e27;
   --ink:#e6f0f1; --muted:#8aa0aa; --line:#1f2d38; --edge:#2a9d8a;
   --head-a:#0f1b2a; --head-b:#1b4a66; --head-c:#2a9d8a; --head-ink:#f2fbfa;
   --accent:#34b9a3; --accent-l:rgba(52,185,163,.15); --accent-ink:#04201b; --ok-ink:#04201b;
@@ -39,7 +39,7 @@
   --shadow:rgba(0,0,0,.55); color-scheme:dark;
 }
 :root[data-tema="fresa"]{
-  --bg:#fff6f8; --card:#fff; --field:#fff; --soft:#fbe8ee; --soft-2:#f0faf7;
+  --bg:#fff6f8; --card:#fff; --field:#fff; --soft:#fbe8ee; --btn-bd:#efc6d5; --soft-2:#f0faf7;
   --ink:#3b2632; --muted:#8a6f7d; --line:#f4dbe4; --edge:#2aa894;
   --head-a:#c93a6d; --head-b:#e0628f; --head-c:#1f9e8a; --head-ink:#fff;
   --accent:#d63d74; --accent-l:#fde4ed; --accent-ink:#fff; --ok-ink:#fff;
@@ -95,7 +95,7 @@ input[type=checkbox]{width:auto}
 .row>div{flex:1;min-width:120px}
 .btn{border:0;border-radius:8px;padding:9px 14px;font-size:14px;cursor:pointer;background:var(--accent);color:var(--accent-ink);font-weight:600}
 .btn:disabled{opacity:.45;cursor:default}
-.btn.sec{background:var(--soft);color:var(--ink)}
+.btn.sec{background:var(--soft);color:var(--ink);box-shadow:inset 0 0 0 1px var(--btn-bd)}
 .btn.ok{background:var(--green);color:var(--ok-ink)}
 .btn.sm{padding:5px 9px;font-size:12px}
 .btn.x{background:none;color:var(--red);padding:4px 8px}
@@ -148,6 +148,19 @@ code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
 .modal-box{background:var(--card);color:var(--ink);border-radius:14px;padding:18px;width:min(380px,100%);box-shadow:0 10px 30px var(--shadow)}
 .modal-box p{margin:0 0 12px;white-space:pre-line;font-size:16px}
 .modal-btns{display:flex;gap:10px;justify-content:flex-end;margin-top:12px}
+/* panel que sube desde abajo */
+.hoja{position:fixed;inset:0;z-index:25;display:flex;align-items:flex-end;justify-content:center}
+.hoja-bg{position:absolute;inset:0;background:rgba(0,0,0,.45)}
+.hoja-box{position:relative;background:var(--card);color:var(--ink);width:min(520px,100%);max-height:88vh;overflow-y:auto;border-radius:18px 18px 0 0;padding:10px max(16px,env(safe-area-inset-left,0px)) calc(18px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-right,0px));box-shadow:0 -8px 30px var(--shadow);animation:sube .22s ease-out}
+.hoja-asa{width:42px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 14px}
+.hoja-box h3{font-size:18px}
+.hoja-btns{display:flex;gap:10px;margin-top:18px}
+.hoja-btns .btn{flex:1;padding:13px;font-size:15px}
+.monto-big{font-size:24px!important;font-weight:700;padding:12px}
+.acciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.acciones .btn{padding:13px 8px}
+@keyframes sube{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.hoja-box{animation:none}}
 /* celulares */
 @media (max-width:600px){
   body{font-size:15px}
@@ -179,6 +192,7 @@ code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
 <div class="modal" id="modal" hidden><div class="modal-box" role="dialog" aria-modal="true"><p id="mmsg"></p><input id="minp" hidden autocomplete="off"><div class="modal-btns"><button class="btn sec" id="mno">Cancelar</button><button class="btn" id="msi">Aceptar</button></div></div></div>
 <div class="drawer" id="drawer"><div class="bg" onclick="menu(false)"></div>
   <aside><div class="top"><b id="dtit"></b><small id="hoy"></small></div><nav id="nav"></nav></aside></div>
+<div class="hoja" id="hoja" hidden><div class="hoja-bg" onclick="cerrarHoja()"></div><div class="hoja-box" role="dialog" aria-modal="true"><div class="hoja-asa"></div><div id="hojaBody"></div></div></div>
 <main id="main"></main>
 
 <script>
@@ -587,16 +601,13 @@ function detalleMiCaja(c){
       ${r.fuera?`<tr><td>− Efectivo que aún tiene quien reemplaza</td><td class="n">${bs(r.fuera)}</td></tr>`:''}
       ${r.difReemp?`<tr><td>± Diferencia en entregas de reemplazos</td><td class="n">${bs(r.difReemp)}</td></tr>`:''}
       <tr><td>− Pagos hechos con la caja</td><td class="n">${bs(r.gastosCaja)}</td></tr>
-      <tr><td>− Retiros (la dueña se llevó)</td><td class="n">${bs(r.retiros)}</td></tr>
+      <tr><td>− Retiros </td><td class="n">${bs(r.retiros)}</td></tr>
       <tr class="tot"><td><b>Debe haber en caja</b></td><td class="n"><b>${bs(r.esperado)}</b></td></tr>
       <tr><td class="muted">Ventas por QR</td><td class="n muted">${bs(r.qr)}</td></tr>
       <tr><td class="muted">Total vendido</td><td class="n muted">${bs(r.total)}</td></tr></table>
-      <h3 style="margin-top:16px">Pagué algo con la caja</h3>
-      <div class="row"><div><select id="pc">${['hielo','sal','gas','insumos','otros'].map(k=>`<option value="${k}">${CATS[k]}</option>`).join('')}</select></div>
-      <div><input id="pm" type="number" inputmode="decimal" placeholder="Bs"></div><div><input id="pd" placeholder="Detalle"></div><div style="flex:0"><button class="btn sec" onclick="pagoCaja()">Anotar</button></div></div>
-      <h3 style="margin-top:16px">Retiro de dinero</h3>
-      <div class="row"><div><input id="rm" type="number" inputmode="decimal" placeholder="Bs"></div><div><input id="rmo" placeholder="Ej: lo llevó la dueña"></div><div style="flex:0"><button class="btn sec" onclick="retiro()">Anotar</button></div></div>
-      ${(c.retiros||[]).map(x=>`<div class="cart-item"><span>${esc(x.motivo)}</span><span>${bs(x.monto)}</span></div>`).join('')}
+      <h3 style="margin-top:18px">Pagos y retiros</h3>
+      <div class="acciones"><button class="btn" onclick="hojaPago()">💸 Registrar pago</button><button class="btn" onclick="hojaRetiro()">🏦 Retirar dinero</button></div>
+      ${movimientosHTML(c)}
     </div>
     <div class="card"><h3>Cerrar caja</h3>
       ${re?`<div class="alert">Antes de cerrar, ${esc(re.quien)} tiene que entregar lo que vendió mientras reemplazaba.</div>`
@@ -645,9 +656,44 @@ function volver(id){
   re.entregado=num(val('ve')); re.diferencia=+(re.entregado-re.efectivo).toFixed(2); re.fin=hora();
   volverForm=null; save(); render();
 }
-function pagoCaja(){ const c=cajaSel(), m=num(val('pm')); if(!m) return;
-  S.gastos.push({id:uid(),fecha:c.fecha,categoria:val('pc'),desc:val('pd')||CATS[val('pc')],cantidad:1,monto:m,cajaId:c.id}); save(); render(); }
-function retiro(){ const c=cajaSel(), m=num(val('rm')); if(!m) return; c.retiros.push({monto:m,motivo:val('rmo')||'Retiro'}); save(); render(); }
+// Pagos y retiros: se anotan en un panel que sube desde abajo
+function movimientosHTML(c){
+  const movs=[...S.gastos.filter(g=>g.cajaId===c.id).map(g=>({t:'💸 '+CATS[g.categoria]+(g.desc&&g.desc!==CATS[g.categoria]?' · '+g.desc:''),m:g.monto,del:`delItem('gastos','${g.id}')`})),
+    ...(c.retiros||[]).map((x,i)=>({t:'🏦 Retiro · '+x.motivo,m:x.monto,del:`quitarRetiro(${i})`}))];
+  if(!movs.length) return '<p class="muted" style="margin-bottom:0">Todavía no hay pagos ni retiros en esta caja.</p>';
+  return '<div style="margin-top:8px">'+movs.map(x=>`<div class="cart-item"><span>${esc(x.t)}</span><span style="white-space:nowrap">${bs(x.m)} <button class="btn x" title="Quitar" onclick="${x.del}">✕</button></span></div>`).join('')+'</div>';
+}
+let pcCat='hielo';
+function abrirHoja(html){ $('hojaBody').innerHTML=html; $('hoja').hidden=false; setTimeout(()=>{ const i=$('hojaBody').querySelector('input'); if(i) i.focus(); },60); }
+function cerrarHoja(){ $('hoja').hidden=true; }
+if(document.addEventListener) document.addEventListener('keydown',e=>{ if(e.key==='Escape') cerrarHoja(); });
+function hojaPago(){
+  pcCat='hielo';
+  abrirHoja(`<h3>💸 Registrar un pago</h3><p class="muted">Algo que se compró o pagó con el dinero de esta caja.</p>
+    <label>¿Qué se pagó?</label>
+    <div class="chips" id="pcChips">${['hielo','sal','gas','insumos','otros'].map(k=>`<button class="chip ${k===pcCat?'on':''}" onclick="pcCat='${k}';document.querySelectorAll('#pcChips .chip').forEach(e=>e.classList.toggle('on',e===this))">${CATS[k]}</button>`).join('')}</div>
+    <label for="pm" style="margin-top:14px">Monto (Bs)</label><input id="pm" class="monto-big" type="number" inputmode="decimal" placeholder="0">
+    <label for="pd" style="margin-top:12px">Detalle (opcional)</label><input id="pd" placeholder="Ej: 5 barras">
+    <div class="hoja-btns"><button class="btn sec" onclick="cerrarHoja()">Cancelar</button><button class="btn ok" onclick="pagoCaja()">Guardar pago</button></div>`);
+}
+function hojaRetiro(){
+  abrirHoja(`<h3>🏦 Retirar dinero</h3><p class="muted">Dinero que se saca de la caja. No es una venta ni un gasto.</p>
+    <label for="rm">Monto (Bs)</label><input id="rm" class="monto-big" type="number" inputmode="decimal" placeholder="0">
+    <label style="margin-top:14px">Motivo</label>
+    <div class="chips">${['Lo llevó la dueña','Para comprar insumos','Depósito'].map(x=>`<button class="chip" onclick="$('rmo').value='${x}'">${x}</button>`).join('')}</div>
+    <input id="rmo" style="margin-top:8px" placeholder="O escribe el motivo">
+    <div class="hoja-btns"><button class="btn sec" onclick="cerrarHoja()">Cancelar</button><button class="btn ok" onclick="retiro()">Guardar retiro</button></div>`);
+}
+function pagoCaja(){
+  const c=cajaSel(), m=num(val('pm')); if(!m) return aviso('Escribe el monto que se pagó.');
+  S.gastos.push({id:uid(),fecha:c.fecha,categoria:pcCat,desc:val('pd').trim()||CATS[pcCat],cantidad:1,monto:m,cajaId:c.id});
+  cerrarHoja(); save(); render();
+}
+function retiro(){
+  const c=cajaSel(), m=num(val('rm')); if(!m) return aviso('Escribe el monto que se retiró.');
+  c.retiros.push({monto:m,motivo:val('rmo').trim()||'Retiro'}); cerrarHoja(); save(); render();
+}
+function quitarRetiro(i){ pregunta('¿Quitar este retiro?',()=>{ cajaSel().retiros.splice(i,1); save(); render(); }); }
 function cerrarCaja(){
   const c=cajaSel(); if(val('cc')==='') return aviso('Ingresa el dinero contado');
   items().forEach(i=>{ const el=$('sb_'+i.id); const q=el?num(el.value):0;
