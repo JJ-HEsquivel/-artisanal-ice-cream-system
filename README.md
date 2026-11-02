@@ -2,12 +2,20 @@
 
 Aplicación web de un solo archivo (`index.html`). No necesita instalación ni internet: se abre con doble clic en el navegador (también funciona en el celular). Es para uso interno: administradora y colaboradores, no para clientes.
 
-## Dos modos
+## Inicio de sesión
 
-- **Colaborador**: solo ve *Pedidos* y *Caja*.
-- **Administradora** (PIN, por defecto `1234`): ve todo, incluido el estado de resultados.
+No hay registro: al abrir el enlace aparece el inicio de sesión.
 
-Se cambia con el botón de arriba a la derecha.
+| Enlace | Quién entra |
+|---|---|
+| `.../index.html` (enlace normal) | **Colaboradores**: solo ven *Pedidos*, *Caja* y *Configuración* (tema y empezar de nuevo). |
+| `.../index.html#admin` | **Administración**: ve todo. Usuario inicial `Admin`; la contraseña se cambia en *Configuración → Usuario y contraseña*. |
+
+Las cuentas de colaboradores las crea la administración en **Personal → + Nuevo colaborador** (nombre, usuario, teléfono opcional, contraseña). Cerrar sesión: botón de arriba a la derecha o ☰ → *Cerrar sesión*.
+
+> Prototipo: las cuentas se guardan en el navegador de cada celular, así que una cuenta creada en un celular solo sirve en ese celular. Las contraseñas se guardan como hash, pero esto no es seguridad real; eso llega con la base de datos.
+
+Los pedidos cancelados no se guardan: se borran y no aparecen en el historial ni en el resumen PDF.
 
 ## Módulos
 
@@ -32,8 +40,8 @@ Se guardan en el navegador de cada dispositivo (`localStorage`). Respaldo en **C
 Se hace en cada celular por separado (cada uno guarda sus propios datos), en cualquiera de los dos modos:
 
 1. ☰ → **Configuración** → al final, abrir **Opciones avanzadas**.
-2. Escribir `BORRAR` y tocar **Empezar de nuevo**. En modo administradora también se pide el PIN.
-3. Opcional: marcar *Conservar sabores, precios, lugares de venta y colaboradores*.
+2. Escribir `BORRAR` y tocar **Empezar de nuevo**. En administración también se pide la contraseña.
+3. Opcional: marcar *Conservar sabores, precios y lugares de venta*. Las cuentas nunca se borran.
 
 El colaborador debería descargar antes el **📄 Resumen PDF** de sus cajas.
 

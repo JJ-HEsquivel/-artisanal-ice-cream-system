@@ -118,7 +118,6 @@ input[type=checkbox]{width:auto}
 .seg button{flex:1;border:0;background:none;padding:10px;border-radius:8px;font-size:14px;cursor:pointer;color:var(--muted)}
 .seg button.on{background:var(--card);color:var(--ink);font-weight:700;box-shadow:0 1px 3px var(--shadow)}
 .pedido{border-left:5px solid var(--amber)}
-.cart-item.cancel span:first-child{text-decoration:line-through;color:var(--muted)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:999px;background:var(--soft)}
 .badge.g{background:var(--green-l);color:var(--green)} .badge.a{background:var(--amber-l);color:var(--amber)} .badge.r{background:var(--accent-l);color:var(--red)}
 .alert{padding:10px 12px;border-radius:10px;background:var(--amber-l);color:var(--amber-ink);margin-bottom:8px;font-size:14px}
@@ -159,6 +158,20 @@ code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
 .monto-big{font-size:24px!important;font-weight:700;padding:12px}
 .acciones{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .acciones .btn{padding:13px 8px}
+/* inicio de sesión */
+body.login header,body.login .drawer{display:none}
+.login-box{max-width:380px;margin:8vh auto 0;background:var(--card);border-radius:18px;overflow:hidden;box-shadow:0 10px 30px var(--shadow)}
+.login-top{background:linear-gradient(135deg,var(--head-a),var(--head-b) 60%,var(--head-c));color:var(--head-ink);padding:26px 22px 20px;text-align:center}
+.login-top .logo{font-size:44px;line-height:1}
+.login-top h2{margin:10px 0 2px;font-size:20px}
+.login-top small{opacity:.85}
+.login-box form{padding:20px 22px 24px}
+.login-box form label{margin-top:12px}
+.login-box form .btn{width:100%;margin-top:18px;padding:13px;font-size:16px}
+.pass{position:relative}
+.pass input{padding-right:46px}
+.pass button{position:absolute;right:4px;top:50%;transform:translateY(-50%);background:none;border:0;font-size:18px;cursor:pointer;padding:6px 8px;color:var(--muted)}
+.login-err{color:var(--red);font-size:14px;min-height:20px;margin:10px 0 0}
 @keyframes sube{from{transform:translateY(40px);opacity:.5}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion:reduce){.hoja-box{animation:none}}
 /* celulares */
@@ -187,7 +200,7 @@ code{background:var(--soft);padding:1px 5px;border-radius:4px;font-size:13px}
 <header>
   <button class="burger" onclick="menu(true)" aria-label="Menú">☰</button>
   <div class="ttl"><h1 id="tit">🍦 Heladería Artesanal</h1><div class="sec-name"><span id="secn"></span></div></div>
-  <button class="rol" id="rol" onclick="cambiarRol()"></button>
+  <button class="rol" id="rol" onclick="salir()" title="Cerrar sesión"></button>
 </header>
 <div class="modal" id="modal" hidden><div class="modal-box" role="dialog" aria-modal="true"><p id="mmsg"></p><input id="minp" hidden autocomplete="off"><div class="modal-btns"><button class="btn sec" id="mno">Cancelar</button><button class="btn" id="msi">Aceptar</button></div></div></div>
 <div class="drawer" id="drawer"><div class="bg" onclick="menu(false)"></div>
@@ -205,7 +218,8 @@ const CATS = {
 };
 const defaults = () => ({
   config:{
-    negocio:'Heladería Artesanal', pin:'71757',
+    negocio:'Heladería Artesanal',
+    admin:{usuario:'Admin',sal:'adm',hash:sha256('adm|71757972')},
     puntos:[{id:'pp',nombre:'Tienda principal'}],
     precios:[5,8,10],
     sabores:['Canela:agua','Leche:leche','Chirimoya:leche','Maracuyá:agua','Frutilla:agua','Cupuazú:leche','Piña:agua','Oreo:leche','Chicle:leche']
@@ -216,14 +230,42 @@ const defaults = () => ({
     pagoDiario:110,
     fijos:[{id:'f1',nombre:'Alquiler',monto:800},{id:'f2',nombre:'Agua',monto:10},{id:'f3',nombre:'Luz',monto:40}]
   },
-  empleados:[{id:'e1',nombre:'Erika',pago:110},{id:'e2',nombre:'Verónica',pago:110}],
+  // colaboradores: los crea la administradora con usuario y contraseña (Personal)
+  empleados:[],
   ventas:[], pedidos:[], cajas:[], produccion:[], gastos:[], sobrantes:[], activos:[], incidencias:[]
 });
 let S = load();
 function load(){
-  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d){ const b=defaults(); d.config=Object.assign(b.config,d.config); return Object.assign(b,d); } }catch(e){}
+  try{ const d=JSON.parse(localStorage.getItem(KEY)); if(d){ const b=defaults(); d.config=Object.assign(b.config,d.config);
+    // lo cancelado no se guarda: se limpia lo que haya quedado de versiones anteriores
+    d.pedidos=(d.pedidos||[]).filter(p=>p.estado!=='cancelado').map(p=>({...p,items:p.items.filter(i=>!i.cancelado)}));
+    return Object.assign(b,d); } }catch(e){}
   return defaults();
 }
+/* ================== CONTRASEÑAS ==================
+   Se guarda solo el hash SHA-256 de (sal|contraseña), nunca la contraseña.
+   Prototipo: sirve para ordenar quién entra, no es seguridad real (todo vive en el navegador). */
+function sha256(txt){
+  const rr=(v,n)=>(v>>>n)|(v<<(32-n)), b=unescape(encodeURIComponent(txt)), K=[];
+  let H=[];
+  for(let n=2,c=0;c<64;n++){ let primo=true; for(let d=2;d*d<=n;d++) if(n%d===0){ primo=false; break; }
+    if(primo){ if(c<8) H[c]=(Math.sqrt(n)*4294967296)|0; K[c++]=(Math.cbrt(n)*4294967296)|0; } }
+  let m=b+'\x80'; while(m.length%64!==56) m+='\x00';
+  const w=[]; for(let i=0;i<m.length;i++) w[i>>2]|=m.charCodeAt(i)<<((3-(i&3))*8);
+  w.push((b.length*8/4294967296)|0, (b.length*8)|0);
+  for(let j=0;j<w.length;j+=16){
+    const x=w.slice(j,j+16); let [a,bb,c,d,e,f,g,h]=H;
+    for(let i=0;i<64;i++){
+      if(i>=16){ const s0=x[i-15], s1=x[i-2]; x[i]=(x[i-16]+(rr(s0,7)^rr(s0,18)^(s0>>>3))+x[i-7]+(rr(s1,17)^rr(s1,19)^(s1>>>10)))|0; }
+      const t1=(h+(rr(e,6)^rr(e,11)^rr(e,25))+((e&f)^(~e&g))+K[i]+x[i])|0, t2=((rr(a,2)^rr(a,13)^rr(a,22))+((a&bb)^(a&c)^(bb&c)))|0;
+      h=g; g=f; f=e; e=(d+t1)|0; d=c; c=bb; bb=a; a=(t1+t2)|0;
+    }
+    H=[a,bb,c,d,e,f,g,h].map((v,i)=>(v+H[i])|0);
+  }
+  return H.map(v=>(v>>>0).toString(16).padStart(8,'0')).join('');
+}
+const claveOk = (cuenta,pass) => !!cuenta && !!cuenta.hash && sha256(cuenta.sal+'|'+pass)===cuenta.hash;
+function ponerClave(cuenta,pass){ cuenta.sal=Math.random().toString(36).slice(2,10); cuenta.hash=sha256(cuenta.sal+'|'+pass); }
 function save(){ try{ localStorage.setItem(KEY,JSON.stringify(S)); }catch(e){ aviso('No se pudo guardar en este celular: '+e.message); } }
 
 /* ================== DIÁLOGOS (dentro de la página) ================== */
@@ -280,14 +322,44 @@ const TABS = [
   ['produccion','🧪 Producción','a'],['gastos','🧾 Compras y gastos','a'],['personal','👩‍🍳 Personal','a'],
   ['equipos','🪑 Equipos','a'],['er','📈 Estado de resultados','a'],['config','⚙️ Configuración','at']
 ];
-let rol = dev.get('heladeria_rol') || 'admin';
-let tab = rol==='admin' ? 'panel' : 'vender';
+let rol = 'trab', tab = 'vender';
 const permitido = t => (TABS.find(x=>x[0]===t)||[])[2]?.includes(rol==='admin'?'a':'t');
-function cambiarRol(){
-  if(rol==='admin'){ rol='trab'; }
-  else return pedirTexto('PIN de administradora:',p=>{ if(p!==S.config.pin) return aviso('PIN incorrecto'); rol='admin'; dev.set('heladeria_rol',rol); render(); },'password');
-  dev.set('heladeria_rol',rol); render();
+
+/* ================== SESIÓN ==================
+   Enlace normal → inicio de sesión de colaboradores. Enlace con #admin → inicio de sesión de administración.
+   No hay registro: las cuentas de colaboradores las crea la administradora en Personal. */
+const enlaceAdmin = () => /^#\/?admin$/i.test(location.hash);
+function sesion(){
+  try{ const s=JSON.parse(dev.get('heladeria_sesion'));
+    if(s&&s.t==='admin') return {t:'admin',nombre:S.config.admin.usuario};
+    const e=s&&S.empleados.find(x=>x.id===s.id&&x.hash);
+    if(e) return {t:'colab',id:e.id,nombre:e.nombre};
+  }catch(e){}
+  return null;
 }
+const yo = () => { const s=sesion(); return s&&s.t==='colab' ? S.empleados.find(e=>e.id===s.id) : null; };
+function loginHTML(){
+  const adm=enlaceAdmin();
+  return `<div class="login-box"><div class="login-top"><div class="logo">🍦</div><h2>${esc(S.config.negocio)}</h2><small>${adm?'Acceso de administración':'Ingreso de colaboradores'}</small></div>
+    <form onsubmit="return entrar()" autocomplete="on">
+      <label for="lu">Usuario</label><input id="lu" autocomplete="username" autocapitalize="none" spellcheck="false" required>
+      <label for="lp">Contraseña</label><div class="pass"><input id="lp" type="password" autocomplete="current-password" required>
+        <button type="button" aria-label="Mostrar contraseña" onclick="const i=$('lp');i.type=i.type==='password'?'text':'password'">👁</button></div>
+      <p class="login-err" id="lerr" role="alert"></p>
+      <button class="btn">Ingresar</button>
+      ${adm?'':'<p class="muted" style="text-align:center;margin:16px 0 0;font-size:13px">¿No tienes usuario? Pídeselo a la administradora.</p>'}
+    </form></div>`;
+}
+function entrar(){
+  const u=val('lu').trim().toLowerCase(), p=val('lp'); let s=null;
+  if(enlaceAdmin()){ const a=S.config.admin; if(u===a.usuario.toLowerCase()&&claveOk(a,p)) s={t:'admin'}; }
+  else { const e=S.empleados.find(x=>(x.usuario||'').toLowerCase()===u); if(claveOk(e,p)) s={t:'colab',id:e.id}; }
+  if(!s){ $('lerr').textContent='Usuario o contraseña incorrectos.'; $('lp').value=''; $('lp').focus(); return false; }
+  dev.set('heladeria_sesion',JSON.stringify(s)); tab=s.t==='admin'?'panel':'vender'; render(); window.scrollTo(0,0);
+  return false;
+}
+function salir(){ pregunta('¿Cerrar sesión en este celular?',()=>{ dev.set('heladeria_sesion',''); dev.set('heladeria_caja',''); menu(false); render(); }); }
+if(window.addEventListener) window.addEventListener('hashchange',()=>render());
 function menu(on){ $('drawer').classList.toggle('open',on); }
 // Tema de colores: preferencia de cada celular
 const TEMAS=[['clasico','Clásico','linear-gradient(135deg,#6e4826,#9a6b3f 55%,#d8344f)'],['oscuro','Oscuro','linear-gradient(135deg,#13100e,#4a3220 55%,#ff6f86)'],
@@ -297,19 +369,26 @@ function ponerTema(t){ tema=t; dev.set('heladeria_tema',t); document.documentEle
 document.documentElement.setAttribute('data-tema',tema);
 function go(t){ tab=t; menu(false); render(); window.scrollTo(0,0); }
 function render(){
+  const ses=sesion(), dentro=ses&&ses.t===(enlaceAdmin()?'admin':'colab');
+  document.body.classList.toggle('login',!dentro);
+  if(!dentro){ cerrarHoja(); $('main').innerHTML=loginHTML(); return; }
+  rol = ses.t==='admin' ? 'admin' : 'trab';
   if(!permitido(tab)) tab = rol==='admin'?'panel':'vender';
   $('tit').textContent = $('dtit').textContent = '🍦 '+S.config.negocio;
   $('secn').textContent = TABS.find(x=>x[0]===tab)[1];
   $('hoy').textContent = new Date().toLocaleDateString('es-BO',{weekday:'long',day:'numeric',month:'long'});
-  $('rol').innerHTML = rol==='admin' ? '👑 <span class="txt">Administradora</span>' : '🙋 <span class="txt">Colaborador</span>';
-  $('nav').innerHTML = TABS.filter(x=>permitido(x[0])).map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('');
+  $('rol').innerHTML = (rol==='admin'?'👑':'🙋')+` <span class="txt">${esc(ses.nombre)}</span>`;
+  $('nav').innerHTML = TABS.filter(x=>permitido(x[0])).map(([k,l])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${l}</button>`).join('')
+    + `<button onclick="salir()">🚪 Cerrar sesión (${esc(ses.nombre)})</button>`;
   $('main').innerHTML = V[tab]();
   if(V[tab+'After']) V[tab+'After']();
 }
 const V = {};
 
 /* ================== CÁLCULOS ================== */
-const cajaSel = () => { const c=S.cajas.find(x=>x.id===dev.get('heladeria_caja')); return c&&!c.cerrada ? c : null; };
+// caja en uso: la elegida en este celular o, para un colaborador, su propia caja abierta
+const cajaSel = () => { const c=S.cajas.find(x=>x.id===dev.get('heladeria_caja')); if(c&&!c.cerrada) return c;
+  const y=yo(); return y ? S.cajas.find(x=>!x.cerrada&&x.responsable===y.nombre)||null : null; };
 const cajasAbiertas = () => S.cajas.filter(c=>!c.cerrada);
 function cajaResumen(c){
   const vs = S.ventas.filter(v=>v.cajaId===c.id);
@@ -424,7 +503,7 @@ const itemsVivos = p => p.items.filter(i=>!i.cancelado);
 const totalPed = p => sum(itemsVivos(p),i=>i.precio*i.cant);
 const pendientes = c => pedidosCaja(c).filter(p=>p.estado==='abierto');
 const pedido = id => S.pedidos.find(p=>p.id===id);
-const ESTADO = {abierto:['a','Pendiente de cobro'],pagado:['g','Pagado'],invitado:['b','Invitado'],cancelado:['r','Cancelado']};
+const ESTADO = {abierto:['a','Pendiente de cobro'],pagado:['g','Pagado'],invitado:['b','Invitado']};
 const PARA = ['Familia','Persona que lo necesita','Colaborador','Otro'];
 let invMode=false;
 
@@ -442,8 +521,8 @@ function editorHTML(){
       <button class="btn sec" onclick="edit=null;render()">Cancelar</button></div></div>`;
 }
 function itemRow(p,i,editable){
-  return `<div class="cart-item ${i.cancelado?'cancel':''}"><span>${i.cant} × ${esc(descVenta(i))}</span><span style="white-space:nowrap">${bs(i.precio*i.cant)}
-    ${i.cancelado?' <span class="badge r">cancelado</span>':editable?(i.tipo==='helado'
+  return `<div class="cart-item"><span>${i.cant} × ${esc(descVenta(i))}</span><span style="white-space:nowrap">${bs(i.precio*i.cant)}
+    ${editable?(i.tipo==='helado'
       ?` <button class="btn sec sm" onclick="editarVaso('${p.id}','${i.id}')">✏️</button>`
       :` <button class="btn sec sm" onclick="cantProd('${p.id}','${i.id}',-1)">−</button> <button class="btn sec sm" onclick="cantProd('${p.id}','${i.id}',1)">+</button>`)
       +` <button class="btn x" title="Cancelar" onclick="cancelarItem('${p.id}','${i.id}')">✕</button>`:''}</span></div>`;
@@ -470,13 +549,13 @@ function pedidoCard(p){
 }
 function historialHTML(c){
   const H=pedidosCaja(c).filter(p=>p.estado!=='abierto'&&(filtroHist==='todos'||p.estado===filtroHist)).slice().reverse();
-  const PC=pedidosCaja(c), pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado'), can=PC.filter(p=>p.estado==='cancelado');
-  return `<div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['pagado','Pagados ('+pag.length+')'],['invitado','Invitados ('+inv.length+')'],['cancelado','Cancelados ('+can.length+')']].map(([k,l])=>`<span class="chip ${filtroHist===k?'on':''}" onclick="filtroHist='${k}';render()">${l}</span>`).join('')}</div>
+  const PC=pedidosCaja(c), pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado');
+  return `<div class="chips" style="margin-bottom:10px">${[['todos','Todos'],['pagado','Pagados ('+pag.length+')'],['invitado','Invitados ('+inv.length+')']].map(([k,l])=>`<span class="chip ${filtroHist===k?'on':''}" onclick="filtroHist='${k}';render()">${l}</span>`).join('')}</div>
     <p class="muted">Cobrado: <b>${bs(sum(pag,totalPed))}</b> en ${pag.length} pedidos.${inv.length?` Invitado: ${bs(sum(inv,totalPed))}.`:''}</p>
     ${H.map(p=>{const [cl,tx]=ESTADO[p.estado];return `<div class="card" style="padding:10px 14px;cursor:pointer" onclick="verPed=verPed==='${p.id}'?null:'${p.id}';render()">
       <div class="row" style="align-items:center"><div><b>Pedido #${p.num}</b> <span class="muted">${p.hora} · ${esc(p.vendedor)} · ${itemsVivos(p).length} ítems</span></div>
       <div style="flex:0;white-space:nowrap"><b>${bs(totalPed(p))}</b> <span class="badge ${cl}">${tx}${p.estado==='pagado'?' · '+p.metodo:p.estado==='invitado'&&p.para?' · '+esc(p.para):''}</span></div></div>
-      ${verPed===p.id?`<div style="margin-top:8px">${p.items.map(i=>itemRow(p,i,false)).join('')}<p class="muted">${p.estado==='pagado'?'Pagado a las '+p.horaPago:p.estado==='invitado'?'Invitado'+(p.para?' para '+esc(p.para):'')+' a las '+p.horaPago:'Cancelado a las '+p.horaCancel}</p></div>`:''}</div>`}).join('')||'<p class="muted">Sin pedidos aquí todavía.</p>'}`;
+      ${verPed===p.id?`<div style="margin-top:8px">${p.items.map(i=>itemRow(p,i,false)).join('')}<p class="muted">${p.estado==='pagado'?'Pagado a las '+p.horaPago:'Invitado'+(p.para?' para '+esc(p.para):'')+' a las '+p.horaPago}</p></div>`:''}</div>`}).join('')||'<p class="muted">Sin pedidos aquí todavía.</p>'}`;
 }
 V.vender = () => {
   const c=cajaSel();
@@ -492,7 +571,7 @@ V.vender = () => {
 };
 function nuevoPedido(){
   const c=cajaSel(), re=reempActivo(c);
-  const p={id:uid(),num:pedidosCaja(c).length+1,cajaId:c.id,fecha:c.fecha,hora:hora(),vendedor:re?re.quien:c.responsable,estado:'abierto',items:[]};
+  const p={id:uid(),num:Math.max(0,...pedidosCaja(c).map(x=>x.num))+1,cajaId:c.id,fecha:c.fecha,hora:hora(),vendedor:re?re.quien:c.responsable,estado:'abierto',items:[]};
   S.pedidos.push(p); save(); vistaPed='curso'; payFor=null; abrirEditor(p.id);
 }
 function abrirEditor(pid){ edit={pid,itemId:null,sabores:[],precio:null,cant:1}; payFor=null; render(); }
@@ -512,8 +591,9 @@ function cantProd(pid,iid,d){ const i=pedido(pid).items.find(x=>x.id===iid); i.c
 function cancelarItem(pid,iid){ pregunta('¿Quitar este ítem del pedido?',()=>{ const p=pedido(pid); p.items=p.items.filter(x=>x.id!==iid); if(edit&&edit.itemId===iid) edit=null; save(); render(); }); }
 function cancelarPedido(pid){
   const p=pedido(pid);
-  pregunta(`¿Cancelar el pedido #${p.num}?`,()=>{
-    if(!p.items.length) S.pedidos=S.pedidos.filter(x=>x.id!==pid); else { p.estado='cancelado'; p.horaCancel=hora(); }
+  // lo cancelado se borra: no queda en el historial ni en el resumen
+  pregunta(`¿Cancelar el pedido #${p.num}? Se borrará.`,()=>{
+    S.pedidos=S.pedidos.filter(x=>x.id!==pid);
     edit=null; payFor=null; save(); render();
   });
 }
@@ -555,7 +635,7 @@ function cajaCard(c){
   const r=cajaResumen(c), re=reempActivo(c), mia=cajaSel()&&cajaSel().id===c.id;
   let extra='';
   if(reempForm===c.id) extra=`<div class="row" style="margin-top:10px"><div><label>¿Quién atiende mientras ${esc(c.responsable)} no está?</label>
-      <select id="rq">${personas().filter(p=>p!==c.responsable).map(p=>`<option>${esc(p)}</option>`).join('')}</select></div>
+      <select id="rq">${personas().filter(p=>p!==c.responsable).map(p=>`<option ${yo()&&yo().nombre===p?'selected':''}>${esc(p)}</option>`).join('')}</select></div>
       <div style="flex:0;white-space:nowrap"><button class="btn sm" onclick="iniciarReemp('${c.id}')">Empezar</button> <button class="btn sec sm" onclick="reempForm=null;render()">Cancelar</button></div></div>`;
   if(volverForm===c.id && re){
     const vs=ventasReemp(c,re), ef=sum(vs.filter(v=>v.metodo==='efectivo'),v=>v.total), qr=sum(vs.filter(v=>v.metodo==='qr'),v=>v.total);
@@ -587,7 +667,8 @@ function cajaCard(c){
 function formAbrir(){
   return `<div class="card"><h3>Abrir caja</h3><p class="muted">Cada colaborador abre su caja con las monedas que le dieron para el cambio.</p>
     <div class="row"><div><label>Fecha</label><input id="cf" type="date" value="${hoy()}"></div>
-    <div><label>Quién cobra</label><input id="cr" list="resp" value="${esc(S.empleados[0]?.nombre||'')}"><datalist id="resp">${personas().map(r=>`<option>${esc(r)}</option>`).join('')}</datalist></div>
+    <div><label>Quién cobra</label>${yo()?`<input id="cr" value="${esc(yo().nombre)}" readonly>`
+      :`<input id="cr" list="resp" value="${esc(S.empleados[0]?.nombre||'')}"><datalist id="resp">${personas().map(r=>`<option>${esc(r)}</option>`).join('')}</datalist>`}</div>
     <div><label>Dónde</label><select id="cp">${opts(S.config.puntos)}</select></div>
     <div style="flex:0"><button class="btn sec sm" style="white-space:nowrap" onclick="nuevoPunto()" title="Agregar lugar">+ Nuevo lugar</button></div>
     <div><label>Monto inicial en monedas (Bs)</label><input id="cm" type="number" inputmode="decimal" value="50"></div>
@@ -728,7 +809,7 @@ function hacerPDF(lineas){
 }
 function resumenPDF(cid){
   const c=S.cajas.find(x=>x.id===cid), r=cajaResumen(c), PC=pedidosCaja(c), vs=S.ventas.filter(v=>v.cajaId===c.id);
-  const pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado'), can=PC.filter(p=>p.estado==='cancelado'), pen=PC.filter(p=>p.estado==='abierto');
+  const pag=PC.filter(p=>p.estado==='pagado'), inv=PC.filter(p=>p.estado==='invitado'), pen=PC.filter(p=>p.estado==='abierto');
   const L=[], T=(t,o={})=>partir(t).forEach(x=>L.push({t:x,...o})), sec=t=>L.push({t,f:'F2',s:12,gap:8,linea:true});
   const fila=(a,b)=>L.push({t:(String(a)+' ').padEnd(62,'.').slice(0,62)+String(b).padStart(20)});
   L.push({t:S.config.negocio,f:'F2',s:16},{t:'Resumen de caja',f:'F1',s:12});
@@ -744,7 +825,7 @@ function resumenPDF(cid){
   if(c.cerrada){ fila('Dinero contado al cerrar',bs(c.contado)); fila(c.diferencia<0?'FALTANTE':'Sobrante',bs(Math.abs(c.diferencia))); }
   fila('Cobrado por QR (no está en la caja)',bs(r.qr)); fila('TOTAL VENDIDO',bs(r.total));
   sec('Pedidos');
-  fila('Cobrados',pag.length); fila('Cancelados',can.length);
+  fila('Cobrados',pag.length);
   if(pen.length) fila('Todavía sin cobrar',pen.length+' ('+bs(sum(pen,totalPed))+')');
   fila('Invitados (no se cobraron)',inv.length+(inv.length?' ('+bs(sum(inv,totalPed))+')':''));
   inv.forEach(p=>T(`   Invitado para ${p.para||'-'}: ${bs(totalPed(p))}`));
@@ -757,7 +838,7 @@ function resumenPDF(cid){
   if(Object.keys(sab).length){ T('Vasos por sabor (un vaso puede llevar varios sabores):',{gap:4}); Object.entries(sab).sort((a,b)=>b[1]-a[1]).forEach(([s,n])=>fila('   '+sabor(s).nombre,n+(n===1?' vaso':' vasos'))); }
   if((c.reemplazos||[]).length){ sec('Reemplazos'); c.reemplazos.forEach(x=>T(`${x.quien}, de ${x.inicio} a ${x.fin||'(sigue)'}: vendió ${bs(x.vendido||sum(ventasReemp(c,x),v=>v.total))}${x.fin?', devolvió '+bs(x.entregado):''}`)); }
   sec('Detalle de pedidos');
-  PC.slice().reverse().forEach(p=>{ const est={pagado:'Pagado '+(p.metodo==='qr'?'QR':'efectivo'),invitado:'Invitado'+(p.para?' ('+p.para+')':''),cancelado:'Cancelado',abierto:'Sin cobrar'}[p.estado];
+  PC.slice().reverse().forEach(p=>{ const est={pagado:'Pagado '+(p.metodo==='qr'?'QR':'efectivo'),invitado:'Invitado'+(p.para?' ('+p.para+')':''),abierto:'Sin cobrar'}[p.estado];
     L.push({t:`#${p.num}  ${p.hora}  ${est}  ${bs(totalPed(p))}  - ${p.vendedor}`,f:'F2',s:10,gap:3});
     itemsVivos(p).forEach(i=>T(`   ${i.cant} x ${descVenta(i)} = ${bs(i.precio*i.cant)}`)); });
   L.push({t:'Generado el '+new Date().toLocaleString('es-BO'),f:'F1',s:8,gap:12});
@@ -859,14 +940,39 @@ V.personal = () => {
     <div class="row"><div><label>Fecha</label><input id="jf" type="date" value="${hoy()}"></div></div>
     ${S.empleados.map(e=>`<div class="row" style="margin-top:8px"><div><label><input type="checkbox" id="j_${e.id}" checked> ${esc(e.nombre)}</label></div><div><input id="jm_${e.id}" type="number" value="${e.pago}"></div></div>`).join('')}
     <div style="margin-top:10px"><button class="btn" onclick="jornada()">Registrar pagos</button></div></div>
-  <div class="grid g2"><div class="card"><h3>Colaboradores</h3><div class="tbl-wrap"><table>
-    ${S.empleados.map(e=>`<tr><td>${esc(e.nombre)}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td><td><button class="btn x" onclick="pregunta('¿Quitar a ${esc(e.nombre)} de la lista?',()=>{S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()})">✕</button></td></tr>`).join('')}</table></div>
-    <div class="row" style="margin-top:10px"><div><input id="en" placeholder="Nombre"></div><div><input id="ep" type="number" value="${S.config.pagoDiario}"></div><div><button class="btn sec" onclick="if(val('en')){S.empleados.push({id:uid(),nombre:val('en'),pago:num(val('ep'))});save();render()}">Agregar</button></div></div></div>
+  <div class="grid g2"><div class="card"><h3>Colaboradores</h3><p class="muted">Solo tú creas las cuentas. Cada colaborador entra con su usuario y contraseña.</p><div class="tbl-wrap"><table>
+    ${S.empleados.map(e=>`<tr><td><b>${esc(e.nombre)}</b><br>${e.hash?`<span class="muted">@${esc(e.usuario)}${e.telefono?' · 📞 '+esc(e.telefono):''}</span>`:'<span class="badge a">Sin acceso</span>'}</td><td class="n">${bs(e.pago)}/día</td><td class="n">${G.filter(g=>g.empleadoId===e.id).length} días · ${bs(sum(G.filter(g=>g.empleadoId===e.id),g=>g.monto))} este mes</td>
+      <td style="white-space:nowrap"><button class="btn sec sm" title="Editar cuenta" onclick="hojaColab('${e.id}')">✏️</button> <button class="btn x" onclick="pregunta('¿Quitar a ${esc(e.nombre)}? Ya no podrá iniciar sesión.',()=>{S.empleados=S.empleados.filter(x=>x.id!=='${e.id}');save();render()})">✕</button></td></tr>`).join('')||'<tr><td class="muted">Todavía no hay colaboradores.</td></tr>'}</table></div>
+    <button class="btn" style="margin-top:10px" onclick="hojaColab()">+ Nuevo colaborador</button></div>
   <div class="card"><h3>Pagos del mes</h3><div class="tbl-wrap"><table>
     <tr><th>Fecha</th><th>Persona</th><th class="n">Monto</th><th></th></tr>
     ${G.slice().reverse().slice(0,40).map(g=>`<tr><td>${g.fecha}</td><td>${esc(g.desc)}</td><td class="n">${bs(g.monto)}</td><td><button class="btn x" onclick="delItem('gastos','${g.id}')">✕</button></td></tr>`).join('')||'<tr><td colspan=4 class="muted">Sin pagos</td></tr>'}
     <tr class="tot"><td colspan=2>Total</td><td class="n">${bs(sum(G,g=>g.monto))}</td><td></td></tr></table></div></div></div>`;
 };
+// Cuenta de colaborador: nombre, usuario, teléfono (opcional) y contraseña. La crea solo la administradora.
+function hojaColab(id){
+  const e=S.empleados.find(x=>x.id===id)||{nombre:'',usuario:'',telefono:'',pago:S.config.pagoDiario};
+  abrirHoja(`<h3>${id?'✏️ Editar colaborador':'🙋 Nuevo colaborador'}</h3>
+    <label for="cn">Nombre</label><input id="cn" value="${esc(e.nombre)}" placeholder="Ej: Erika">
+    <label for="cu" style="margin-top:12px">Usuario (para iniciar sesión)</label><input id="cu" value="${esc(e.usuario||'')}" autocapitalize="none" spellcheck="false" autocomplete="off" placeholder="Ej: erika">
+    <label for="ct" style="margin-top:12px">Teléfono (opcional)</label><input id="ct" type="tel" inputmode="tel" value="${esc(e.telefono||'')}">
+    <label for="cc2" style="margin-top:12px">${e.hash?'Nueva contraseña (déjalo vacío para no cambiarla)':'Contraseña'}</label><input id="cc2" type="password" autocomplete="new-password">
+    <label for="cpd" style="margin-top:12px">Pago diario (Bs)</label><input id="cpd" type="number" inputmode="decimal" value="${e.pago}">
+    <div class="hoja-btns"><button class="btn sec" onclick="cerrarHoja()">Cancelar</button><button class="btn ok" onclick="guardarColab('${id||''}')">${id?'Guardar':'Crear cuenta'}</button></div>`);
+}
+function guardarColab(id){
+  const nombre=val('cn').trim(), usuario=val('cu').trim(), pass=val('cc2'), e=S.empleados.find(x=>x.id===id);
+  if(!nombre) return aviso('Escribe el nombre.');
+  if(!/^[a-z0-9._-]{3,20}$/i.test(usuario)) return aviso('El usuario debe tener de 3 a 20 letras o números, sin espacios.');
+  const u=usuario.toLowerCase();
+  if(u===S.config.admin.usuario.toLowerCase()||S.empleados.some(x=>x.id!==id&&(x.usuario||'').toLowerCase()===u)) return aviso('Ese usuario ya existe. Elige otro.');
+  if((pass||!e||!e.hash)&&pass.length<4) return aviso('La contraseña debe tener al menos 4 caracteres.');
+  const c=e||{id:uid()};
+  Object.assign(c,{nombre,usuario,telefono:val('ct').trim(),pago:num(val('cpd'))});
+  if(pass) ponerClave(c,pass);
+  if(!e) S.empleados.push(c);
+  cerrarHoja(); save(); render(); aviso(e?'Datos guardados.':`Cuenta creada. ${nombre} ya puede iniciar sesión con el usuario "${usuario}".`);
+}
 function jornada(){
   const f=val('jf');
   S.empleados.forEach(e=>{ if($('j_'+e.id).checked && !S.gastos.some(g=>g.categoria==='sueldos'&&g.fecha===f&&g.empleadoId===e.id))
@@ -983,7 +1089,7 @@ V.config = () => {
   <div class="grid g2">
   <div class="card"><h3>Negocio</h3>
     <div class="row"><div><label>Nombre</label><input value="${esc(c.negocio)}" onchange="S.config.negocio=this.value;save();render()"></div>
-    <div><label>PIN de administradora</label><input value="${esc(c.pin)}" onchange="S.config.pin=this.value;save()"></div></div>
+    <div><label>Cuenta de administración</label><button class="btn sec" style="width:100%" onclick="hojaAdmin()">🔑 Usuario y contraseña</button></div></div>
     <div class="row" style="margin-top:8px"><div><label>Hielo: precio por barra</label><input type="number" value="${c.hielo.precio}" onchange="S.config.hielo.precio=num(this.value);save()"></div>
     <div><label>Hielo: barras por día</label><input type="number" value="${c.hielo.barras}" onchange="S.config.hielo.barras=num(this.value);save()"></div>
     <div><label>Pago diario personal</label><input type="number" value="${c.pagoDiario}" onchange="S.config.pagoDiario=num(this.value);save()"></div></div>
@@ -1009,6 +1115,24 @@ V.config = () => {
   </div></div>
   ${zonaHTML()}`;
 };
+function hojaAdmin(){
+  abrirHoja(`<h3>🔑 Cuenta de administración</h3><p class="muted">Se usa en el enlace de administración (termina en <code>#admin</code>).</p>
+    <label for="au">Usuario</label><input id="au" value="${esc(S.config.admin.usuario)}" autocapitalize="none" spellcheck="false" autocomplete="off">
+    <label for="aa" style="margin-top:12px">Contraseña actual</label><input id="aa" type="password" autocomplete="current-password">
+    <label for="an" style="margin-top:12px">Nueva contraseña (déjalo vacío para no cambiarla)</label><input id="an" type="password" autocomplete="new-password">
+    <label for="an2" style="margin-top:12px">Repite la nueva contraseña</label><input id="an2" type="password" autocomplete="new-password">
+    <div class="hoja-btns"><button class="btn sec" onclick="cerrarHoja()">Cancelar</button><button class="btn ok" onclick="guardarAdmin()">Guardar</button></div>`);
+}
+function guardarAdmin(){
+  const a=S.config.admin, u=val('au').trim(), n=val('an');
+  if(!claveOk(a,val('aa'))) return aviso('La contraseña actual no es correcta.');
+  if(!/^[a-z0-9._-]{3,20}$/i.test(u)) return aviso('El usuario debe tener de 3 a 20 letras o números, sin espacios.');
+  if(S.empleados.some(x=>(x.usuario||'').toLowerCase()===u.toLowerCase())) return aviso('Ese usuario ya lo usa un colaborador.');
+  if(n&&n.length<6) return aviso('La nueva contraseña debe tener al menos 6 caracteres.');
+  if(n!==val('an2')) return aviso('Las contraseñas nuevas no coinciden.');
+  a.usuario=u; if(n) ponerClave(a,n);
+  cerrarHoja(); save(); render(); aviso('Cuenta de administración actualizada.');
+}
 function zonaHTML(){
   const admin=rol==='admin', abiertas=S.cajas.filter(c=>!c.cerrada);
   return `<details class="zona"><summary>Opciones avanzadas</summary>
@@ -1018,9 +1142,10 @@ function zonaHTML(){
       ${admin?'':'<p class="muted">Antes, descarga el <b>resumen PDF</b> de tus cajas (en Caja) y envíaselo a la administradora.</p>'}
       ${abiertas.length?`<div class="alert">Hay ${abiertas.length} caja(s) abierta(s) en este celular. Lo vendido en ella(s) también se borrará.</div>`:''}
       <div class="chips"><button class="btn sec" onclick="descargar('respaldo_heladeria_'+hoy()+'.json',JSON.stringify(S),'application/json')">⬇️ Descargar respaldo primero</button></div>
-      <label style="margin-top:12px"><input type="checkbox" id="rz_keep"> Conservar sabores, precios, lugares de venta y colaboradores</label>
+      <p class="muted">Las cuentas (administración y colaboradores) no se borran.</p>
+      <label style="margin-top:12px"><input type="checkbox" id="rz_keep"> Conservar sabores, precios y lugares de venta</label>
       <div class="row" style="margin-top:8px"><div><label>Escribe BORRAR para confirmar</label><input id="rz_txt" autocomplete="off" oninput="$('rz_btn').disabled=this.value.trim().toUpperCase()!=='BORRAR'"></div>
-        ${admin?'<div><label>PIN de administradora</label><input id="rz_pin" type="password" inputmode="numeric" autocomplete="off"></div>':''}
+        ${admin?'<div><label>Contraseña de administración</label><input id="rz_pin" type="password" autocomplete="off"></div>':''}
         <div style="flex:0"><button class="btn" id="rz_btn" style="white-space:nowrap" disabled onclick="reiniciar()">Empezar de nuevo</button></div></div>
       <h3 style="margin-top:20px">Datos de ejemplo</h3>
       <p class="muted">Reemplaza todo lo de este celular por 45 días inventados, solo para practicar.</p>
@@ -1029,11 +1154,11 @@ function zonaHTML(){
 }
 function reiniciar(){
   if(val('rz_txt').trim().toUpperCase()!=='BORRAR') return;
-  if(rol==='admin'&&val('rz_pin')!==S.config.pin) return aviso('El PIN no es correcto.');
+  if(rol==='admin'&&!claveOk(S.config.admin,val('rz_pin'))) return aviso('La contraseña no es correcta.');
   const keep=$('rz_keep').checked;
   pregunta('Última confirmación: se borra todo lo anotado en este celular. ¿Empezar de nuevo?',()=>{
     const cfg=S.config, emp=S.empleados;
-    S=defaults(); if(keep){ S.config=cfg; S.empleados=emp; }
+    S=defaults(); S.empleados=emp; S.config.admin=cfg.admin; if(keep) S.config=cfg;
     dev.set('heladeria_caja',''); edit=null; payFor=null; insRows=[];
     save(); go(rol==='admin'?'panel':'vender'); aviso('Listo. El sistema quedó como la primera vez.');
   });
@@ -1043,7 +1168,11 @@ function restaurar(file){ if(!file) return; const r=new FileReader(); r.onload=(
 /* ================== DATOS DE EJEMPLO ================== */
 function demo(ok){
   if(S.ventas.length && !ok) return pregunta('Esto reemplaza los datos actuales por datos de ejemplo. ¿Continuar?',()=>demo(true));
-  S=defaults(); const c=S.config, R=(a,b)=>a+Math.random()*(b-a), RI=(a,b)=>Math.round(R(a,b));
+  const adm=S.config.admin, emp=S.empleados;
+  S=defaults(); S.config.admin=adm; S.empleados=emp;
+  // las cuentas se conservan; si faltan las de ejemplo se crean (usuario erika / veronica, contraseña 1234)
+  [['Erika','erika'],['Verónica','veronica']].forEach(([n,u])=>{ if(!emp.some(e=>e.nombre===n)){ const e={id:uid(),nombre:n,usuario:u,telefono:'',pago:110}; ponerClave(e,'1234'); emp.push(e); } });
+  const c=S.config, R=(a,b)=>a+Math.random()*(b-a), RI=(a,b)=>Math.round(R(a,b));
   c.puntos.push({id:'p2',nombre:'Feria dominical'},{id:'p3',nombre:'Tienda del mercado'});
   const ini=ymd(new Date(Date.now()-75*864e5));
   S.activos=[['Cocina a gas',1,650,60],['Refrigerador',2,2800,84],['Baldes de madera con lata',6,180,24],['Garrafas',2,350,60],['Estantes',2,250,48],['Mesas',3,150,36],['Sillas',8,45,24],['Carpas',2,400,24]]
@@ -1089,10 +1218,9 @@ function demo(ok){
     const p={id:uid(),num:pedidosCaja(cx).length+1,cajaId:cx.id,fecha:t,hora:hh,vendedor:vend||cx.responsable,estado:'abierto',items:Array.from({length:n},vaso)};
     if(Math.random()<.3){ const pr=Math.random()<.5?'ref':'emp'; p.items.push({id:uid(),tipo:'producto',producto:pr,precio:prod(pr).precio,cant:RI(1,2),sabores:[]}); }
     S.pedidos.push(p);
-    if(estado==='cancelado'){ p.estado='cancelado'; p.horaCancel=hh; }
     if(estado==='pagado') ventasDePedido(p,cx,Math.random()<.8?'efectivo':'qr',hh);
     return p; };
-  for(let j=0;j<14;j++) mkPed(c1,j,RI(1,3),j===6?'cancelado':'pagado');
+  for(let j=0;j<14;j++) mkPed(c1,j,RI(1,3),'pagado');
   const her=mkPed(c1,14,1,'abierto'); her.para='Hermano'; ventasDePedido(her,c1,'invitado','14:30');
   mkPed(c1,15,5,'abierto'); mkPed(c1,16,2,'abierto');
   const reV=c2.reemplazos.pop();
