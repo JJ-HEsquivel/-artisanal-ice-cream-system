@@ -67,7 +67,7 @@ pre .c{color:#8fb3c4}
   <p class="sub">Desde preparar las herramientas hasta tener la app funcionando en tu computadora con React y Supabase, sin Docker y sin permisos de administrador. Cada paso dice quién lo hace, dónde y con qué comando, y qué cambiará después en los entornos de pruebas y de producción.</p>
   <div class="meta">
     Stack: React + TypeScript + Vite · Supabase (PostgreSQL) · GitHub<br>
-    Alcance de esta parte: entorno de <b>desarrollo</b> (la app en tu computadora y la base <code>heladeria-dev</code> en supabase.com). Las partes 2 (pruebas) y 3 (producción) vendrán después.<br>
+    Alcance de esta parte: entorno de <b>desarrollo</b> (la app en tu computadora y la base <code>Artisanal-ice-cream</code> en supabase.com). Las partes 2 (pruebas) y 3 (producción) vendrán después.<br>
     Noviembre de 2026 · Versiones verificadas: Node 24 LTS, Vite 8, React 19, Supabase CLI 3
   </div>
 </div>
@@ -149,20 +149,21 @@ pre .c{color:#8fb3c4}
 <h3>Los tres entornos, desde ya</h3>
 <table>
 <tr><th style="width:15%">Entorno</th><th style="width:27%">Base de datos</th><th style="width:27%">App</th><th>Variables (.env)</th></tr>
-<tr><td><b>Desarrollo</b><br><span class="muted">esta guía</span></td><td>Proyecto Supabase <code>heladeria-dev</code> (en internet)</td><td><code>npm run dev</code> → <code>localhost:5173</code></td><td>Archivo <code>.env.local</code> en tu PC</td></tr>
-<tr><td><b>Pruebas</b><br><span class="muted">parte 2</span></td><td><b>El mismo</b> <code>heladeria-dev</code></td><td>Cloudflare Pages, rama <code>develop</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
-<tr><td><b>Producción</b><br><span class="muted">parte 3</span></td><td>Proyecto <code>heladeria-prod</code>, creado <b>vacío</b> el día del lanzamiento</td><td>Cloudflare Pages, rama <code>main</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+<tr><td><b>Desarrollo</b><br><span class="muted">esta guía</span></td><td>Proyecto Supabase <code>Artisanal-ice-cream</code> (en internet)</td><td><code>npm run dev</code> → <code>localhost:5173</code></td><td>Archivo <code>.env.local</code> en tu PC</td></tr>
+<tr><td><b>Pruebas</b><br><span class="muted">parte 2</span></td><td><b>El mismo</b> <code>Artisanal-ice-cream</code></td><td>Cloudflare Pages, rama <code>develop</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+<tr><td><b>Producción</b><br><span class="muted">parte 3</span></td><td><b>El mismo</b> <code>Artisanal-ice-cream</code>, limpiado el día del lanzamiento</td><td>Cloudflare Pages, rama <code>main</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
 </table>
 <h3>¿Por qué sin Docker?</h3>
-<p>Para tener Supabase dentro de tu computadora hace falta Docker, y Docker necesita permisos de administrador que solo IT puede dar. En su lugar usamos un proyecto <b>gratis</b> de supabase.com, <code>heladeria-dev</code>, como base de desarrollo. Ventaja extra: <b>las dos computadoras (trabajo y casa) usan la misma base</b>, con los mismos datos, sin preparar nada en cada una.</p>
-<p>El plan gratis permite <b>2 proyectos</b>: <code>heladeria-dev</code> (desarrollo y pruebas) y, el día del lanzamiento, <code>heladeria-prod</code>. Producción se crea vacía y se arma sola con las migraciones, así que <b>nunca hay que borrar datos de prueba a mano</b>.</p>
+<p>Para tener Supabase dentro de tu computadora hace falta Docker, y Docker necesita permisos de administrador que solo IT puede dar. En su lugar usamos un proyecto <b>gratis</b> de supabase.com, <code>Artisanal-ice-cream</code>, como base de desarrollo. Ventaja extra: <b>las dos computadoras (trabajo y casa) usan la misma base</b>, con los mismos datos, sin preparar nada en cada una.</p>
+<p>Usamos <b>un solo proyecto</b>, <code>Artisanal-ice-cream</code>, para todo: desarrollo, pruebas y, después de limpiarlo, producción. Así el segundo proyecto gratis queda libre para cuando lo necesites.</p>
+<p>La limpieza del día del lanzamiento no se hace borrando registros a mano: el comando <code>db:reset</code> borra <b>todo</b> (datos, usuarios y tablas) y vuelve a crear la estructura desde las migraciones. Queda limpio por construcción. Los pasos están en el capítulo 13.</p>
 <div class="warn"><b>Reglas por compartir la base entre desarrollo y pruebas:</b>
 <ol style="margin:4px 0 0">
 <li><b>Mientras programas solo</b> (toda esta guía): puedes resetear la base y cambiar tablas cuando quieras.</li>
 <li><b>Cuando alguien esté probando</b> la app publicada (parte 2): no uses <code>db:reset</code>, aplica cambios de tablas recién al unir a <code>develop</code> y avisa antes.</li>
-<li><b>Nunca</b> conectes tu computadora ni la app de pruebas a <code>heladeria-prod</code>.</li>
+<li><b>Desde el lanzamiento</b>, la base tiene ventas reales: <code>db:reset</code> queda <b>prohibido</b> y todo cambio de tablas se prueba con mucho cuidado (capítulo 13).</li>
 </ol></div>
-<p class="muted">Si algún día IT instala Docker, o pagas Supabase Pro para tener un tercer proyecto, se puede separar desarrollo de pruebas cambiando solo variables, sin tocar el código.</p>
+<p class="muted">Si más adelante quieres un lugar aparte para probar, usas el segundo proyecto gratis (o Docker, si IT lo instala) cambiando solo variables, sin tocar el código.</p>
 <p><b>La regla que hace todo fácil después:</b> el código es <b>el mismo</b> en los tres entornos. Lo único que cambia son las variables de entorno (a qué Supabase se conecta) y dónde se publica. Por eso, cuando pagues Supabase Pro o cambies de hosting, <b>no tendrás que cambiar código</b>: solo valores de configuración.</p>
 <div class="env">Lo que hoy pruebas con <code>npm run dev</code> y Supabase local será lo mismo que se publicará. Los cambios de tablas viajan como migraciones (archivos SQL) con <code>supabase db push</code>, el mismo comando que ya usarás en desarrollo, y la app se publicará sola desde GitHub.</div>
 </section>
@@ -404,7 +405,7 @@ git branch -d feature/base-proyecto</pre>
 <!-- E -->
 <section>
 <h2>7. Etapa E · La base de datos de desarrollo</h2>
-<p>Creamos el proyecto <code>heladeria-dev</code> en supabase.com y conectamos el proyecto de tu computadora con él.</p>
+<p>Creamos el proyecto <code>Artisanal-ice-cream</code> en supabase.com y conectamos el proyecto de tu computadora con él.</p>
 
 <div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E1. Crear la cuenta de Supabase</b></div>
 <ol>
@@ -414,10 +415,10 @@ git branch -d feature/base-proyecto</pre>
 </ol>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E2. Crear el proyecto heladeria-dev</b></div>
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E2. Crear el proyecto Artisanal-ice-cream</b></div>
 <ol>
   <li><b>New project</b>.</li>
-  <li><i>Project name</i>: <code>heladeria-dev</code>.</li>
+  <li><i>Project name</i>: <code>Artisanal-ice-cream</code>.</li>
   <li><i>Database password</i>: toca <b>Generate a password</b> y <b>guárdala</b> en un lugar seguro (un gestor de contraseñas o una nota privada). La pedirá la terminal en E5.</li>
   <li><i>Region</i>: <b>South America (São Paulo)</b>, la más cercana a Bolivia.</li>
   <li><b>Create new project</b> y espera 1 a 2 minutos a que termine de prepararse.</li>
@@ -427,7 +428,7 @@ git branch -d feature/base-proyecto</pre>
 </div>
 
 <div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E3. Configurar el inicio de sesión del proyecto</b></div>
-<p>En el panel de <code>heladeria-dev</code>, menú izquierdo <b>Authentication</b>:</p>
+<p>En el panel de <code>Artisanal-ice-cream</code>, menú izquierdo <b>Authentication</b>:</p>
 <ol>
   <li><i>Sign In / Providers</i> (o <i>Settings</i>): desactiva <b>Allow new users to sign up</b>. Así nadie se registra solo: las cuentas las crea la administración.</li>
   <li>En el proveedor <b>Email</b>: desactiva <b>Confirm email</b> (los correos internos como <code>erika@heladeria.local</code> no existen). Guarda.</li>
@@ -460,7 +461,7 @@ npx supabase link --project-ref abcdefghijklmnop</pre>
 <ul>
   <li><code>init</code> crea la carpeta <code>supabase/</code> con <code>config.toml</code>. Ahí vivirán las migraciones, las funciones y las pruebas.</li>
   <li><code>login</code> abre el navegador para autorizar la terminal con tu cuenta. Vuelve a la terminal cuando diga que terminó.</li>
-  <li><code>link</code> deja tu carpeta conectada a <code>heladeria-dev</code>. Si pide la <i>database password</i>, pega la de E2 (no se ve mientras la escribes; es normal).</li>
+  <li><code>link</code> deja tu carpeta conectada a <code>Artisanal-ice-cream</code>. Si pide la <i>database password</i>, pega la de E2 (no se ve mientras la escribes; es normal).</li>
 </ul>
 <div class="ver"><code>link</code> termina con <i>Finished supabase link</i>.</div>
 <div class="term"><b>login y link en cada computadora.</b> Los dos se guardan en tu computadora, no en Git: en tu casa los repetirás una vez (capítulo 12.1).</div>
@@ -495,7 +496,7 @@ git push -u origin feature/supabase</pre>
 <div class="ver"><code>db:types</code> crea <code>src/lib/database.types.ts</code> sin errores: la terminal sí llega a tu proyecto de Supabase. En <code>git status</code>, antes del commit, <b>no</b> debe aparecer <code>.env.local</code>.</div>
 <p>Luego haz el Pull Request a <code>develop</code>, el merge y el <code>pull</code>, igual que en D6.</p>
 </div>
-<div class="env">La parte 2 no crea otra base: la app publicada de pruebas usará este mismo <code>heladeria-dev</code>. En la parte 3 se crea <code>heladeria-prod</code> vacío, se repite E3 en su panel y se le aplican las migraciones con <code>supabase db push</code>. Sus llaves no van en tu <code>.env.local</code>: se configuran en Cloudflare (las <code>VITE_</code>) y en GitHub Secrets (la secreta).</div>
+<div class="env">No se crean otras bases: la app publicada de pruebas (parte 2) y la de producción (parte 3) usarán este mismo <code>Artisanal-ice-cream</code>. Lo que cambia es dónde se guardan sus llaves: en Cloudflare (las <code>VITE_</code>) y en GitHub Secrets (la secreta). El día del lanzamiento se limpia la base y se cambian las llaves y contraseñas usadas durante el desarrollo (capítulo 13).</div>
 </section>
 
 <!-- F -->
@@ -525,8 +526,8 @@ npm run crear-admin
 npm run db:test</pre>
 <div class="ver"><code>db:push</code> pregunta si aplicar la migración (responde <code>Y</code>) y termina con <i>Finished supabase db push</i>. <code>db:types</code> actualiza <code>src/lib/database.types.ts</code>. <code>crear-admin</code> dice que creó a Admin. <code>db:test</code> muestra las pruebas en <i>ok</i>.</div>
 <p>En el panel de Supabase → <i>Authentication → Users</i> verás <code>admin@heladeria.local</code>, y en <i>Table Editor → perfiles</i> su fila con rol <code>admin</code>.</p>
-<div class="term"><b>db:push.</b> Aplica a <code>heladeria-dev</code> las migraciones nuevas, las que todavía no tiene. Es el mismo comando que, automatizado, usará producción.</div>
-<div class="term"><b>db:reset.</b> Borra <b>todo</b> en <code>heladeria-dev</code> (tablas, datos y usuarios) y lo recrea desde las migraciones y <code>seed.sql</code>. Úsalo solo si corregiste una migración que ya habías aplicado con <code>db:push</code>. Pide confirmación. Después ejecuta <code>crear-admin</code>.</div>
+<div class="term"><b>db:push.</b> Aplica a <code>Artisanal-ice-cream</code> las migraciones nuevas, las que todavía no tiene. Es el mismo comando que, automatizado, usará producción.</div>
+<div class="term"><b>db:reset.</b> Borra <b>todo</b> en <code>Artisanal-ice-cream</code> (tablas, datos y usuarios) y lo recrea desde las migraciones y <code>seed.sql</code>. Úsalo solo si corregiste una migración que ya habías aplicado con <code>db:push</code>, y <b>nunca después del lanzamiento</b>. Pide confirmación. Después ejecuta <code>crear-admin</code>.</div>
 <div class="warn"><b>Si <code>db:test</code> dice que necesita Docker:</b> las pruebas de permisos (pgTAP) se ejecutarán automáticamente en GitHub Actions, que sí tiene Docker (parte 2). Mientras tanto, sigue con los demás pasos y pégame el mensaje para revisarlo.</div>
 <div class="term"><b>db:types.</b> Lee las tablas y genera los tipos de TypeScript. Así el editor te avisa si escribes mal el nombre de una columna. Repítelo cada vez que cambien las tablas.</div>
 </div>
@@ -554,7 +555,7 @@ npm run db:test</pre>
 <pre>npm run db:push
 npm run fn:deploy
 npm run dev</pre>
-<p class="muted"><code>fn:deploy</code> publica la Edge Function en <code>heladeria-dev</code>, sin Docker (el empaquetado lo hace Supabase). Repítelo cada vez que cambie una función.</p>
+<p class="muted"><code>fn:deploy</code> publica la Edge Function en <code>Artisanal-ice-cream</code>, sin Docker (el empaquetado lo hace Supabase). Repítelo cada vez que cambie una función.</p>
 <ul>
   <li>Como Admin: <i>Personal → Nuevo colaborador</i> → crea a <code>erika</code>.</li>
   <li>En una <b>ventana de incógnito</b> (Ctrl+Shift+N) entra a <code>localhost:5173</code> como <code>erika</code>: debe ver solo Pedidos, Caja y Configuración.</li>
@@ -567,7 +568,7 @@ git commit -m "feat(auth): inicio de sesión, roles y cuentas de colaboradores"
 git push -u origin feature/auth-roles</pre>
 <p>Pull Request a <code>develop</code> → merge → <code>git switch develop</code> → <code>git pull</code>.</p>
 </div>
-<div class="env">Pruebas ya tiene todo, porque comparte <code>heladeria-dev</code>. En producción, el mismo <code>db push</code> y <code>functions deploy</code> se harán automáticamente desde GitHub. La cuenta de administración se creará una vez con el mismo script, pero con las variables de producción y una <b>contraseña distinta y fuerte</b>.</div>
+<div class="env">Pruebas y producción ya tienen todo, porque comparten <code>Artisanal-ice-cream</code>. Más adelante, <code>db push</code> y <code>functions deploy</code> se harán automáticamente desde GitHub. El día del lanzamiento, la cuenta de administración se vuelve a crear con el mismo script y una <b>contraseña nueva y fuerte</b>.</div>
 </section>
 
 <!-- G -->
@@ -622,7 +623,7 @@ git push -u origin feature/NOMBRE</pre>
 <tr><td>G9</td><td><code>importar-respaldo</code></td><td><i>Paso G9: scripts/importar-respaldo.mjs que lea el JSON de respaldo del prototipo y lo cargue en las tablas. Que se pueda ejecutar varias veces sin duplicar.</i></td></tr>
 </table>
 <div class="warn"><b>Regla de las migraciones:</b> mientras la migración no esté unida a <code>develop</code>, puedes corregirla y hacer <code>db:reset</code>. Una vez unida (y con más razón cuando llegue a producción), <b>nunca se edita</b>: se crea una migración nueva que haga el cambio.</div>
-<div class="env">Cada merge a <code>develop</code> publicará la app de pruebas automáticamente (parte 2), conectada a este mismo <code>heladeria-dev</code>. Cada merge a <code>main</code> aplicará las migraciones a <code>heladeria-prod</code> (parte 3).</div>
+<div class="env">Cada merge a <code>develop</code> publicará la app de pruebas automáticamente (parte 2), y cada merge a <code>main</code> la de producción (parte 3). Las dos conectadas a este mismo <code>Artisanal-ice-cream</code>.</div>
 </section>
 
 <!-- H -->
@@ -671,10 +672,10 @@ npm init playwright@latest</pre>
 <pre>npm run test:run
 npm run db:test
 npm run e2e</pre>
-<p class="muted">Las pruebas de extremo a extremo crean datos (cajas, pedidos) en <code>heladeria-dev</code>. Si quieres dejar la base limpia después: <code>npm run db:reset</code> y <code>npm run crear-admin</code>, siempre que nadie esté probando la app.</p>
+<p class="muted">Las pruebas de extremo a extremo crean datos (cajas, pedidos) en <code>Artisanal-ice-cream</code>. Si quieres dejar la base limpia después: <code>npm run db:reset</code> y <code>npm run crear-admin</code>, siempre que nadie esté probando la app.</p>
 <div class="ver">Todo en verde. Si algo falla, <code>npx playwright show-report</code> abre un informe con capturas de pantalla del momento del error.</div>
 </div>
-<div class="env">En la parte 2, GitHub Actions ejecutará estas mismas pruebas automáticamente en cada Pull Request, con un Supabase temporal dentro de GitHub (allí sí hay Docker), sin tocar <code>heladeria-dev</code>. Si alguna falla, no se debería unir el cambio.</div>
+<div class="env">En la parte 2, GitHub Actions ejecutará estas mismas pruebas automáticamente en cada Pull Request, con un Supabase temporal dentro de GitHub (allí sí hay Docker), sin tocar <code>Artisanal-ice-cream</code>. Después del lanzamiento esto es muy importante: las pruebas automáticas nunca deben escribir en la base real. Si alguna falla, no se debería unir el cambio.</div>
 </section>
 
 <!-- J -->
@@ -697,7 +698,7 @@ npx supabase link --project-ref abcdefghijklmnop</pre>
 <p class="muted">Al final de <code>git clone</code> se escribe <code>System-ice</code> para que la carpeta se llame igual que aquí. Sin eso se llamaría <code>-artisanal-ice-cream-system</code>, y en PowerShell un nombre que empieza con guion da problemas con <code>cd</code>.</p>
 <p>Abre la carpeta <code>System-ice</code> en VS Code; acepta instalar las extensiones recomendadas y abre Claude Code. Como existe <code>CLAUDE.md</code>, ya conozco el proyecto. Dime: <i>"Seguimos con el paso X de docs/guia-desarrollo.html"</i>.</p>
 </div>
-<div class="term"><b>¿Y los datos?</b> Están en <code>heladeria-dev</code>, en internet: las dos computadoras ven exactamente lo mismo. No hace falta resetear ni crear el admin de nuevo. Lo que viaja por Git es el <b>código</b> y las <b>migraciones</b>.</div>
+<div class="term"><b>¿Y los datos?</b> Están en <code>Artisanal-ice-cream</code>, en internet: las dos computadoras ven exactamente lo mismo. No hace falta resetear ni crear el admin de nuevo. Lo que viaja por Git es el <b>código</b> y las <b>migraciones</b>.</div>
 
 <h3>12.2 Rutina de cada sesión de trabajo</h3>
 <table>
@@ -734,23 +735,42 @@ npx supabase link --project-ref abcdefghijklmnop</pre>
 <!-- K -->
 <section>
 <h2>13. Lo que viene: pruebas y producción</h2>
-<p>Cuando termines esta guía tendrás el sistema completo funcionando en tu computadora, conectado a <code>heladeria-dev</code>. Así se verán las siguientes partes; ninguna requiere cambiar el código.</p>
+<p>Cuando termines esta guía tendrás el sistema completo funcionando en tu computadora, conectado a <code>Artisanal-ice-cream</code>. Así se verán las siguientes partes; ninguna requiere cambiar el código.</p>
 <table>
 <tr><th style="width:22%">Tarea</th><th style="width:39%">Parte 2 · Pruebas</th><th>Parte 3 · Producción</th></tr>
 <tr><td>Cuenta</td><td>Crear cuenta en cloudflare.com, con 2FA (Supabase ya la tienes)</td><td>Las mismas</td></tr>
-<tr><td>Base de datos</td><td><b>No se crea otra:</b> usa <code>heladeria-dev</code></td><td>Crear <code>heladeria-prod</code> vacío, región São Paulo, y repetir E3 en su panel</td></tr>
-<tr><td>Migraciones</td><td>Ya aplicadas en <code>heladeria-dev</code> con <code>db:push</code></td><td><code>supabase db push</code> automático desde GitHub al unir a <code>main</code></td></tr>
+<tr><td>Base de datos</td><td><b>No se crea otra:</b> usa <code>Artisanal-ice-cream</code></td><td>La misma, <b>limpiada</b> (ver 13.1)</td></tr>
+<tr><td>Migraciones</td><td>Ya aplicadas con <code>db:push</code></td><td><code>supabase db push</code> automático desde GitHub al unir a <code>main</code></td></tr>
 <tr><td>Edge Functions</td><td>Ya publicadas con <code>fn:deploy</code></td><td><code>supabase functions deploy</code> automático</td></tr>
 <tr><td>App</td><td>Cloudflare Pages, rama <code>develop</code></td><td>Cloudflare Pages, rama <code>main</code></td></tr>
 <tr><td>Variables</td><td><code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> en Cloudflare (Preview)</td><td>Las mismas en Cloudflare (Production)</td></tr>
 <tr><td>Secretos</td><td>GitHub Secrets: token, contraseña de la BD, id del proyecto</td><td>Los de producción, aparte</td></tr>
-<tr><td>Admin</td><td>El mismo de desarrollo</td><td><code>crear-admin</code> con variables de producción y contraseña fuerte</td></tr>
-<tr><td>Auth</td><td>Ya configurado (E3)</td><td>Repetir E3, con <i>Site URL</i> = la dirección de producción</td></tr>
+<tr><td>Admin</td><td>El mismo de desarrollo</td><td>Se vuelve a crear con contraseña nueva y fuerte (13.1)</td></tr>
+<tr><td>Auth</td><td>Ya configurado (E3)</td><td>Cambiar <i>Site URL</i> a la dirección de producción</td></tr>
 <tr><td>CI</td><td>GitHub Actions corre todas las pruebas en cada PR</td><td>Igual, y no se une a <code>main</code> sin que pasen</td></tr>
 <tr><td>Respaldos</td><td>No hace falta</td><td>Respaldo nocturno con GitHub Actions y simulacro de restauración</td></tr>
 <tr><td>Monitoreo</td><td>Opcional</td><td>Sentry y UptimeRobot</td></tr>
 </table>
-<p><b>Cuando quieras pagar</b> (Supabase Pro, dominio propio): se cambia el plan en el panel de facturación o se conecta el dominio en Cloudflare. Con Pro puedes crear un tercer proyecto, <code>heladeria-pruebas</code>, para separar pruebas de desarrollo cambiando solo las variables de Cloudflare. El código, las migraciones y los procesos siguen exactamente iguales.</p>
+<h3>13.1 El día del lanzamiento: limpiar la base</h3>
+<p>Antes de que la heladería empiece a usar el sistema, en este orden:</p>
+<ol>
+  <li>Avisa a quien esté probando que la app de pruebas se va a vaciar.</li>
+  <li><b>Borrar todo lo de prueba:</b> <code>npm run db:reset</code>. Elimina datos, usuarios y tablas, y recrea la estructura desde las migraciones y <code>seed.sql</code> (sabores y productos iniciales). No queda ningún registro de prueba.</li>
+  <li><b>Cambiar las llaves usadas en desarrollo:</b> en el panel, <i>Project Settings → API Keys</i>, crea una <b>secret key</b> nueva y elimina la anterior. Actualízala en <code>.env.local</code> y en GitHub Secrets.</li>
+  <li><b>Cambiar la contraseña de la base:</b> <i>Project Settings → Database → Reset database password</i>. Guárdala y actualízala en GitHub Secrets.</li>
+  <li><b>Crear la administración definitiva:</b> pon una contraseña nueva y fuerte en <code>ADMIN_PASSWORD</code> y ejecuta <code>npm run crear-admin</code>.</li>
+  <li><b>Configurar Auth:</b> en <i>Authentication → URL Configuration</i>, cambia <i>Site URL</i> por la dirección de producción.</li>
+  <li><b>Cargar los datos reales:</b> si hay respaldos del prototipo, impórtalos (G9). Luego tu mamá crea las cuentas reales de las colaboradoras desde Personal.</li>
+  <li>Revisa en el panel (<i>Table Editor</i> y <i>Authentication → Users</i>) que no quede nada de prueba.</li>
+</ol>
+<div class="warn"><b>Después del lanzamiento cambian las reglas:</b>
+<ul style="margin:4px 0 0">
+<li><code>npm run db:reset</code> queda <b>prohibido</b>: borraría las ventas reales. Si quieres, pídeme quitar ese comando del proyecto ese día.</li>
+<li>Una migración nueva afecta directamente a la base real. Pídeme revisarla antes de aplicarla y aplícala fuera del horario de atención.</li>
+<li>Las pruebas a mano se hacen con cuidado: lo que anotes queda en el estado de resultados. Para mejoras grandes, conviene crear en ese momento el segundo proyecto gratis como base de pruebas, cambiando solo variables.</li>
+<li>Activa los respaldos nocturnos (parte 3) <b>antes</b> de la primera venta real.</li>
+</ul></div>
+<p><b>Cuando quieras pagar</b> (Supabase Pro, dominio propio): se cambia el plan en el panel de facturación o se conecta el dominio en Cloudflare. El código, las migraciones y los procesos siguen exactamente iguales.</p>
 </section>
 
 <!-- L -->
@@ -790,11 +810,11 @@ npx supabase link --project-ref abcdefghijklmnop</pre>
 <tr><td><code>format</code></td><td><code>prettier --write .</code></td><td>Ordenar el formato.</td></tr>
 <tr><td><code>test</code> / <code>test:run</code></td><td><code>vitest</code> / <code>vitest run</code></td><td>Pruebas (modo vigilante / una vez).</td></tr>
 <tr><td><code>e2e</code></td><td><code>playwright test</code></td><td>Pruebas de extremo a extremo.</td></tr>
-<tr><td><code>db:push</code></td><td><code>supabase db push</code></td><td>Aplicar migraciones nuevas a <code>heladeria-dev</code>.</td></tr>
-<tr><td><code>db:reset</code></td><td><code>supabase db reset --remote</code></td><td>Borrar todo en <code>heladeria-dev</code> y recrearlo desde las migraciones (con cuidado).</td></tr>
+<tr><td><code>db:push</code></td><td><code>supabase db push</code></td><td>Aplicar migraciones nuevas a <code>Artisanal-ice-cream</code>.</td></tr>
+<tr><td><code>db:reset</code></td><td><code>supabase db reset --remote</code></td><td>Borrar todo en <code>Artisanal-ice-cream</code> y recrearlo desde las migraciones (con cuidado).</td></tr>
 <tr><td><code>db:types</code></td><td><code>supabase gen types --remote &gt; src/lib/database.types.ts</code></td><td>Después de cambiar tablas.</td></tr>
 <tr><td><code>db:test</code></td><td><code>supabase test db --remote</code></td><td>Pruebas de permisos (pgTAP).</td></tr>
-<tr><td><code>fn:deploy</code></td><td><code>supabase functions deploy --use-api</code></td><td>Publicar las Edge Functions en <code>heladeria-dev</code>.</td></tr>
+<tr><td><code>fn:deploy</code></td><td><code>supabase functions deploy --use-api</code></td><td>Publicar las Edge Functions en <code>Artisanal-ice-cream</code>.</td></tr>
 <tr><td><code>crear-admin</code></td><td><code>node --env-file=.env.local scripts/crear-admin.mjs</code></td><td>Una vez, y después de cada <code>db:reset</code>.</td></tr>
 <tr><td>(sin script)</td><td><code>npx supabase migration new NOMBRE</code></td><td>Crear el archivo de una migración nueva.</td></tr>
 </table>
@@ -836,12 +856,14 @@ Edge Functions) · Dexie (cola sin conexión) · vite-plugin-pwa · Vitest + Tes
 pgTAP · Playwright · Oxlint + Prettier + Husky.
 
 ## Entornos
-Sin Docker (no hay permisos de administrador). desarrollo = app local + proyecto Supabase heladeria-dev
-(enlazado con supabase link; variables en .env.local) · pruebas = rama develop publicada, MISMA base
-heladeria-dev · producción = rama main + proyecto heladeria-prod, creado vacío al lanzar y armado solo
-con migraciones. El código es el mismo en todos; solo cambian las variables de entorno.
-Comandos de base: db:push (aplicar migraciones), db:reset (borra heladeria-dev: solo si nadie prueba),
-db:types, db:test, fn:deploy (--use-api, sin Docker). Nunca apuntar desarrollo a heladeria-prod.
+Sin Docker (no hay permisos de administrador). UN SOLO proyecto Supabase: Artisanal-ice-cream
+(enlazado con supabase link; variables en .env.local) para desarrollo, pruebas (rama develop) y
+producción (rama main). El día del lanzamiento se limpia con db:reset y se rotan secret key,
+contraseña de la BD y contraseña de admin. El código es el mismo en todos; solo cambian variables.
+Comandos de base: db:push (aplicar migraciones), db:reset (borra TODO: solo antes del lanzamiento
+y si nadie prueba; prohibido después), db:types, db:test, fn:deploy (--use-api, sin Docker).
+Después del lanzamiento: revisar cada migración antes de aplicarla; las pruebas automáticas nunca
+escriben en la base real.
 
 ## Reglas de la base de datos
 - Todo cambio de estructura es una migración nueva en supabase/migrations. Nunca editar una
@@ -867,7 +889,7 @@ db:types, db:test, fn:deploy (--use-api, sin Docker). Nunca apuntar desarrollo a
 
 <h3>Lista de verificación al terminar esta parte</h3>
 <ul class="check">
-  <li>Las dos computadoras pueden clonar, enlazar (<code>supabase link</code>) y correr el proyecto contra <code>heladeria-dev</code>.</li>
+  <li>Las dos computadoras pueden clonar, enlazar (<code>supabase link</code>) y correr el proyecto contra <code>Artisanal-ice-cream</code>.</li>
   <li>Login de administración en <code>/admin</code> y de colaboradores en <code>/</code>, sin registro.</li>
   <li>Todos los módulos G1 a G9 funcionando y con números iguales a los del prototipo.</li>
   <li>Funciona sin conexión y sube lo pendiente sin duplicar.</li>
