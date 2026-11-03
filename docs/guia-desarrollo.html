@@ -64,10 +64,10 @@ pre .c{color:#8fb3c4}
 <div class="cover">
   <div><span class="tag">Guía práctica · Parte 1 de 3</span></div>
   <h1>Construyendo el sistema de la heladería, paso a paso</h1>
-  <p class="sub">Desde instalar las herramientas hasta tener la app funcionando en tu computadora con React y Supabase. Cada paso dice quién lo hace, dónde y con qué comando, y qué cambiará después en los entornos de pruebas y de producción.</p>
+  <p class="sub">Desde preparar las herramientas hasta tener la app funcionando en tu computadora con React y Supabase, sin Docker y sin permisos de administrador. Cada paso dice quién lo hace, dónde y con qué comando, y qué cambiará después en los entornos de pruebas y de producción.</p>
   <div class="meta">
     Stack: React + TypeScript + Vite · Supabase (PostgreSQL) · GitHub<br>
-    Alcance de esta parte: entorno de <b>desarrollo</b> (tu computadora). Las partes 2 (pruebas) y 3 (producción) vendrán después.<br>
+    Alcance de esta parte: entorno de <b>desarrollo</b> (la app en tu computadora y la base <code>heladeria-dev</code> en supabase.com). Las partes 2 (pruebas) y 3 (producción) vendrán después.<br>
     Noviembre de 2026 · Versiones verificadas: Node 24 LTS, Vite 8, React 19, Supabase CLI 3
   </div>
 </div>
@@ -81,7 +81,7 @@ pre .c{color:#8fb3c4}
   <li>Etapa B · GitHub</li>
   <li>Etapa C · Crear el proyecto React</li>
   <li>Etapa D · La base del proyecto</li>
-  <li>Etapa E · Supabase en tu computadora</li>
+  <li>Etapa E · La base de datos de desarrollo</li>
   <li>Etapa F · Inicio de sesión y roles</li>
   <li>Etapa G · Los módulos del negocio</li>
   <li>Etapa H · Funcionar sin internet (PWA)</li>
@@ -97,7 +97,7 @@ pre .c{color:#8fb3c4}
 <table class="leyenda">
 <tr><th>Etiqueta</th><th>Qué significa</th></tr>
 <tr><td><span class="quien q-term">TÚ · TERMINAL</span></td><td>Escribes el comando en la terminal de VS Code (<i>Terminal → New Terminal</i>, se abre PowerShell) y presionas Enter.</td></tr>
-<tr><td><span class="quien q-web">TÚ · NAVEGADOR</span></td><td>Lo haces en una página web (GitHub, Studio de Supabase, la app).</td></tr>
+<tr><td><span class="quien q-web">TÚ · NAVEGADOR</span></td><td>Lo haces en una página web (GitHub, el panel de Supabase, la app).</td></tr>
 <tr><td><span class="quien q-code">TÚ · VS CODE</span></td><td>Lo haces dentro del editor: abrir carpetas, instalar extensiones, revisar archivos.</td></tr>
 <tr><td><span class="quien q-claude">CLAUDE</span></td><td>Me lo pides a mí (Claude Code) en VS Code, copiando el texto del recuadro naranja. Yo creo, muevo o borro archivos y escribo el código.</td></tr>
 </table>
@@ -149,12 +149,22 @@ pre .c{color:#8fb3c4}
 <h3>Los tres entornos, desde ya</h3>
 <table>
 <tr><th style="width:15%">Entorno</th><th style="width:27%">Base de datos</th><th style="width:27%">App</th><th>Variables (.env)</th></tr>
-<tr><td><b>Desarrollo</b><br><span class="muted">esta guía</span></td><td>Supabase local en Docker</td><td><code>npm run dev</code> → <code>localhost:5173</code></td><td>Archivo <code>.env.local</code> en tu PC</td></tr>
-<tr><td><b>Pruebas</b><br><span class="muted">parte 2</span></td><td>Proyecto Supabase <code>heladeria-pruebas</code></td><td>Cloudflare Pages, rama <code>develop</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
-<tr><td><b>Producción</b><br><span class="muted">parte 3</span></td><td>Proyecto Supabase <code>heladeria-prod</code></td><td>Cloudflare Pages, rama <code>main</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+<tr><td><b>Desarrollo</b><br><span class="muted">esta guía</span></td><td>Proyecto Supabase <code>heladeria-dev</code> (en internet)</td><td><code>npm run dev</code> → <code>localhost:5173</code></td><td>Archivo <code>.env.local</code> en tu PC</td></tr>
+<tr><td><b>Pruebas</b><br><span class="muted">parte 2</span></td><td><b>El mismo</b> <code>heladeria-dev</code></td><td>Cloudflare Pages, rama <code>develop</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+<tr><td><b>Producción</b><br><span class="muted">parte 3</span></td><td>Proyecto <code>heladeria-prod</code>, creado <b>vacío</b> el día del lanzamiento</td><td>Cloudflare Pages, rama <code>main</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
 </table>
+<h3>¿Por qué sin Docker?</h3>
+<p>Para tener Supabase dentro de tu computadora hace falta Docker, y Docker necesita permisos de administrador que solo IT puede dar. En su lugar usamos un proyecto <b>gratis</b> de supabase.com, <code>heladeria-dev</code>, como base de desarrollo. Ventaja extra: <b>las dos computadoras (trabajo y casa) usan la misma base</b>, con los mismos datos, sin preparar nada en cada una.</p>
+<p>El plan gratis permite <b>2 proyectos</b>: <code>heladeria-dev</code> (desarrollo y pruebas) y, el día del lanzamiento, <code>heladeria-prod</code>. Producción se crea vacía y se arma sola con las migraciones, así que <b>nunca hay que borrar datos de prueba a mano</b>.</p>
+<div class="warn"><b>Reglas por compartir la base entre desarrollo y pruebas:</b>
+<ol style="margin:4px 0 0">
+<li><b>Mientras programas solo</b> (toda esta guía): puedes resetear la base y cambiar tablas cuando quieras.</li>
+<li><b>Cuando alguien esté probando</b> la app publicada (parte 2): no uses <code>db:reset</code>, aplica cambios de tablas recién al unir a <code>develop</code> y avisa antes.</li>
+<li><b>Nunca</b> conectes tu computadora ni la app de pruebas a <code>heladeria-prod</code>.</li>
+</ol></div>
+<p class="muted">Si algún día IT instala Docker, o pagas Supabase Pro para tener un tercer proyecto, se puede separar desarrollo de pruebas cambiando solo variables, sin tocar el código.</p>
 <p><b>La regla que hace todo fácil después:</b> el código es <b>el mismo</b> en los tres entornos. Lo único que cambia son las variables de entorno (a qué Supabase se conecta) y dónde se publica. Por eso, cuando pagues Supabase Pro o cambies de hosting, <b>no tendrás que cambiar código</b>: solo valores de configuración.</p>
-<div class="env">Lo que hoy pruebas con <code>npm run dev</code> y Supabase local será lo mismo que se publicará. Los cambios de tablas viajarán como migraciones (archivos SQL) con <code>supabase db push</code>, y la app se publicará sola desde GitHub.</div>
+<div class="env">Lo que hoy pruebas con <code>npm run dev</code> y Supabase local será lo mismo que se publicará. Los cambios de tablas viajan como migraciones (archivos SQL) con <code>supabase db push</code>, el mismo comando que ya usarás en desarrollo, y la app se publicará sola desde GitHub.</div>
 </section>
 
 <!-- A -->
@@ -162,7 +172,7 @@ pre .c{color:#8fb3c4}
 <h2>3. Etapa A · Preparar cada computadora</h2>
 <p>Haz esta etapa <b>una vez en cada computadora</b>: la del trabajo y la de tu casa.</p>
 
-<div class="warn"><b>Antes de empezar en la computadora del trabajo:</b> instalar WSL2 y Docker requiere permisos de administrador. Además, Docker Desktop es gratis para uso personal y empresas pequeñas, pero <b>pide licencia pagada en empresas de más de 250 empleados o más de US$ 10 millones de ingresos</b>. Si la computadora es de una empresa grande, consúltalo o usa <b>Rancher Desktop</b> (gratis), que también funciona con Supabase.</div>
+<div class="ok" style="border-left:4px solid #2e9a62;background:#e3f4ea;padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0"><b>Nada de esta etapa necesita permisos de administrador.</b> No usamos Docker: la base de datos de desarrollo está en supabase.com.</div>
 
 <div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>A1. Abrir el proyecto y la terminal</b></div>
 <ol>
@@ -178,41 +188,23 @@ pre .c{color:#8fb3c4}
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
 <pre>git --version
 node -v
-npm -v
-docker --version</pre>
-<p>En <b>esta</b> computadora ya tienes Git, Node.js 24 y VS Code, así que esos tres comandos responderán con su versión. Lo que falta es <b>Docker</b>: el último comando dirá que no lo reconoce. En ese caso continúa con A3.</p>
-<p>En una computadora que no tenga Git, Node o VS Code, instálalos así (en la misma ruta; los programas se instalan igual sin importar la carpeta):</p>
+npm -v</pre>
+<p>En <b>esta</b> computadora ya tienes los tres: cada comando responderá con su versión. Si es así, pasa a A3.</p>
+<p>En una computadora que no los tenga, instálalos así (en la misma ruta):</p>
 <pre>winget install --id Git.Git -e
 winget install --id OpenJS.NodeJS.LTS -e
 winget install --id Microsoft.VisualStudioCode -e</pre>
-<p>Después cierra VS Code por completo y vuelve a abrirlo, para que la terminal reconozca los programas nuevos.</p>
+<p>Después cierra VS Code por completo y vuelve a abrirlo, para que la terminal reconozca los programas nuevos. Si Windows pide contraseña de administrador para alguno, pídeselo a IT: solo son estos tres programas, todos gratuitos y de uso común.</p>
 <div class="term"><b>winget.</b> Es el instalador de programas por comandos que trae Windows. <code>--id</code> indica el programa exacto y <code>-e</code> pide coincidencia exacta del nombre.</div>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL (ADMINISTRADOR)</span><b>A3. Instalar WSL2 y Docker Desktop</b></div>
-<p>Esto necesita una terminal <b>con permisos de administrador</b>, que no es la de VS Code:</p>
-<ol>
-  <li>Presiona la tecla <b>Windows</b> del teclado.</li>
-  <li>Escribe <code>powershell</code>.</li>
-  <li>En el resultado <i>Windows PowerShell</i>, a la derecha, haz clic en <b>Ejecutar como administrador</b> y acepta el aviso de Windows.</li>
-</ol>
-<p>Se abre una ventana azul o negra que muestra esta ruta (es normal; para instalar no importa la carpeta):</p>
-<div class="ruta">PS C:\WINDOWS\system32&gt;</div>
-<pre>wsl --install
-winget install --id Docker.DockerDesktop -e</pre>
-<p><b>Reinicia la computadora.</b> Después: tecla Windows → escribe <code>docker</code> → abre <b>Docker Desktop</b>, acepta los términos (puedes saltar el inicio de sesión con <i>Skip</i>) y espera a que abajo a la izquierda diga <i>Engine running</i>.</p>
-<div class="term"><b>WSL2</b> (<i>Windows Subsystem for Linux</i>). Permite correr Linux dentro de Windows. Docker lo usa porque los contenedores de Supabase son de Linux.</div>
-<p>Recomendado: en Docker Desktop → <i>Settings → General</i>, desactiva <i>Start Docker Desktop when you sign in</i> si no quieres que consuma memoria siempre. Solo tendrás que abrirlo antes de trabajar.</p>
-</div>
-
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A4. Permitir que PowerShell ejecute los comandos de npm</b></div>
-<p>De vuelta en la terminal de VS Code:</p>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A3. Permitir que PowerShell ejecute los comandos de npm</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
 <pre>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</pre>
-<p>Responde <code>S</code> (o <code>Y</code>) si pregunta. Sin esto, comandos como <code>npx</code> fallan con el error <i>"la ejecución de scripts está deshabilitada en este sistema"</i>.</p>
+<p>Responde <code>S</code> (o <code>Y</code>) si pregunta. <code>-Scope CurrentUser</code> hace que el cambio sea solo para tu usuario, por eso <b>no necesita administrador</b>. Sin esto, comandos como <code>npx</code> fallan con el error <i>"la ejecución de scripts está deshabilitada en este sistema"</i>.</p>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A5. Decirle a Git quién eres</b></div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A4. Decirle a Git quién eres</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
 <pre>git config --global user.name "Juan Jose Huanca Esquivel"
 git config --global user.email "juanjosehuanca123@gmail.com"
@@ -221,17 +213,17 @@ git config --global pull.rebase false</pre>
 <p>Usa el mismo nombre y correo en las dos computadoras: así GitHub te reconoce como la misma persona.</p>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A6. Verificar todo</b></div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A5. Verificar todo</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
 <pre>git --version
 node -v
 npm -v
-docker --version
-docker run --rm hello-world</pre>
-<div class="ver">Git 2.x, Node <b>v24</b>.x, npm 11.x, Docker 2x.x. El último comando muestra <i>"Hello from Docker!"</i>. Si <code>docker</code> no se reconoce, cierra VS Code y vuelve a abrirlo.</div>
+git config --global user.name
+Get-ExecutionPolicy -Scope CurrentUser</pre>
+<div class="ver">Git 2.x, Node <b>v24</b>.x, npm 11.x, tu nombre y <code>RemoteSigned</code>.</div>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>A7. Extensiones de VS Code</b></div>
+<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>A6. Extensiones de VS Code</b></div>
 <p>En VS Code, panel <i>Extensions</i> (Ctrl+Shift+X), instala:</p>
 <ul>
   <li><b>Claude Code</b> (Anthropic), si no la tienes ya.</li>
@@ -241,7 +233,7 @@ docker run --rm hello-world</pre>
 </ul>
 <p class="muted">Más adelante crearé el archivo <code>.vscode/extensions.json</code>; en la otra computadora, VS Code te ofrecerá instalarlas todas con un clic.</p>
 </div>
-<div class="casa">Repite A2 a A7. Para A1, primero hay que traer el proyecto a esa computadora (capítulo 12.1).</div>
+<div class="casa">Repite A2 a A6. Para A1, primero hay que traer el proyecto a esa computadora (capítulo 12.1).</div>
 </section>
 
 <!-- B -->
@@ -411,66 +403,99 @@ git branch -d feature/base-proyecto</pre>
 
 <!-- E -->
 <section>
-<h2>7. Etapa E · Supabase en tu computadora</h2>
+<h2>7. Etapa E · La base de datos de desarrollo</h2>
+<p>Creamos el proyecto <code>heladeria-dev</code> en supabase.com y conectamos el proyecto de tu computadora con él.</p>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E1. Inicializar Supabase</b></div>
-<p>Docker Desktop debe estar abierto (<i>Engine running</i>).</p>
-<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>git switch -c feature/supabase-local
-npx supabase init</pre>
-<div class="ver">Se crea la carpeta <code>supabase/</code> con <code>config.toml</code>.</div>
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E1. Crear la cuenta de Supabase</b></div>
+<ol>
+  <li>Entra a <code>supabase.com</code> → <b>Start your project</b> → <b>Continue with GitHub</b> y autoriza. Así no creas otra contraseña.</li>
+  <li>Si pide crear una <i>organization</i>: nombre <code>Heladería</code>, tipo <i>Personal</i>, plan <b>Free</b> (US$ 0).</li>
+  <li>Activa la verificación en dos pasos: tu foto (arriba a la derecha) → <i>Account preferences</i> → <i>Security</i> / <i>Multi-factor authentication</i>.</li>
+</ol>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E2. Levantar Supabase local</b></div>
-<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:start</pre>
-<p>La <b>primera vez</b> descarga varias imágenes de Docker (algunos GB) y puede tardar de 5 a 15 minutos. Las siguientes veces tarda segundos.</p>
-<div class="ver">Al final muestra una tabla con las direcciones y llaves. Las importantes:</div>
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E2. Crear el proyecto heladeria-dev</b></div>
+<ol>
+  <li><b>New project</b>.</li>
+  <li><i>Project name</i>: <code>heladeria-dev</code>.</li>
+  <li><i>Database password</i>: toca <b>Generate a password</b> y <b>guárdala</b> en un lugar seguro (un gestor de contraseñas o una nota privada). La pedirá la terminal en E5.</li>
+  <li><i>Region</i>: <b>South America (São Paulo)</b>, la más cercana a Bolivia.</li>
+  <li><b>Create new project</b> y espera 1 a 2 minutos a que termine de prepararse.</li>
+</ol>
+<div class="ver">Se abre el panel del proyecto. En la barra de direcciones verás <code>supabase.com/dashboard/project/<b>abcdefghijklmnop</b></code>: esas letras son el <b>Project ref</b> (identificador del proyecto). Anótalo.</div>
+<div class="term"><b>Panel de Supabase (dashboard).</b> Es la página web donde ves tus tablas (<i>Table Editor</i>), escribes SQL (<i>SQL Editor</i>), ves los usuarios (<i>Authentication</i>) y configuras el proyecto (<i>Project Settings</i>, el engranaje abajo a la izquierda).</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E3. Configurar el inicio de sesión del proyecto</b></div>
+<p>En el panel de <code>heladeria-dev</code>, menú izquierdo <b>Authentication</b>:</p>
+<ol>
+  <li><i>Sign In / Providers</i> (o <i>Settings</i>): desactiva <b>Allow new users to sign up</b>. Así nadie se registra solo: las cuentas las crea la administración.</li>
+  <li>En el proveedor <b>Email</b>: desactiva <b>Confirm email</b> (los correos internos como <code>erika@heladeria.local</code> no existen). Guarda.</li>
+  <li><i>URL Configuration</i> → <b>Site URL</b>: <code>http://localhost:5173</code>. Guarda.</li>
+</ol>
+<p class="muted">Los nombres exactos de los menús de Supabase cambian a veces. Si no encuentras alguno, dime qué ves en pantalla y te guío.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E4. Copiar la dirección y las llaves del proyecto</b></div>
+<p>En el panel: engranaje <b>Project Settings</b> → <b>API Keys</b> (o el botón <b>Connect</b> de arriba):</p>
 <table>
-<tr><th style="width:30%">Servicio</th><th style="width:35%">Dirección</th><th>Para qué</th></tr>
-<tr><td>API (Project URL)</td><td><code>http://127.0.0.1:54321</code></td><td>A donde se conecta la app.</td></tr>
-<tr><td>Studio</td><td><code>http://127.0.0.1:54323</code></td><td>Panel para ver tablas y usuarios.</td></tr>
-<tr><td>Mailpit</td><td><code>http://127.0.0.1:54324</code></td><td>Buzón falso: aquí llegan los correos que Supabase "envía" en local.</td></tr>
-<tr><td>Base de datos</td><td><code>postgresql://postgres:postgres@127.0.0.1:54322/postgres</code></td><td>Conexión directa a Postgres.</td></tr>
+<tr><th style="width:30%">Dato</th><th style="width:30%">Cómo se ve</th><th>Para qué</th></tr>
+<tr><td>Project URL</td><td><code>https://abcdefghijklmnop.supabase.co</code></td><td>A donde se conecta la app.</td></tr>
 <tr><td>Publishable key</td><td><code>sb_publishable_…</code></td><td>Llave pública que usa la app.</td></tr>
-<tr><td>Secret key</td><td><code>sb_secret_…</code></td><td>Llave secreta: solo scripts y funciones de servidor.</td></tr>
+<tr><td>Secret key</td><td><code>sb_secret_…</code></td><td>Llave secreta: solo scripts de tu PC y funciones de servidor. Si no hay ninguna, toca <i>Create new secret key</i>.</td></tr>
 </table>
-<p>Para volver a ver esta información: <code>npm run db:status</code>.</p>
+<p>Si en vez de esas ves <i>anon key</i> y <i>service_role key</i> (nombres antiguos), usa la <i>anon</i> como publishable y la <i>service_role</i> como secret.</p>
+<div class="warn">La <b>secret key</b> da acceso total a la base, saltándose todos los permisos. No la pegues en chats, correos ni en el código. Si se filtra, en esa misma pantalla se elimina y se crea otra.</div>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>E3. Crear tu archivo .env.local</b></div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E5. Conectar el proyecto con Supabase</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git pull
+git switch -c feature/supabase
+npx supabase init
+npx supabase login
+npx supabase link --project-ref abcdefghijklmnop</pre>
+<p>Cambia <code>abcdefghijklmnop</code> por tu Project ref. Qué pasa en cada comando:</p>
+<ul>
+  <li><code>init</code> crea la carpeta <code>supabase/</code> con <code>config.toml</code>. Ahí vivirán las migraciones, las funciones y las pruebas.</li>
+  <li><code>login</code> abre el navegador para autorizar la terminal con tu cuenta. Vuelve a la terminal cuando diga que terminó.</li>
+  <li><code>link</code> deja tu carpeta conectada a <code>heladeria-dev</code>. Si pide la <i>database password</i>, pega la de E2 (no se ve mientras la escribes; es normal).</li>
+</ul>
+<div class="ver"><code>link</code> termina con <i>Finished supabase link</i>.</div>
+<div class="term"><b>login y link en cada computadora.</b> Los dos se guardan en tu computadora, no en Git: en tu casa los repetirás una vez (capítulo 12.1).</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>E6. Crear tu archivo .env.local</b></div>
 <ol>
   <li>En el explorador de VS Code, clic derecho sobre <code>.env.example</code> → <i>Copy</i>, y luego <i>Paste</i> en la misma carpeta.</li>
   <li>Renombra la copia a <code>.env.local</code>.</li>
-  <li>Llénalo con los valores de <code>npm run db:status</code>:</li>
+  <li>Llénalo con los datos de E4:</li>
 </ol>
-<pre>VITE_SUPABASE_URL=http://127.0.0.1:54321
-VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   <span class="c">← "Publishable key"</span>
-SUPABASE_URL=http://127.0.0.1:54321
-SUPABASE_SECRET_KEY=sb_secret_...                  <span class="c">← "Secret key"</span>
+<pre>VITE_SUPABASE_URL=https://abcdefghijklmnop.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   <span class="c">← Publishable key</span>
+SUPABASE_URL=https://abcdefghijklmnop.supabase.co
+SUPABASE_SECRET_KEY=sb_secret_...                  <span class="c">← Secret key</span>
 ADMIN_USUARIO=Admin
 ADMIN_PASSWORD=escribe-aqui-la-contraseña-de-admin</pre>
-<div class="warn"><b>Muy importante:</b> las variables que empiezan con <code>VITE_</code> se incrustan en la app y <b>cualquiera puede verlas</b> en el celular. Por eso la llave secreta va <b>sin</b> <code>VITE_</code>: así solo la usan los scripts de tu computadora. <code>.env.local</code> está en <code>.gitignore</code>, así que <b>nunca se sube a GitHub</b>.</div>
-<p>Si en tu versión de la CLI las llaves aparecen como <i>anon key</i> y <i>service_role key</i> (nombres antiguos), usa la <i>anon</i> como publishable y la <i>service_role</i> como secret.</p>
+<div class="warn"><b>Muy importante:</b> las variables que empiezan con <code>VITE_</code> se incrustan en la app y <b>cualquiera puede verlas</b> en el celular. Por eso la llave secreta va <b>sin</b> <code>VITE_</code>: así solo la usan los scripts de tu computadora. <code>.env.local</code> está en <code>.gitignore</code>, así que <b>nunca se sube a GitHub</b>. Para tenerlo en tu casa, guarda una copia en tu gestor de contraseñas o nota privada, no en Git ni por chat.</div>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>E4. Configuración de Supabase, cliente y script de administrador</b></div>
-<div class="pedir"><p>Paso E4 de docs/guia-desarrollo.html: en supabase/config.toml pon site_url en http://localhost:5173, desactiva el registro público y deja la contraseña mínima en 6; crea src/lib/supabase.ts que lea las variables VITE_ y valide que existan; crea scripts/crear-admin.mjs que use SUPABASE_URL, SUPABASE_SECRET_KEY, ADMIN_USUARIO y ADMIN_PASSWORD. Explícame cada cosa.</p></div>
-<p>El script de administrador <b>no tiene la contraseña escrita en el código</b>: la lee de <code>.env.local</code>. El mismo script servirá para crear la cuenta de administración en pruebas y en producción, solo cambiando las variables.</p>
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>E7. Cliente de Supabase y script de administrador</b></div>
+<div class="pedir"><p>Paso E7 de docs/guia-desarrollo.html: crea src/lib/supabase.ts que lea las variables VITE_ y avise claro si faltan; crea scripts/crear-admin.mjs que use SUPABASE_URL, SUPABASE_SECRET_KEY, ADMIN_USUARIO y ADMIN_PASSWORD (sin contraseñas escritas en el código, y que se pueda ejecutar varias veces sin duplicar); revisa que los scripts npm del apéndice A estén completos. Explícame cada cosa.</p></div>
+<p>El script de administrador <b>no tiene la contraseña escrita en el código</b>: la lee de <code>.env.local</code>. El mismo script servirá para crear la cuenta de administración en producción, solo cambiando las variables.</p>
 </div>
 
-<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E5. Aplicar la configuración y guardar</b></div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E8. Probar la conexión y guardar</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:stop
-npm run db:start
+<pre>npm run db:types
 git add .
-git commit -m "chore(supabase): entorno local, cliente y script de administrador"
-git push -u origin feature/supabase-local</pre>
+git commit -m "chore(supabase): proyecto de desarrollo, cliente y script de administrador"
+git push -u origin feature/supabase</pre>
+<div class="ver"><code>db:types</code> crea <code>src/lib/database.types.ts</code> sin errores: la terminal sí llega a tu proyecto de Supabase. En <code>git status</code>, antes del commit, <b>no</b> debe aparecer <code>.env.local</code>.</div>
 <p>Luego haz el Pull Request a <code>develop</code>, el merge y el <code>pull</code>, igual que en D6.</p>
-<div class="ver">Abre Studio (<code>http://127.0.0.1:54323</code>). Ves el panel de Supabase con la base vacía.</div>
-<div class="term"><b>db:stop sin perder datos.</b> <code>supabase stop</code> apaga los contenedores pero <b>conserva los datos</b>. Solo los borra si agregas <code>--no-backup</code>. Al terminar el día puedes detenerlo para liberar memoria.</div>
 </div>
-<div class="env">En pruebas y producción no hay Docker ni <code>.env.local</code>. Los proyectos se crean en supabase.com, sus llaves se configuran en Cloudflare (las <code>VITE_</code>) y en GitHub Secrets (la secreta), y la configuración de Auth que hoy está en <code>config.toml</code> (registro desactivado, contraseña mínima) se repite en el panel de cada proyecto.</div>
+<div class="env">La parte 2 no crea otra base: la app publicada de pruebas usará este mismo <code>heladeria-dev</code>. En la parte 3 se crea <code>heladeria-prod</code> vacío, se repite E3 en su panel y se le aplican las migraciones con <code>supabase db push</code>. Sus llaves no van en tu <code>.env.local</code>: se configuran en Cloudflare (las <code>VITE_</code>) y en GitHub Secrets (la secreta).</div>
 </section>
 
 <!-- F -->
@@ -494,13 +519,15 @@ npx supabase migration new perfiles_y_roles</pre>
 
 <div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>F3. Aplicar, generar tipos, crear la cuenta de administración y probar</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:reset
+<pre>npm run db:push
 npm run db:types
 npm run crear-admin
 npm run db:test</pre>
-<div class="ver"><code>db:reset</code> termina con <i>Finished supabase db reset</i>. Se crea <code>src/lib/database.types.ts</code>. <code>crear-admin</code> dice que creó a Admin. <code>db:test</code> muestra todas las pruebas en <i>ok</i>.</div>
-<p>En Studio → <i>Authentication</i> verás el usuario <code>admin@heladeria.local</code>, y en <i>Table Editor → perfiles</i> su fila con rol <code>admin</code>.</p>
-<div class="term"><b>db:reset.</b> Borra la base local y la recrea aplicando <b>todas</b> las migraciones en orden, más <code>seed.sql</code>. Úsalo siempre después de una migración nueva. Ojo: borra los usuarios, así que después vuelve a ejecutar <code>crear-admin</code>.</div>
+<div class="ver"><code>db:push</code> pregunta si aplicar la migración (responde <code>Y</code>) y termina con <i>Finished supabase db push</i>. <code>db:types</code> actualiza <code>src/lib/database.types.ts</code>. <code>crear-admin</code> dice que creó a Admin. <code>db:test</code> muestra las pruebas en <i>ok</i>.</div>
+<p>En el panel de Supabase → <i>Authentication → Users</i> verás <code>admin@heladeria.local</code>, y en <i>Table Editor → perfiles</i> su fila con rol <code>admin</code>.</p>
+<div class="term"><b>db:push.</b> Aplica a <code>heladeria-dev</code> las migraciones nuevas, las que todavía no tiene. Es el mismo comando que, automatizado, usará producción.</div>
+<div class="term"><b>db:reset.</b> Borra <b>todo</b> en <code>heladeria-dev</code> (tablas, datos y usuarios) y lo recrea desde las migraciones y <code>seed.sql</code>. Úsalo solo si corregiste una migración que ya habías aplicado con <code>db:push</code>. Pide confirmación. Después ejecuta <code>crear-admin</code>.</div>
+<div class="warn"><b>Si <code>db:test</code> dice que necesita Docker:</b> las pruebas de permisos (pgTAP) se ejecutarán automáticamente en GitHub Actions, que sí tiene Docker (parte 2). Mientras tanto, sigue con los demás pasos y pégame el mensaje para revisarlo.</div>
 <div class="term"><b>db:types.</b> Lee las tablas y genera los tipos de TypeScript. Así el editor te avisa si escribes mal el nombre de una columna. Repítelo cada vez que cambien las tablas.</div>
 </div>
 
@@ -524,10 +551,10 @@ npm run db:test</pre>
 
 <div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL + NAVEGADOR</span><b>F7. Probar y guardar</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:stop
-npm run db:start
+<pre>npm run db:push
+npm run fn:deploy
 npm run dev</pre>
-<p class="muted">Reiniciar Supabase hace que cargue la función nueva. Si la función no responde, ejecuta en <b>otra</b> terminal <code>npx supabase functions serve</code>.</p>
+<p class="muted"><code>fn:deploy</code> publica la Edge Function en <code>heladeria-dev</code>, sin Docker (el empaquetado lo hace Supabase). Repítelo cada vez que cambie una función.</p>
 <ul>
   <li>Como Admin: <i>Personal → Nuevo colaborador</i> → crea a <code>erika</code>.</li>
   <li>En una <b>ventana de incógnito</b> (Ctrl+Shift+N) entra a <code>localhost:5173</code> como <code>erika</code>: debe ver solo Pedidos, Caja y Configuración.</li>
@@ -540,7 +567,7 @@ git commit -m "feat(auth): inicio de sesión, roles y cuentas de colaboradores"
 git push -u origin feature/auth-roles</pre>
 <p>Pull Request a <code>develop</code> → merge → <code>git switch develop</code> → <code>git pull</code>.</p>
 </div>
-<div class="env">Las migraciones se aplicarán con <code>supabase db push</code> y la Edge Function se publicará con <code>supabase functions deploy crear-usuario</code>. La cuenta de administración se creará una vez por entorno con el mismo script, pero con las variables de ese entorno y una <b>contraseña distinta y fuerte</b> en producción. En los paneles de Supabase de pruebas y producción también se desactiva el registro público.</div>
+<div class="env">Pruebas ya tiene todo, porque comparte <code>heladeria-dev</code>. En producción, el mismo <code>db push</code> y <code>functions deploy</code> se harán automáticamente desde GitHub. La cuenta de administración se creará una vez con el mismo script, pero con las variables de producción y una <b>contraseña distinta y fuerte</b>.</div>
 </section>
 
 <!-- G -->
@@ -561,12 +588,12 @@ npx supabase migration new NOMBRE</pre>
 </div>
 <div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>3. Aplicar y probar</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:reset
+<pre>npm run db:push
 npm run db:types
-npm run crear-admin
 npm run db:test
 npm run test:run
 npm run dev</pre>
+<p class="muted">Si después de aplicar una migración tuviste que corregirla: <code>npm run db:reset</code> y luego <code>npm run crear-admin</code>.</p>
 </div>
 <div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>4. Probar a mano como administradora y como colaboradora</b></div>
 <p>Usa una ventana normal para Admin y una de incógnito para la colaboradora. Compara los resultados con el prototipo: los números deben coincidir.</p>
@@ -594,8 +621,8 @@ git push -u origin feature/NOMBRE</pre>
 <tr><td>G8</td><td><code>estado-resultados</code></td><td><i>Paso G8: estado de resultados como vista o función SQL (como calcER del prototipo, con mermas, invitaciones, fijos prorrateados y depreciación) y el Panel. Pruebas que comparen con números calculados a mano.</i></td></tr>
 <tr><td>G9</td><td><code>importar-respaldo</code></td><td><i>Paso G9: scripts/importar-respaldo.mjs que lea el JSON de respaldo del prototipo y lo cargue en las tablas. Que se pueda ejecutar varias veces sin duplicar.</i></td></tr>
 </table>
-<div class="warn"><b>Regla de las migraciones:</b> mientras una migración solo existe en tu rama, puedes corregirla y volver a hacer <code>db:reset</code>. Cuando ya se aplicó en pruebas o producción, <b>nunca se edita</b>: se crea una migración nueva que haga el cambio.</div>
-<div class="env">Cada merge a <code>develop</code> aplicará las migraciones nuevas al Supabase de pruebas y publicará la app de pruebas automáticamente. Lo configuraremos en la parte 2.</div>
+<div class="warn"><b>Regla de las migraciones:</b> mientras la migración no esté unida a <code>develop</code>, puedes corregirla y hacer <code>db:reset</code>. Una vez unida (y con más razón cuando llegue a producción), <b>nunca se edita</b>: se crea una migración nueva que haga el cambio.</div>
+<div class="env">Cada merge a <code>develop</code> publicará la app de pruebas automáticamente (parte 2), conectada a este mismo <code>heladeria-dev</code>. Cada merge a <code>main</code> aplicará las migraciones a <code>heladeria-prod</code> (parte 3).</div>
 </section>
 
 <!-- H -->
@@ -615,7 +642,7 @@ npm run preview</pre>
   <li>Inicia sesión como colaboradora y abre una caja.</li>
   <li>Presiona F12 → pestaña <i>Network</i> → cambia <i>No throttling</i> por <b>Offline</b>.</li>
   <li>Crea y cobra dos pedidos. Debe aparecer el aviso de "2 por subir".</li>
-  <li>Vuelve a <i>No throttling</i>. El aviso desaparece y en Studio aparecen los pedidos, sin duplicados.</li>
+  <li>Vuelve a <i>No throttling</i>. El aviso desaparece y en el panel de Supabase (<i>Table Editor → pedidos</i>) aparecen, sin duplicados.</li>
 </ol>
 <p class="muted">Para probar en tu celular dentro de la misma red Wi-Fi, ejecuta <code>npm run dev -- --host</code> y abre la IP que muestra. La instalación como app y el modo sin conexión completo solo funcionan con HTTPS, así que en el celular se prueban en el entorno de pruebas (parte 2).</p>
 </div>
@@ -641,14 +668,13 @@ npm init playwright@latest</pre>
 
 <div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>I3. Ejecutar todo</b></div>
 <div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
-<pre>npm run db:reset
-npm run crear-admin
-npm run test:run
+<pre>npm run test:run
 npm run db:test
 npm run e2e</pre>
+<p class="muted">Las pruebas de extremo a extremo crean datos (cajas, pedidos) en <code>heladeria-dev</code>. Si quieres dejar la base limpia después: <code>npm run db:reset</code> y <code>npm run crear-admin</code>, siempre que nadie esté probando la app.</p>
 <div class="ver">Todo en verde. Si algo falla, <code>npx playwright show-report</code> abre un informe con capturas de pantalla del momento del error.</div>
 </div>
-<div class="env">En la parte 2, GitHub Actions ejecutará estas mismas pruebas automáticamente en cada Pull Request, con un Supabase local dentro de GitHub. Si alguna falla, no se debería unir el cambio.</div>
+<div class="env">En la parte 2, GitHub Actions ejecutará estas mismas pruebas automáticamente en cada Pull Request, con un Supabase temporal dentro de GitHub (allí sí hay Docker), sin tocar <code>heladeria-dev</code>. Si alguna falla, no se debería unir el cambio.</div>
 </section>
 
 <!-- J -->
@@ -657,40 +683,36 @@ npm run e2e</pre>
 
 <h3>12.1 Preparar la computadora de tu casa (una sola vez)</h3>
 <div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>Clonar y dejar listo</b></div>
-<p>Después de hacer la etapa A completa en esa computadora:</p>
+<p>Después de hacer la etapa A (A2 a A6) en esa computadora:</p>
 <p>Abre PowerShell en la carpeta donde quieras el proyecto (por ejemplo, en VS Code: <i>File → Open Folder…</i> → <code>Desktop\Mokups</code> y luego <i>Terminal → New Terminal</i>):</p>
 <div class="ruta">PS C:\Users\TU-USUARIO\Desktop\Mokups&gt;</div>
 <pre>git clone https://github.com/JJ-HEsquivel/-artisanal-ice-cream-system.git System-ice
 cd System-ice
 git switch develop
 npm install
-npm run db:start</pre>
-<p>Luego crea <code>.env.local</code> igual que en E3, con los valores de <code>npm run db:status</code> de <b>esa</b> computadora, y ejecuta:</p>
-<pre>npm run db:reset
-npm run crear-admin
-npm run dev</pre>
+npx supabase login
+npx supabase link --project-ref abcdefghijklmnop</pre>
+<p>Crea <code>.env.local</code> igual que en E6, con los mismos valores que en el trabajo (cópialos de tu gestor de contraseñas o del panel de Supabase, paso E4). Luego:</p>
+<pre>npm run dev</pre>
 <p class="muted">Al final de <code>git clone</code> se escribe <code>System-ice</code> para que la carpeta se llame igual que aquí. Sin eso se llamaría <code>-artisanal-ice-cream-system</code>, y en PowerShell un nombre que empieza con guion da problemas con <code>cd</code>.</p>
 <p>Abre la carpeta <code>System-ice</code> en VS Code; acepta instalar las extensiones recomendadas y abre Claude Code. Como existe <code>CLAUDE.md</code>, ya conozco el proyecto. Dime: <i>"Seguimos con el paso X de docs/guia-desarrollo.html"</i>.</p>
 </div>
-<div class="term"><b>¿Y los datos de mi base local?</b> No viajan entre computadoras, y está bien: la base local es de práctica. La <b>estructura</b> sí viaja (las migraciones están en Git) y los datos iniciales vienen de <code>seed.sql</code>. Con <code>db:reset</code> las dos computadoras quedan iguales.</div>
+<div class="term"><b>¿Y los datos?</b> Están en <code>heladeria-dev</code>, en internet: las dos computadoras ven exactamente lo mismo. No hace falta resetear ni crear el admin de nuevo. Lo que viaja por Git es el <b>código</b> y las <b>migraciones</b>.</div>
 
 <h3>12.2 Rutina de cada sesión de trabajo</h3>
 <table>
 <tr><th style="width:50%">Al empezar</th><th>Al terminar (aunque no hayas acabado)</th></tr>
 <tr><td>
 <ol>
-<li>Abrir Docker Desktop.</li>
 <li><code>git switch develop</code> y <code>git pull</code> (o <code>git switch feature/X</code> y <code>git pull</code> si sigues una tarea).</li>
 <li>Si cambió <code>package-lock.json</code>: <code>npm install</code>.</li>
-<li><code>npm run db:start</code>.</li>
-<li>Si llegaron migraciones nuevas: <code>npm run db:reset</code>, <code>npm run crear-admin</code> y <code>npm run db:types</code>.</li>
+<li>Si llegaron migraciones nuevas que todavía no aplicaste: <code>npm run db:push</code>. Si ya las aplicaste desde la otra computadora, dirá que no hay nada nuevo.</li>
 <li><code>npm run dev</code>.</li>
 </ol></td><td>
 <ol>
 <li><code>git add .</code></li>
 <li><code>git commit -m "wip: lo que estaba haciendo"</code></li>
 <li><code>git push</code> (la primera vez en la rama: <code>git push -u origin feature/X</code>).</li>
-<li>Opcional: <code>npm run db:stop</code> y cerrar Docker.</li>
 </ol>
 <p><b>Nunca dejes trabajo sin subir</b> al cambiar de computadora: lo que no está en GitHub no existe en la otra.</p></td></tr>
 </table>
@@ -701,7 +723,7 @@ npm run dev</pre>
 
 <h3>12.4 Si se suman otras personas</h3>
 <ul>
-  <li>En GitHub: <i>Settings → Collaborators → Add people</i>. Cada persona hace la etapa A y el 12.1.</li>
+  <li>En GitHub: <i>Settings → Collaborators → Add people</i>. En Supabase: <i>Organization → Team → Invite</i>. Cada persona hace la etapa A y el 12.1.</li>
   <li>Cada uno trabaja en su propia rama <code>feature/…</code> y nadie sube directo a <code>develop</code> ni a <code>main</code>.</li>
   <li>Todo cambio entra por Pull Request y, idealmente, otra persona lo revisa antes del merge.</li>
   <li>Las reglas comunes viven en <code>CLAUDE.md</code> y <code>README.md</code>. Si cambia una decisión, se actualizan ahí.</li>
@@ -712,23 +734,23 @@ npm run dev</pre>
 <!-- K -->
 <section>
 <h2>13. Lo que viene: pruebas y producción</h2>
-<p>Cuando termines esta guía tendrás el sistema completo funcionando en tu computadora. Así se verán las siguientes partes; ninguna requiere cambiar el código.</p>
+<p>Cuando termines esta guía tendrás el sistema completo funcionando en tu computadora, conectado a <code>heladeria-dev</code>. Así se verán las siguientes partes; ninguna requiere cambiar el código.</p>
 <table>
 <tr><th style="width:22%">Tarea</th><th style="width:39%">Parte 2 · Pruebas</th><th>Parte 3 · Producción</th></tr>
-<tr><td>Cuenta</td><td>Crear cuenta en supabase.com y cloudflare.com, con 2FA</td><td>Las mismas</td></tr>
-<tr><td>Base de datos</td><td>Proyecto <code>heladeria-pruebas</code>, región São Paulo</td><td>Proyecto <code>heladeria-prod</code>, región São Paulo</td></tr>
-<tr><td>Migraciones</td><td><code>supabase link</code> + <code>supabase db push</code>, automático al unir a <code>develop</code></td><td>Igual, al unir a <code>main</code></td></tr>
-<tr><td>Edge Functions</td><td><code>supabase functions deploy</code></td><td>Igual</td></tr>
+<tr><td>Cuenta</td><td>Crear cuenta en cloudflare.com, con 2FA (Supabase ya la tienes)</td><td>Las mismas</td></tr>
+<tr><td>Base de datos</td><td><b>No se crea otra:</b> usa <code>heladeria-dev</code></td><td>Crear <code>heladeria-prod</code> vacío, región São Paulo, y repetir E3 en su panel</td></tr>
+<tr><td>Migraciones</td><td>Ya aplicadas en <code>heladeria-dev</code> con <code>db:push</code></td><td><code>supabase db push</code> automático desde GitHub al unir a <code>main</code></td></tr>
+<tr><td>Edge Functions</td><td>Ya publicadas con <code>fn:deploy</code></td><td><code>supabase functions deploy</code> automático</td></tr>
 <tr><td>App</td><td>Cloudflare Pages, rama <code>develop</code></td><td>Cloudflare Pages, rama <code>main</code></td></tr>
 <tr><td>Variables</td><td><code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> en Cloudflare (Preview)</td><td>Las mismas en Cloudflare (Production)</td></tr>
 <tr><td>Secretos</td><td>GitHub Secrets: token, contraseña de la BD, id del proyecto</td><td>Los de producción, aparte</td></tr>
-<tr><td>Admin</td><td><code>crear-admin</code> con variables de pruebas</td><td><code>crear-admin</code> con contraseña fuerte</td></tr>
-<tr><td>Auth</td><td>Desactivar registro y confirmación de correo en el panel</td><td>Igual</td></tr>
+<tr><td>Admin</td><td>El mismo de desarrollo</td><td><code>crear-admin</code> con variables de producción y contraseña fuerte</td></tr>
+<tr><td>Auth</td><td>Ya configurado (E3)</td><td>Repetir E3, con <i>Site URL</i> = la dirección de producción</td></tr>
 <tr><td>CI</td><td>GitHub Actions corre todas las pruebas en cada PR</td><td>Igual, y no se une a <code>main</code> sin que pasen</td></tr>
 <tr><td>Respaldos</td><td>No hace falta</td><td>Respaldo nocturno con GitHub Actions y simulacro de restauración</td></tr>
 <tr><td>Monitoreo</td><td>Opcional</td><td>Sentry y UptimeRobot</td></tr>
 </table>
-<p><b>Cuando quieras pagar</b> (Supabase Pro, dominio propio): se cambia el plan en el panel de facturación o se conecta el dominio en Cloudflare. El código, las migraciones y los procesos siguen exactamente iguales.</p>
+<p><b>Cuando quieras pagar</b> (Supabase Pro, dominio propio): se cambia el plan en el panel de facturación o se conecta el dominio en Cloudflare. Con Pro puedes crear un tercer proyecto, <code>heladeria-pruebas</code>, para separar pruebas de desarrollo cambiando solo las variables de Cloudflare. El código, las migraciones y los procesos siguen exactamente iguales.</p>
 </section>
 
 <!-- L -->
@@ -737,13 +759,16 @@ npm run dev</pre>
 <table>
 <tr><th style="width:38%">Lo que ves</th><th>Qué hacer</th></tr>
 <tr><td><i>"la ejecución de scripts está deshabilitada en este sistema"</i></td><td>Paso A4: <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>.</td></tr>
-<tr><td><i>"No se reconoce el término 'node'"</i> (o git, docker)</td><td>Cierra y abre de nuevo VS Code o PowerShell después de instalar. Si sigue, reinicia la computadora.</td></tr>
-<tr><td><code>supabase start</code>: <i>"Cannot connect to the Docker daemon"</i></td><td>Docker Desktop no está abierto. Ábrelo y espera a que diga <i>Engine running</i>.</td></tr>
-<tr><td><i>"port 54321 (o 5432x) is already allocated"</i></td><td>Hay otro Supabase encendido. Ejecuta <code>npx supabase stop --all</code> y vuelve a <code>npm run db:start</code>.</td></tr>
+<tr><td><i>"No se reconoce el término 'node'"</i> (o git, npm)</td><td>Cierra y abre de nuevo VS Code o PowerShell después de instalar. Si sigue, reinicia la computadora.</td></tr>
+<tr><td><i>"Cannot find project ref. Have you run supabase link?"</i></td><td>Esta computadora no está conectada al proyecto. <code>npx supabase login</code> y <code>npx supabase link --project-ref TU-REF</code> (E5).</td></tr>
+<tr><td><code>link</code> o <code>db:push</code>: <i>"password authentication failed"</i></td><td>La contraseña de la base no es correcta. Si la perdiste: panel → <i>Project Settings → Database → Reset database password</i>, guárdala y repite.</td></tr>
+<tr><td>La app no carga datos y el panel dice <i>"Project paused"</i></td><td>El plan gratis pausa el proyecto tras 7 días sin uso. En el panel toca <b>Restore project</b> y espera unos minutos. No se pierden datos.</td></tr>
+<tr><td>Algún comando dice que necesita Docker</td><td>Pégame el mensaje. Casi todo tiene una forma sin Docker; lo que no, se ejecuta en GitHub Actions (parte 2).</td></tr>
 <tr><td><i>"Failed to start inspector … port 9239 in use"</i></td><td>Una variable de depuración quedó activa en la terminal. Ejecuta <code>Remove-Item Env:BUN_INSPECT</code> y repite, o abre una terminal nueva.</td></tr>
 <tr><td><code>Port 5173 is in use</code></td><td>Ya tienes otro <code>npm run dev</code> abierto en otra terminal. Ciérralo con Ctrl+C o usa la dirección nueva que te muestra.</td></tr>
 <tr><td>La app dice que faltan variables de Supabase</td><td>Falta <code>.env.local</code> o tiene mal un nombre. Compáralo con <code>.env.example</code> y reinicia <code>npm run dev</code>: Vite solo lee el <code>.env</code> al arrancar.</td></tr>
-<tr><td>Después de <code>db:reset</code> no puedo entrar</td><td>El reset borra los usuarios. Ejecuta <code>npm run crear-admin</code>.</td></tr>
+<tr><td>Después de <code>db:reset</code> no puedo entrar</td><td>El reset borra los usuarios. Ejecuta <code>npm run crear-admin</code> y vuelve a crear las colaboradoras de prueba.</td></tr>
+<tr><td>Iniciar sesión dice <i>"Signups not allowed"</i> o <i>"Email not confirmed"</i></td><td>Revisa E3: registro desactivado y <i>Confirm email</i> desactivado. Los usuarios se crean con <code>crear-admin</code> o desde Personal.</td></tr>
 <tr><td>El editor marca errores en columnas que sí existen</td><td><code>npm run db:types</code> y, si persiste, <i>Ctrl+Shift+P → TypeScript: Restart TS Server</i>.</td></tr>
 <tr><td><code>git push</code> rechazado: <i>"Updates were rejected… fetch first"</i></td><td>Hay cambios en GitHub que no tienes (quizá de la otra PC). <code>git pull</code>, resuelve conflictos si hay y vuelve a hacer <code>git push</code>.</td></tr>
 <tr><td>El commit falla por Husky</td><td>Lee el mensaje: es Oxlint o Prettier. <code>npm run format</code> y <code>npm run lint</code>, corrige y repite el commit. No uses <code>--no-verify</code>.</td></tr>
@@ -765,13 +790,13 @@ npm run dev</pre>
 <tr><td><code>format</code></td><td><code>prettier --write .</code></td><td>Ordenar el formato.</td></tr>
 <tr><td><code>test</code> / <code>test:run</code></td><td><code>vitest</code> / <code>vitest run</code></td><td>Pruebas (modo vigilante / una vez).</td></tr>
 <tr><td><code>e2e</code></td><td><code>playwright test</code></td><td>Pruebas de extremo a extremo.</td></tr>
-<tr><td><code>db:start</code></td><td><code>supabase start</code></td><td>Encender Supabase local.</td></tr>
-<tr><td><code>db:stop</code></td><td><code>supabase stop</code></td><td>Apagarlo (conserva datos).</td></tr>
-<tr><td><code>db:status</code></td><td><code>supabase status</code></td><td>Ver direcciones y llaves.</td></tr>
-<tr><td><code>db:reset</code></td><td><code>supabase db reset</code></td><td>Recrear la base desde las migraciones.</td></tr>
-<tr><td><code>db:types</code></td><td><code>supabase gen types &gt; src/lib/database.types.ts</code></td><td>Después de cambiar tablas.</td></tr>
-<tr><td><code>db:test</code></td><td><code>supabase test db</code></td><td>Pruebas de permisos (pgTAP).</td></tr>
-<tr><td><code>crear-admin</code></td><td><code>node --env-file=.env.local scripts/crear-admin.mjs</code></td><td>Después de cada <code>db:reset</code>.</td></tr>
+<tr><td><code>db:push</code></td><td><code>supabase db push</code></td><td>Aplicar migraciones nuevas a <code>heladeria-dev</code>.</td></tr>
+<tr><td><code>db:reset</code></td><td><code>supabase db reset --remote</code></td><td>Borrar todo en <code>heladeria-dev</code> y recrearlo desde las migraciones (con cuidado).</td></tr>
+<tr><td><code>db:types</code></td><td><code>supabase gen types --remote &gt; src/lib/database.types.ts</code></td><td>Después de cambiar tablas.</td></tr>
+<tr><td><code>db:test</code></td><td><code>supabase test db --remote</code></td><td>Pruebas de permisos (pgTAP).</td></tr>
+<tr><td><code>fn:deploy</code></td><td><code>supabase functions deploy --use-api</code></td><td>Publicar las Edge Functions en <code>heladeria-dev</code>.</td></tr>
+<tr><td><code>crear-admin</code></td><td><code>node --env-file=.env.local scripts/crear-admin.mjs</code></td><td>Una vez, y después de cada <code>db:reset</code>.</td></tr>
+<tr><td>(sin script)</td><td><code>npx supabase migration new NOMBRE</code></td><td>Crear el archivo de una migración nueva.</td></tr>
 </table>
 
 <h3>Puertos que usa el proyecto</h3>
@@ -779,11 +804,8 @@ npm run dev</pre>
 <tr><th style="width:20%">Puerto</th><th>Qué es</th></tr>
 <tr><td>5173</td><td>App en desarrollo (Vite)</td></tr>
 <tr><td>4173</td><td>App construida (<code>preview</code>)</td></tr>
-<tr><td>54321</td><td>API de Supabase</td></tr>
-<tr><td>54322</td><td>PostgreSQL</td></tr>
-<tr><td>54323</td><td>Supabase Studio</td></tr>
-<tr><td>54324</td><td>Mailpit (correos de prueba)</td></tr>
 </table>
+<p class="muted">La base de datos no usa puertos de tu computadora: está en <code>https://TU-REF.supabase.co</code>, y su panel en <code>supabase.com/dashboard</code>.</p>
 
 <h3>Git de bolsillo</h3>
 <table>
@@ -814,8 +836,12 @@ Edge Functions) · Dexie (cola sin conexión) · vite-plugin-pwa · Vitest + Tes
 pgTAP · Playwright · Oxlint + Prettier + Husky.
 
 ## Entornos
-desarrollo = Supabase local (Docker) + .env.local · pruebas = rama develop · producción = rama main.
-El código es el mismo en todos; solo cambian las variables de entorno.
+Sin Docker (no hay permisos de administrador). desarrollo = app local + proyecto Supabase heladeria-dev
+(enlazado con supabase link; variables en .env.local) · pruebas = rama develop publicada, MISMA base
+heladeria-dev · producción = rama main + proyecto heladeria-prod, creado vacío al lanzar y armado solo
+con migraciones. El código es el mismo en todos; solo cambian las variables de entorno.
+Comandos de base: db:push (aplicar migraciones), db:reset (borra heladeria-dev: solo si nadie prueba),
+db:types, db:test, fn:deploy (--use-api, sin Docker). Nunca apuntar desarrollo a heladeria-prod.
 
 ## Reglas de la base de datos
 - Todo cambio de estructura es una migración nueva en supabase/migrations. Nunca editar una
@@ -841,7 +867,7 @@ El código es el mismo en todos; solo cambian las variables de entorno.
 
 <h3>Lista de verificación al terminar esta parte</h3>
 <ul class="check">
-  <li>Las dos computadoras pueden clonar, levantar y correr el proyecto.</li>
+  <li>Las dos computadoras pueden clonar, enlazar (<code>supabase link</code>) y correr el proyecto contra <code>heladeria-dev</code>.</li>
   <li>Login de administración en <code>/admin</code> y de colaboradores en <code>/</code>, sin registro.</li>
   <li>Todos los módulos G1 a G9 funcionando y con números iguales a los del prototipo.</li>
   <li>Funciona sin conexión y sube lo pendiente sin duplicar.</li>
