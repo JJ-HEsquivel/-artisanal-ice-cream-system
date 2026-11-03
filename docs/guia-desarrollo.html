@@ -425,6 +425,7 @@ git branch -d feature/base-proyecto</pre>
 </ol>
 <div class="ver">Se abre el panel del proyecto. En la barra de direcciones verás <code>supabase.com/dashboard/project/<b>abcdefghijklmnop</b></code>: esas letras son el <b>Project ref</b> (identificador del proyecto). Anótalo.</div>
 <div class="term"><b>Panel de Supabase (dashboard).</b> Es la página web donde ves tus tablas (<i>Table Editor</i>), escribes SQL (<i>SQL Editor</i>), ves los usuarios (<i>Authentication</i>) y configuras el proyecto (<i>Project Settings</i>, el engranaje abajo a la izquierda).</div>
+<div class="warn"><b>Usa el panel para ver, no para crear tablas.</b> Las tablas se crean con migraciones (archivos <code>.sql</code> en <code>supabase/migrations/</code>, guardados en Git) y se suben con <code>npm run db:push</code>, como una solución de Dataverse que se importa a un entorno. Lo que crees haciendo clic en el panel no queda en tus archivos: un <code>db:reset</code> lo borraría. Si alguna vez lo haces, avísame y escribo la migración.</div>
 </div>
 
 <div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>E3. Configurar el inicio de sesión del proyecto</b></div>
