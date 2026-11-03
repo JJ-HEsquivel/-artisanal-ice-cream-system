@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Guía paso a paso: entorno de desarrollo del sistema de heladería</title>
+<style>
+@page{size:A4;margin:17mm 15mm 17mm 15mm;
+  @bottom-right{content:"Página " counter(page) " de " counter(pages);font:9pt 'Segoe UI',Arial,sans-serif;color:#7a7f87}
+  @bottom-left{content:"Guía paso a paso · Entorno de desarrollo";font:9pt 'Segoe UI',Arial,sans-serif;color:#7a7f87}}
+@page :first{@bottom-right{content:none}@bottom-left{content:none}}
+:root{--ink:#1d2329;--muted:#5d6670;--line:#d9dee3;--acc:#1b6f8a;--acc-l:#e7f3f6}
+*{box-sizing:border-box}
+body{font-family:'Segoe UI',Arial,sans-serif;color:var(--ink);font-size:10.4pt;line-height:1.5;margin:0;background:#fff}
+h1{font-size:25pt;line-height:1.15;margin:0 0 10px;color:var(--acc)}
+h2{font-size:16pt;color:var(--acc);margin:0 0 8px;padding-bottom:4px;border-bottom:2px solid var(--acc);break-after:avoid}
+h3{font-size:12.3pt;margin:16px 0 6px;break-after:avoid}
+p{margin:0 0 8px}
+ul,ol{margin:0 0 8px;padding-left:20px}
+li{margin:2px 0}
+section{break-before:page}
+table{width:100%;border-collapse:collapse;margin:6px 0 12px;font-size:9.5pt}
+tr{break-inside:avoid}
+th{background:var(--acc);color:#fff;text-align:left;padding:5px 7px;font-weight:600}
+td{border-bottom:1px solid var(--line);padding:5px 7px;vertical-align:top}
+tr:nth-child(even) td{background:#f8fafb}
+code{font-family:Consolas,'Courier New',monospace;background:#f2f4f6;padding:1px 4px;border-radius:3px;font-size:9.2pt}
+pre{font-family:Consolas,'Courier New',monospace;background:#1f2a33;color:#e7eef3;padding:9px 11px;border-radius:6px;font-size:8.8pt;line-height:1.45;white-space:pre-wrap;margin:6px 0 10px;break-inside:avoid}
+pre .c{color:#8fb3c4}
+.paso{border:1px solid var(--line);border-radius:8px;padding:9px 12px 4px;margin:10px 0;break-inside:avoid-page}
+.paso>.cab{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.paso>.cab b{font-size:11pt}
+.quien{display:inline-block;font-size:8.3pt;font-weight:700;padding:2px 8px;border-radius:999px;white-space:nowrap;letter-spacing:.02em}
+.q-term{background:#1f2a33;color:#fff}
+.q-web{background:#5b3fa0;color:#fff}
+.q-code{background:#1b6f8a;color:#fff}
+.q-claude{background:#c8642a;color:#fff}
+.ruta{font-family:Consolas,'Courier New',monospace;font-size:8.8pt;background:#eef1f4;border:1px solid var(--line);border-radius:5px;padding:3px 8px;margin:0 0 6px;display:inline-block}
+.ruta::before{content:"Dónde: ";font-family:'Segoe UI',Arial,sans-serif;font-weight:700;color:var(--muted)}
+.pedir{border:1.5px dashed #c8642a;background:#fff6ef;border-radius:6px;padding:7px 10px;margin:6px 0 8px;break-inside:avoid}
+.pedir::before{content:"Dile a Claude (copia y pega):";display:block;font-size:8.5pt;font-weight:700;color:#c8642a;margin-bottom:3px}
+.pedir p{margin:0;font-family:Consolas,'Courier New',monospace;font-size:9pt}
+.ver{border-left:4px solid #2e9a62;background:#e3f4ea;padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0;break-inside:avoid}
+.ver::before{content:"✔ Comprueba: ";font-weight:700;color:#1e6b45}
+.env{border-left:4px solid #5b3fa0;background:#f1ecfa;padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0;break-inside:avoid}
+.env::before{content:"Pruebas y producción: ";font-weight:700;color:#5b3fa0}
+.casa{border-left:4px solid #1b6f8a;background:var(--acc-l);padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0;break-inside:avoid}
+.casa::before{content:"En la otra computadora: ";font-weight:700;color:var(--acc)}
+.warn{border-left:4px solid #d39a1c;background:#fff4dc;padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0;break-inside:avoid}
+.term{border-left:4px solid var(--acc);background:var(--acc-l);padding:6px 10px;margin:6px 0 8px;border-radius:0 6px 6px 0;break-inside:avoid}
+.term b:first-child{color:var(--acc)}
+.muted{color:var(--muted)}
+.cover{height:250mm;display:flex;flex-direction:column;justify-content:center}
+.cover .tag{display:inline-block;background:var(--acc-l);color:var(--acc);font-weight:600;padding:3px 10px;border-radius:999px;font-size:10pt;margin-bottom:16px}
+.cover .sub{font-size:13pt;color:var(--muted);max-width:155mm}
+.cover .meta{margin-top:30px;font-size:10pt;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
+.leyenda td:first-child{width:28%}
+.toc ol{columns:2;column-gap:12mm;padding-left:18px}
+.check li{list-style:none;margin-left:-18px}
+.check li::before{content:"☐  ";color:var(--acc);font-weight:700}
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div><span class="tag">Guía práctica · Parte 1 de 3</span></div>
+  <h1>Construyendo el sistema de la heladería, paso a paso</h1>
+  <p class="sub">Desde instalar las herramientas hasta tener la app funcionando en tu computadora con React y Supabase. Cada paso dice quién lo hace, dónde y con qué comando, y qué cambiará después en los entornos de pruebas y de producción.</p>
+  <div class="meta">
+    Stack: React + TypeScript + Vite · Supabase (PostgreSQL) · GitHub<br>
+    Alcance de esta parte: entorno de <b>desarrollo</b> (tu computadora). Las partes 2 (pruebas) y 3 (producción) vendrán después.<br>
+    Noviembre de 2026 · Versiones verificadas: Node 24 LTS, Vite 8, React 19, Supabase CLI 3
+  </div>
+</div>
+
+<section class="toc">
+<h2>Contenido</h2>
+<ol>
+  <li>Cómo usar esta guía</li>
+  <li>Lo que vamos a construir</li>
+  <li>Etapa A · Preparar cada computadora</li>
+  <li>Etapa B · GitHub</li>
+  <li>Etapa C · Crear el proyecto React</li>
+  <li>Etapa D · La base del proyecto</li>
+  <li>Etapa E · Supabase en tu computadora</li>
+  <li>Etapa F · Inicio de sesión y roles</li>
+  <li>Etapa G · Los módulos del negocio</li>
+  <li>Etapa H · Funcionar sin internet (PWA)</li>
+  <li>Etapa I · Pruebas automáticas</li>
+  <li>Trabajar desde dos computadoras y con otras personas</li>
+  <li>Lo que viene: pruebas y producción</li>
+  <li>Problemas comunes y soluciones</li>
+  <li>Apéndice A · Comandos del proyecto</li>
+  <li>Apéndice B · Contenido de CLAUDE.md</li>
+</ol>
+
+<h3>Leyenda</h3>
+<table class="leyenda">
+<tr><th>Etiqueta</th><th>Qué significa</th></tr>
+<tr><td><span class="quien q-term">TÚ · TERMINAL</span></td><td>Escribes el comando en la terminal de VS Code (<i>Terminal → New Terminal</i>, se abre PowerShell) y presionas Enter.</td></tr>
+<tr><td><span class="quien q-web">TÚ · NAVEGADOR</span></td><td>Lo haces en una página web (GitHub, Studio de Supabase, la app).</td></tr>
+<tr><td><span class="quien q-code">TÚ · VS CODE</span></td><td>Lo haces dentro del editor: abrir carpetas, instalar extensiones, revisar archivos.</td></tr>
+<tr><td><span class="quien q-claude">CLAUDE</span></td><td>Me lo pides a mí (Claude Code) en VS Code, copiando el texto del recuadro naranja. Yo creo, muevo o borro archivos y escribo el código.</td></tr>
+</table>
+<p>Además verás recuadros verdes <b>✔ Comprueba</b> (qué debes ver para saber que salió bien), azules <b>En la otra computadora</b> y morados <b>Pruebas y producción</b> (qué cambiará en esos entornos).</p>
+</section>
+
+<!-- 1 -->
+<section>
+<h2>1. Cómo usar esta guía</h2>
+<ul>
+  <li><b>Sigue los pasos en orden.</b> Cada paso supone que el anterior salió bien. Si un "Comprueba" no da lo esperado, no sigas: mira el capítulo 14 o pregúntame pegando el error completo.</li>
+  <li><b>Tú haces lo que toca tu computadora o la web</b>: instalar, ejecutar comandos, crear cuentas, configurar páginas. <b>Yo hago lo que es código</b>: crear carpetas y archivos, escribir y corregir el código, y explicarte cada cosa.</li>
+  <li><b>Al pedirme algo, copia el texto del recuadro naranja.</b> Están escritos para que yo encuentre el contexto aunque abras una conversación nueva o estés en otra computadora: siempre mencionan el paso de esta guía, que estará guardada dentro del proyecto en <code>docs/</code>.</li>
+  <li><b>Después de que yo cree o cambie archivos</b>, revisa lo que hice (VS Code marca los archivos cambiados en la pestaña <i>Source Control</i>) y pregúntame lo que no entiendas. Que el código funcione no basta: tienes que poder explicarlo.</li>
+  <li><b>Guarda en Git al final de cada etapa.</b> Así puedes seguir desde la otra computadora y, si algo se rompe, volver atrás.</li>
+</ul>
+
+<div class="term"><b>Terminal y PowerShell.</b> La terminal es una ventana donde se escriben comandos de texto. En Windows, VS Code abre por defecto <b>PowerShell</b>. Todos los comandos de esta guía están escritos para PowerShell.</div>
+<div class="term"><b>Carpeta actual (ruta).</b> Los comandos se ejecutan "dentro" de una carpeta, que la terminal muestra a la izquierda del cursor. Cada paso de esta guía indica en un recuadro gris <b>Dónde</b> debe estar la terminal. Casi siempre es la carpeta del proyecto:</div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<p>Si abres VS Code con la carpeta <code>System-ice</code> (<i>File → Open Folder…</i>), la terminal de VS Code (<i>Terminal → New Terminal</i>) ya se abre en esa ruta. Si alguna vez estás en otra carpeta, vuelve con:</p>
+<pre>cd C:\Users\Juan.Huanca\Desktop\Mokups\System-ice</pre>
+<p>Si un comando dice que no encuentra <code>package.json</code>, casi siempre es porque la terminal está en otra carpeta.</p>
+</section>
+
+<!-- 2 -->
+<section>
+<h2>2. Lo que vamos a construir</h2>
+<p>El proyecto se construye <b>en esta misma carpeta</b> (<code>System-ice</code>) y en el mismo repositorio de GitHub. El prototipo quedó guardado en la subcarpeta <code>Prototype/</code> como referencia: de ahí vamos a llevar la lógica (cálculos de caja, estado de resultados, PDF) y los estilos (los 4 temas). Las guías están en <code>docs/</code>.</p>
+<pre>System-ice/
+├─ Prototype/     <span class="c">← el prototipo (index.html y su README)</span>
+├─ docs/          <span class="c">← guías</span>
+└─ (aquí se crea el proyecto React en la etapa C)</pre>
+
+<h3>Las piezas</h3>
+<table>
+<tr><th style="width:24%">Pieza</th><th style="width:28%">Herramienta</th><th>Para qué</th></tr>
+<tr><td>Interfaz</td><td>React 19 + TypeScript</td><td>Pantallas como componentes.</td></tr>
+<tr><td>Construcción</td><td>Vite 8</td><td>Servidor de desarrollo y build de producción.</td></tr>
+<tr><td>Navegación</td><td>React Router</td><td>Pantallas con URL propia: <code>/</code> para colaboradores y <code>/admin</code> para administración.</td></tr>
+<tr><td>Datos</td><td>TanStack Query + supabase-js</td><td>Leer y guardar en Supabase, con caché y reintentos.</td></tr>
+<tr><td>Backend</td><td>Supabase (PostgreSQL, Auth, RLS, Edge Functions)</td><td>Base de datos, login y permisos.</td></tr>
+<tr><td>Sin internet</td><td>vite-plugin-pwa + Dexie (IndexedDB)</td><td>Instalar como app y anotar sin señal.</td></tr>
+<tr><td>Calidad</td><td>Oxlint, Prettier, Husky</td><td>Revisar y ordenar el código antes de cada commit.</td></tr>
+<tr><td>Pruebas</td><td>Vitest, Testing Library, pgTAP, Playwright</td><td>Comprobar cálculos, pantallas, permisos y flujos completos.</td></tr>
+</table>
+<div class="term"><b>Oxlint.</b> Es el <i>linter</i> (revisor de código) que Vite trae ahora por defecto en las plantillas de React. Hace lo mismo que ESLint, pero mucho más rápido.</div>
+
+<h3>Los tres entornos, desde ya</h3>
+<table>
+<tr><th style="width:15%">Entorno</th><th style="width:27%">Base de datos</th><th style="width:27%">App</th><th>Variables (.env)</th></tr>
+<tr><td><b>Desarrollo</b><br><span class="muted">esta guía</span></td><td>Supabase local en Docker</td><td><code>npm run dev</code> → <code>localhost:5173</code></td><td>Archivo <code>.env.local</code> en tu PC</td></tr>
+<tr><td><b>Pruebas</b><br><span class="muted">parte 2</span></td><td>Proyecto Supabase <code>heladeria-pruebas</code></td><td>Cloudflare Pages, rama <code>develop</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+<tr><td><b>Producción</b><br><span class="muted">parte 3</span></td><td>Proyecto Supabase <code>heladeria-prod</code></td><td>Cloudflare Pages, rama <code>main</code></td><td>Configuradas en Cloudflare y GitHub</td></tr>
+</table>
+<p><b>La regla que hace todo fácil después:</b> el código es <b>el mismo</b> en los tres entornos. Lo único que cambia son las variables de entorno (a qué Supabase se conecta) y dónde se publica. Por eso, cuando pagues Supabase Pro o cambies de hosting, <b>no tendrás que cambiar código</b>: solo valores de configuración.</p>
+<div class="env">Lo que hoy pruebas con <code>npm run dev</code> y Supabase local será lo mismo que se publicará. Los cambios de tablas viajarán como migraciones (archivos SQL) con <code>supabase db push</code>, y la app se publicará sola desde GitHub.</div>
+</section>
+
+<!-- A -->
+<section>
+<h2>3. Etapa A · Preparar cada computadora</h2>
+<p>Haz esta etapa <b>una vez en cada computadora</b>: la del trabajo y la de tu casa.</p>
+
+<div class="warn"><b>Antes de empezar en la computadora del trabajo:</b> instalar WSL2 y Docker requiere permisos de administrador. Además, Docker Desktop es gratis para uso personal y empresas pequeñas, pero <b>pide licencia pagada en empresas de más de 250 empleados o más de US$ 10 millones de ingresos</b>. Si la computadora es de una empresa grande, consúltalo o usa <b>Rancher Desktop</b> (gratis), que también funciona con Supabase.</div>
+
+<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>A1. Abrir el proyecto y la terminal</b></div>
+<ol>
+  <li>En VS Code: <i>File → Open Folder…</i> → elige <code>C:\Users\Juan.Huanca\Desktop\Mokups\System-ice</code> → <i>Seleccionar carpeta</i>.</li>
+  <li>Abre la terminal: menú <i>Terminal → New Terminal</i> (o <b>Ctrl+ñ</b>). Aparece abajo.</li>
+</ol>
+<div class="ver">La terminal muestra:</div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<p class="muted">Si a la derecha de la terminal dice "bash" en vez de "powershell", haz clic en la flecha junto al <b>+</b> y elige <i>PowerShell</i>.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A2. Ver qué ya tienes instalado</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git --version
+node -v
+npm -v
+docker --version</pre>
+<p>En <b>esta</b> computadora ya tienes Git, Node.js 24 y VS Code, así que esos tres comandos responderán con su versión. Lo que falta es <b>Docker</b>: el último comando dirá que no lo reconoce. En ese caso continúa con A3.</p>
+<p>En una computadora que no tenga Git, Node o VS Code, instálalos así (en la misma ruta; los programas se instalan igual sin importar la carpeta):</p>
+<pre>winget install --id Git.Git -e
+winget install --id OpenJS.NodeJS.LTS -e
+winget install --id Microsoft.VisualStudioCode -e</pre>
+<p>Después cierra VS Code por completo y vuelve a abrirlo, para que la terminal reconozca los programas nuevos.</p>
+<div class="term"><b>winget.</b> Es el instalador de programas por comandos que trae Windows. <code>--id</code> indica el programa exacto y <code>-e</code> pide coincidencia exacta del nombre.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL (ADMINISTRADOR)</span><b>A3. Instalar WSL2 y Docker Desktop</b></div>
+<p>Esto necesita una terminal <b>con permisos de administrador</b>, que no es la de VS Code:</p>
+<ol>
+  <li>Presiona la tecla <b>Windows</b> del teclado.</li>
+  <li>Escribe <code>powershell</code>.</li>
+  <li>En el resultado <i>Windows PowerShell</i>, a la derecha, haz clic en <b>Ejecutar como administrador</b> y acepta el aviso de Windows.</li>
+</ol>
+<p>Se abre una ventana azul o negra que muestra esta ruta (es normal; para instalar no importa la carpeta):</p>
+<div class="ruta">PS C:\WINDOWS\system32&gt;</div>
+<pre>wsl --install
+winget install --id Docker.DockerDesktop -e</pre>
+<p><b>Reinicia la computadora.</b> Después: tecla Windows → escribe <code>docker</code> → abre <b>Docker Desktop</b>, acepta los términos (puedes saltar el inicio de sesión con <i>Skip</i>) y espera a que abajo a la izquierda diga <i>Engine running</i>.</p>
+<div class="term"><b>WSL2</b> (<i>Windows Subsystem for Linux</i>). Permite correr Linux dentro de Windows. Docker lo usa porque los contenedores de Supabase son de Linux.</div>
+<p>Recomendado: en Docker Desktop → <i>Settings → General</i>, desactiva <i>Start Docker Desktop when you sign in</i> si no quieres que consuma memoria siempre. Solo tendrás que abrirlo antes de trabajar.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A4. Permitir que PowerShell ejecute los comandos de npm</b></div>
+<p>De vuelta en la terminal de VS Code:</p>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</pre>
+<p>Responde <code>S</code> (o <code>Y</code>) si pregunta. Sin esto, comandos como <code>npx</code> fallan con el error <i>"la ejecución de scripts está deshabilitada en este sistema"</i>.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A5. Decirle a Git quién eres</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git config --global user.name "Juan Jose Huanca Esquivel"
+git config --global user.email "juanjosehuanca123@gmail.com"
+git config --global init.defaultBranch main
+git config --global pull.rebase false</pre>
+<p>Usa el mismo nombre y correo en las dos computadoras: así GitHub te reconoce como la misma persona.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>A6. Verificar todo</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git --version
+node -v
+npm -v
+docker --version
+docker run --rm hello-world</pre>
+<div class="ver">Git 2.x, Node <b>v24</b>.x, npm 11.x, Docker 2x.x. El último comando muestra <i>"Hello from Docker!"</i>. Si <code>docker</code> no se reconoce, cierra VS Code y vuelve a abrirlo.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>A7. Extensiones de VS Code</b></div>
+<p>En VS Code, panel <i>Extensions</i> (Ctrl+Shift+X), instala:</p>
+<ul>
+  <li><b>Claude Code</b> (Anthropic), si no la tienes ya.</li>
+  <li><b>Prettier – Code formatter</b> (esbenp.prettier-vscode).</li>
+  <li><b>Oxc</b> (oxc.oxc-vscode): muestra los avisos de Oxlint mientras escribes.</li>
+  <li><b>Deno</b> (denoland.vscode-deno): para las Edge Functions de Supabase.</li>
+</ul>
+<p class="muted">Más adelante crearé el archivo <code>.vscode/extensions.json</code>; en la otra computadora, VS Code te ofrecerá instalarlas todas con un clic.</p>
+</div>
+<div class="casa">Repite A2 a A7. Para A1, primero hay que traer el proyecto a esa computadora (capítulo 12.1).</div>
+</section>
+
+<!-- B -->
+<section>
+<h2>4. Etapa B · GitHub</h2>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>B1. Activar la verificación en dos pasos (2FA)</b></div>
+<p>github.com → tu foto (arriba a la derecha) → <i>Settings → Password and authentication → Enable two-factor authentication</i>. Usa una app como Google Authenticator o Microsoft Authenticator y <b>guarda los códigos de recuperación</b> en un lugar seguro.</p>
+<p>Si alguien entra a tu GitHub, entra a todo el proyecto. Después harás lo mismo en Supabase y Cloudflare.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>B2. Usar el repositorio que ya tienes</b></div>
+<p>No hace falta crear otro repositorio: trabajaremos en el actual, <code>https://github.com/JJ-HEsquivel/-artisanal-ice-cream-system</code>. Ten en cuenta dos cosas:</p>
+<ul>
+  <li><b>Es público.</b> Cualquiera puede ver el código. No es grave, porque <b>ningún secreto se sube a Git</b>, pero el código del negocio queda visible. Lo ideal es hacerlo privado antes de la parte 2: <i>Settings → General → Danger Zone → Change repository visibility → Private</i>.</li>
+  <li><b>GitHub Pages.</b> Hoy publica el prototipo en <code>jj-hesquivel.github.io/-artisanal-ice-cream-system/</code>. Al mover el prototipo a <code>Prototype/</code> y subirlo, su dirección pasa a ser <code>…/-artisanal-ice-cream-system/Prototype/</code>. Si haces el repositorio privado, GitHub Pages gratis deja de funcionar. Cuando tengas la versión de pruebas en Cloudflare, ya no lo necesitarás: <i>Settings → Pages → Unpublish site</i>.</li>
+</ul>
+</div>
+
+<div class="warn"><b>Sobre proteger ramas:</b> en GitHub gratis, las reglas que impiden subir directo a <code>main</code> solo funcionan en repositorios <b>públicos</b>. En privados requieren GitHub Pro (unos US$ 4/mes). Si lo pasas a privado, lo reemplazamos con disciplina: <b>nunca trabajes directo en <code>main</code></b> y usa siempre Pull Requests, como indica esta guía.</div>
+<div class="env">GitHub es el centro de todo. Cloudflare Pages leerá este repositorio para publicar <code>develop</code> (pruebas) y <code>main</code> (producción), y GitHub Actions aplicará las migraciones a cada Supabase.</div>
+</section>
+
+<!-- C -->
+<section>
+<h2>5. Etapa C · Crear el proyecto React</h2>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>C1. Guardar el prototipo en Prototype/</b></div>
+<p><b>Ya está hecho.</b> Moví <code>index.html</code> y <code>README.md</code> a <code>Prototype/</code> con <code>git mv</code>, para que Git conserve su historial. La carpeta <code>docs/</code> quedó en la raíz porque las guías son del proyecto nuevo.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>C2. Rama nueva y guardar el cambio del prototipo</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch main
+git pull
+git switch -c develop
+git add .
+git commit -m "chore: mover el prototipo a Prototype/ y agregar guías"
+git push -u origin develop</pre>
+<p>Desde ahora: <code>main</code> = lo que está en producción, <code>develop</code> = lo terminado que se ensaya, y una rama <code>feature/…</code> por cada tarea.</p>
+<p>En GitHub: <i>Settings → General → Default branch</i> → cambia a <code>develop</code>. Así los Pull Requests apuntan ahí por defecto.</p>
+<p class="muted">La primera vez que hagas push puede abrirse el navegador para que autorices a Git a usar tu cuenta de GitHub (<i>Git Credential Manager</i>). Acepta.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>C3. Generar el proyecto con Vite en una carpeta temporal</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch -c feature/proyecto-react
+npm create vite@latest app-temp -- --template react-ts</pre>
+<p>Si hace preguntas: si ofrece instalar y arrancar de inmediato (<i>install and start now</i>), responde <b>No</b>. Si pregunta qué linter usar, elige <b>Oxlint</b> (es el recomendado).</p>
+<div class="warn"><b>¿Por qué en <code>app-temp</code> y no directamente aquí?</b> Si le pides a Vite crear el proyecto en una carpeta que ya tiene archivos, ofrece la opción <i>"Remove existing files and continue"</i>, que <b>borraría el prototipo y las guías</b>. Con una carpeta temporal no hay ese riesgo. En el paso siguiente muevo todo a su lugar.</div>
+<div class="term"><b>npm create vite@latest.</b> Descarga la versión más nueva del generador de proyectos de Vite y lo ejecuta. <code>--template react-ts</code> elige la plantilla de React con TypeScript. Los dos guiones <code>--</code> separan las opciones de npm de las del generador.</div>
+<div class="ver">Aparece la carpeta <code>app-temp</code> con <code>package.json</code>, <code>index.html</code>, <code>src/</code>, <code>public/</code>, <code>vite.config.ts</code>, etc.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>C4. Mover el proyecto a la raíz</b></div>
+<div class="pedir"><p>Paso C4 de docs/guia-desarrollo.html: mueve todo el contenido de app-temp (incluidos archivos ocultos como .gitignore) a la raíz del proyecto, sin tocar Prototype/ ni docs/, y borra app-temp. Muéstrame cómo quedó la carpeta.</p></div>
+<pre>System-ice/
+├─ Prototype/          <span class="c">← el prototipo</span>
+├─ docs/               <span class="c">← guías</span>
+├─ public/  src/       <span class="c">← el proyecto React</span>
+├─ .gitignore  index.html  package.json  README.md
+└─ tsconfig*.json  vite.config.ts</pre>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>C5. Instalar y probar que arranca</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm install
+npm run dev</pre>
+<div class="ver">La terminal muestra <code>Local: http://localhost:5173/</code>. Ábrelo con Ctrl+clic: aparece la página de ejemplo de Vite + React con un contador.</div>
+<p>Para detener el servidor: en la terminal, <b>Ctrl+C</b>.</p>
+<div class="term"><b>npm install.</b> Lee <code>package.json</code> y descarga las dependencias a la carpeta <code>node_modules</code>. Esa carpeta <b>nunca</b> se sube a Git: cada computadora la genera con <code>npm install</code>. El archivo <code>package-lock.json</code> sí se sube, porque anota las versiones exactas para que las dos computadoras instalen lo mismo.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL + NAVEGADOR</span><b>C6. Guardar y unir con un Pull Request</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git add .
+git commit -m "chore: proyecto inicial con Vite, React y TypeScript"
+git push -u origin feature/proyecto-react</pre>
+<div class="ver">En <code>git status</code> no debe aparecer <code>node_modules</code>: el <code>.gitignore</code> de Vite lo excluye.</div>
+<p>En GitHub aparecerá un aviso amarillo <i>"feature/proyecto-react had recent pushes"</i> → <b>Compare &amp; pull request</b>. Verifica que diga <code>base: develop ← compare: feature/proyecto-react</code> → <b>Create pull request</b> → revisa <i>Files changed</i> → <b>Merge pull request</b> → <b>Delete branch</b>. Luego:</p>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git pull
+git branch -d feature/proyecto-react</pre>
+<p>Este ciclo (rama → commits → push → Pull Request → merge → pull) es el mismo para <b>todas</b> las tareas siguientes.</p>
+</div>
+</section>
+
+<!-- D -->
+<section>
+<h2>6. Etapa D · La base del proyecto</h2>
+<p>Vamos a dejar el proyecto ordenado y con sus herramientas, todavía sin base de datos. Trabajaremos en una rama nueva.</p>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>D1. Rama de trabajo</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git switch -c feature/base-proyecto</pre>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>D2. Instalar las dependencias</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre><span class="c"># las que usa la app</span>
+npm install @supabase/supabase-js react-router @tanstack/react-query dexie
+
+<span class="c"># las que solo se usan para programar y probar (-D = devDependencies)</span>
+npm install -D supabase prettier vitest jsdom @testing-library/react @testing-library/jest-dom @testing-library/user-event vite-plugin-pwa husky lint-staged</pre>
+<div class="term"><b>dependencies y devDependencies.</b> Las primeras forman parte de la app que usará la heladería. Las de desarrollo (<code>-D</code>) solo sirven para programar, probar y construir, y no llegan al celular. Instalar la CLI de Supabase como dependencia del proyecto hace que las dos computadoras usen <b>exactamente la misma versión</b>.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>D3. Estructura de carpetas, configuración y CLAUDE.md</b></div>
+<div class="pedir"><p>Lee docs/guia-desarrollo.html y haz el paso D3: crea CLAUDE.md (apéndice B), .gitattributes, .editorconfig, .nvmrc, .env.example, .vscode/extensions.json y .vscode/settings.json; arma la estructura de src/ de la guía; elimina los archivos de ejemplo de Vite y deja App.tsx mínimo. Explícame cada archivo.</p></div>
+<p>Lo que haré:</p>
+<pre>System-ice/
+├─ CLAUDE.md            <span class="c">← reglas del proyecto para Claude (en cualquier PC)</span>
+├─ .gitattributes       <span class="c">← fin de línea igual en todas las PC</span>
+├─ .editorconfig        <span class="c">← sangría y codificación iguales</span>
+├─ .nvmrc               <span class="c">← versión de Node: 24</span>
+├─ .env.example         <span class="c">← variables necesarias, SIN valores secretos</span>
+├─ .vscode/             <span class="c">← extensiones y ajustes recomendados</span>
+├─ Prototype/           <span class="c">← el prototipo (referencia)</span>
+├─ docs/                <span class="c">← guías</span>
+├─ scripts/             <span class="c">← tareas de apoyo (crear admin, importar respaldo)</span>
+├─ supabase/            <span class="c">← (se crea en la etapa E)</span>
+└─ src/
+   ├─ app/              <span class="c">← App.tsx, rutas, proveedores</span>
+   ├─ lib/              <span class="c">← cliente de Supabase, tipos de la BD, utilidades</span>
+   ├─ components/ui/    <span class="c">← Modal, Hoja deslizante, Botón, Aviso…</span>
+   ├─ features/         <span class="c">← una carpeta por módulo del negocio</span>
+   │  ├─ auth/  pedidos/  caja/  personal/  configuracion/
+   │  ├─ produccion/  gastos/  sobrantes/  equipos/  panel/
+   │  └─ estado-resultados/
+   ├─ offline/          <span class="c">← cola sin conexión (Dexie)</span>
+   └─ styles/           <span class="c">← base.css y temas.css (del prototipo)</span></pre>
+<div class="term"><b>.gitattributes y fin de línea.</b> Windows termina las líneas de texto con dos caracteres (CRLF) y Linux con uno (LF). Si no se fija una regla, Git marca archivos "cambiados" sin que nadie los haya tocado al pasar de una PC a otra. Este archivo fija LF para todos.</div>
+<div class="term"><b>CLAUDE.md.</b> Archivo que leo automáticamente al abrir el proyecto. Tiene las decisiones del proyecto (stack, nombres, reglas de la base de datos, términos como "colaborador"). Gracias a él, en tu casa sigo trabajando igual sin que me repitas todo.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>D4. Configurar Prettier, Vitest, Husky y los comandos npm</b></div>
+<div class="pedir"><p>Paso D4 de docs/guia-desarrollo.html: configura Prettier, Vitest (jsdom + Testing Library), Husky con lint-staged (Oxlint y Prettier antes de cada commit) y agrega los scripts npm del apéndice A. Crea una prueba de ejemplo.</p></div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>D5. Activar Husky y verificar</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm install
+npm run lint
+npm run format
+npm run test:run
+npm run build
+npm run dev</pre>
+<div class="ver">Oxlint sin errores, la prueba de ejemplo en verde (<i>1 passed</i>), el build termina creando la carpeta <code>dist/</code>, y en <code>localhost:5173</code> aparece la página mínima.</div>
+<div class="term"><b>Husky y lint-staged.</b> <b>Husky</b> instala "ganchos" de Git: comandos que corren solos en ciertos momentos. Con <b>lint-staged</b>, antes de cada commit se revisan y formatean solo los archivos que vas a guardar. Si algo falla, el commit no se hace. Se activa con <code>npm install</code> en cada computadora gracias al script <code>prepare</code>.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL + NAVEGADOR</span><b>D6. Guardar y unir con un Pull Request</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git add .
+git commit -m "chore: estructura base, herramientas de calidad y pruebas"
+git push -u origin feature/base-proyecto</pre>
+<p>En GitHub aparecerá un aviso amarillo <i>"feature/base-proyecto had recent pushes"</i> → <b>Compare &amp; pull request</b>. Verifica que diga <code>base: develop ← compare: feature/base-proyecto</code>, escribe una descripción breve → <b>Create pull request</b>. Revisa la pestaña <i>Files changed</i> → <b>Merge pull request</b> → <b>Delete branch</b>.</p>
+<pre><span class="c"># de vuelta en tu PC: traer develop actualizado y borrar la rama local</span>
+git switch develop
+git pull
+git branch -d feature/base-proyecto</pre>
+<p>Este ciclo (rama → commits → push → Pull Request → merge → pull) es el mismo para <b>todas</b> las tareas siguientes.</p>
+</div>
+</section>
+
+<!-- E -->
+<section>
+<h2>7. Etapa E · Supabase en tu computadora</h2>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E1. Inicializar Supabase</b></div>
+<p>Docker Desktop debe estar abierto (<i>Engine running</i>).</p>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch -c feature/supabase-local
+npx supabase init</pre>
+<div class="ver">Se crea la carpeta <code>supabase/</code> con <code>config.toml</code>.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E2. Levantar Supabase local</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:start</pre>
+<p>La <b>primera vez</b> descarga varias imágenes de Docker (algunos GB) y puede tardar de 5 a 15 minutos. Las siguientes veces tarda segundos.</p>
+<div class="ver">Al final muestra una tabla con las direcciones y llaves. Las importantes:</div>
+<table>
+<tr><th style="width:30%">Servicio</th><th style="width:35%">Dirección</th><th>Para qué</th></tr>
+<tr><td>API (Project URL)</td><td><code>http://127.0.0.1:54321</code></td><td>A donde se conecta la app.</td></tr>
+<tr><td>Studio</td><td><code>http://127.0.0.1:54323</code></td><td>Panel para ver tablas y usuarios.</td></tr>
+<tr><td>Mailpit</td><td><code>http://127.0.0.1:54324</code></td><td>Buzón falso: aquí llegan los correos que Supabase "envía" en local.</td></tr>
+<tr><td>Base de datos</td><td><code>postgresql://postgres:postgres@127.0.0.1:54322/postgres</code></td><td>Conexión directa a Postgres.</td></tr>
+<tr><td>Publishable key</td><td><code>sb_publishable_…</code></td><td>Llave pública que usa la app.</td></tr>
+<tr><td>Secret key</td><td><code>sb_secret_…</code></td><td>Llave secreta: solo scripts y funciones de servidor.</td></tr>
+</table>
+<p>Para volver a ver esta información: <code>npm run db:status</code>.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-code">TÚ · VS CODE</span><b>E3. Crear tu archivo .env.local</b></div>
+<ol>
+  <li>En el explorador de VS Code, clic derecho sobre <code>.env.example</code> → <i>Copy</i>, y luego <i>Paste</i> en la misma carpeta.</li>
+  <li>Renombra la copia a <code>.env.local</code>.</li>
+  <li>Llénalo con los valores de <code>npm run db:status</code>:</li>
+</ol>
+<pre>VITE_SUPABASE_URL=http://127.0.0.1:54321
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...   <span class="c">← "Publishable key"</span>
+SUPABASE_URL=http://127.0.0.1:54321
+SUPABASE_SECRET_KEY=sb_secret_...                  <span class="c">← "Secret key"</span>
+ADMIN_USUARIO=Admin
+ADMIN_PASSWORD=escribe-aqui-la-contraseña-de-admin</pre>
+<div class="warn"><b>Muy importante:</b> las variables que empiezan con <code>VITE_</code> se incrustan en la app y <b>cualquiera puede verlas</b> en el celular. Por eso la llave secreta va <b>sin</b> <code>VITE_</code>: así solo la usan los scripts de tu computadora. <code>.env.local</code> está en <code>.gitignore</code>, así que <b>nunca se sube a GitHub</b>.</div>
+<p>Si en tu versión de la CLI las llaves aparecen como <i>anon key</i> y <i>service_role key</i> (nombres antiguos), usa la <i>anon</i> como publishable y la <i>service_role</i> como secret.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>E4. Configuración de Supabase, cliente y script de administrador</b></div>
+<div class="pedir"><p>Paso E4 de docs/guia-desarrollo.html: en supabase/config.toml pon site_url en http://localhost:5173, desactiva el registro público y deja la contraseña mínima en 6; crea src/lib/supabase.ts que lea las variables VITE_ y valide que existan; crea scripts/crear-admin.mjs que use SUPABASE_URL, SUPABASE_SECRET_KEY, ADMIN_USUARIO y ADMIN_PASSWORD. Explícame cada cosa.</p></div>
+<p>El script de administrador <b>no tiene la contraseña escrita en el código</b>: la lee de <code>.env.local</code>. El mismo script servirá para crear la cuenta de administración en pruebas y en producción, solo cambiando las variables.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>E5. Aplicar la configuración y guardar</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:stop
+npm run db:start
+git add .
+git commit -m "chore(supabase): entorno local, cliente y script de administrador"
+git push -u origin feature/supabase-local</pre>
+<p>Luego haz el Pull Request a <code>develop</code>, el merge y el <code>pull</code>, igual que en D6.</p>
+<div class="ver">Abre Studio (<code>http://127.0.0.1:54323</code>). Ves el panel de Supabase con la base vacía.</div>
+<div class="term"><b>db:stop sin perder datos.</b> <code>supabase stop</code> apaga los contenedores pero <b>conserva los datos</b>. Solo los borra si agregas <code>--no-backup</code>. Al terminar el día puedes detenerlo para liberar memoria.</div>
+</div>
+<div class="env">En pruebas y producción no hay Docker ni <code>.env.local</code>. Los proyectos se crean en supabase.com, sus llaves se configuran en Cloudflare (las <code>VITE_</code>) y en GitHub Secrets (la secreta), y la configuración de Auth que hoy está en <code>config.toml</code> (registro desactivado, contraseña mínima) se repite en el panel de cada proyecto.</div>
+</section>
+
+<!-- F -->
+<section>
+<h2>8. Etapa F · Inicio de sesión y roles</h2>
+<p>Es la primera funcionalidad completa: base de datos, permisos, pantallas y pruebas. Las demás seguirán el mismo camino.</p>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>F1. Rama y primera migración</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git pull
+git switch -c feature/auth-roles
+npx supabase migration new perfiles_y_roles</pre>
+<div class="ver">Se crea un archivo vacío como <code>supabase/migrations/20261103153000_perfiles_y_roles.sql</code>. El número es la fecha y hora: así las migraciones se aplican en orden.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>F2. La tabla de perfiles y sus permisos</b></div>
+<div class="pedir"><p>Paso F2 de docs/guia-desarrollo.html: escribe la migración perfiles_y_roles: tabla perfiles (id = auth.users.id, nombre, usuario único, teléfono opcional, rol admin|colaborador, pago_diario numeric(10,2), activo), función es_admin(), RLS (cada uno ve su perfil, la administración ve y edita todos) y la prueba pgTAP en supabase/tests. Actualiza scripts/crear-admin.mjs para crear también su perfil con rol admin.</p></div>
+<div class="term"><b>Usuario sin correo.</b> Supabase Auth inicia sesión con correo. Como las colaboradoras pueden no tener uno, el usuario <code>erika</code> se guarda internamente como <code>erika@heladeria.local</code>. Ella solo escribe "erika". No se envía ningún correo, porque la confirmación está desactivada.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>F3. Aplicar, generar tipos, crear la cuenta de administración y probar</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:reset
+npm run db:types
+npm run crear-admin
+npm run db:test</pre>
+<div class="ver"><code>db:reset</code> termina con <i>Finished supabase db reset</i>. Se crea <code>src/lib/database.types.ts</code>. <code>crear-admin</code> dice que creó a Admin. <code>db:test</code> muestra todas las pruebas en <i>ok</i>.</div>
+<p>En Studio → <i>Authentication</i> verás el usuario <code>admin@heladeria.local</code>, y en <i>Table Editor → perfiles</i> su fila con rol <code>admin</code>.</p>
+<div class="term"><b>db:reset.</b> Borra la base local y la recrea aplicando <b>todas</b> las migraciones en orden, más <code>seed.sql</code>. Úsalo siempre después de una migración nueva. Ojo: borra los usuarios, así que después vuelve a ejecutar <code>crear-admin</code>.</div>
+<div class="term"><b>db:types.</b> Lee las tablas y genera los tipos de TypeScript. Así el editor te avisa si escribes mal el nombre de una columna. Repítelo cada vez que cambien las tablas.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>F4. Estilos, estructura de la app y pantallas de inicio de sesión</b></div>
+<div class="pedir"><p>Paso F4 de docs/guia-desarrollo.html: lleva los estilos y los 4 temas del prototipo (Prototype/index.html) a src/styles; arma App con React Router y TanStack Query; crea el layout con menú ☰ y cabecera; la pantalla de login de colaboradores en / y la de administración en /admin (sin registro), el manejo de sesión y la protección de rutas por rol. Al entrar: colaborador → /pedidos, admin → /admin/panel. Agrega pruebas con Testing Library.</p></div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>F5. Probar a mano</b></div>
+<pre>npm run dev</pre>
+<ul>
+  <li>Abre <code>http://localhost:5173/admin</code> y entra con <code>Admin</code> y la contraseña de tu <code>.env.local</code>. Debe llevarte al panel.</li>
+  <li>Cierra sesión y prueba <code>http://localhost:5173/</code> con Admin: debe rechazarlo.</li>
+  <li>Prueba una contraseña incorrecta: mensaje de error, sin pistas de qué falló.</li>
+</ul>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>F6. Crear cuentas de colaboradores (Edge Function + pantalla Personal)</b></div>
+<div class="pedir"><p>Paso F6 de docs/guia-desarrollo.html: crea la Edge Function crear-usuario (verifica que quien llama es admin y crea el usuario + su perfil con la llave secreta) y la pantalla Personal para crear, editar, desactivar y cambiar la contraseña de colaboradores (nombre, usuario, teléfono opcional, contraseña, pago diario).</p></div>
+<div class="term"><b>¿Por qué una Edge Function?</b> Crear usuarios requiere la llave secreta, y esa llave no puede estar en la app. La función corre en el servidor de Supabase, tiene la llave y antes de crear nada comprueba que quien la llama es administradora.</div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL + NAVEGADOR</span><b>F7. Probar y guardar</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:stop
+npm run db:start
+npm run dev</pre>
+<p class="muted">Reiniciar Supabase hace que cargue la función nueva. Si la función no responde, ejecuta en <b>otra</b> terminal <code>npx supabase functions serve</code>.</p>
+<ul>
+  <li>Como Admin: <i>Personal → Nuevo colaborador</i> → crea a <code>erika</code>.</li>
+  <li>En una <b>ventana de incógnito</b> (Ctrl+Shift+N) entra a <code>localhost:5173</code> como <code>erika</code>: debe ver solo Pedidos, Caja y Configuración.</li>
+  <li>Como Erika, escribe a mano <code>localhost:5173/admin/panel</code>: debe rechazarla.</li>
+</ul>
+<pre>npm run test:run
+npm run db:test
+git add .
+git commit -m "feat(auth): inicio de sesión, roles y cuentas de colaboradores"
+git push -u origin feature/auth-roles</pre>
+<p>Pull Request a <code>develop</code> → merge → <code>git switch develop</code> → <code>git pull</code>.</p>
+</div>
+<div class="env">Las migraciones se aplicarán con <code>supabase db push</code> y la Edge Function se publicará con <code>supabase functions deploy crear-usuario</code>. La cuenta de administración se creará una vez por entorno con el mismo script, pero con las variables de ese entorno y una <b>contraseña distinta y fuerte</b> en producción. En los paneles de Supabase de pruebas y producción también se desactiva el registro público.</div>
+</section>
+
+<!-- G -->
+<section>
+<h2>9. Etapa G · Los módulos del negocio</h2>
+<p>Cada módulo sigue <b>el mismo ciclo de 6 pasos</b>. Después viene la tabla con el orden y lo que me pides en cada uno.</p>
+
+<h3>El ciclo de cada módulo</h3>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>1. Rama y migración</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git pull
+git switch -c feature/NOMBRE
+npx supabase migration new NOMBRE</pre>
+</div>
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>2. Pedirme el módulo</b></div>
+<p>Copia el pedido de la tabla. Yo escribo la migración (tablas, restricciones, índices, RLS), las pruebas de permisos, las funciones de datos, las pantallas y las pruebas de cálculos, llevando la lógica del prototipo.</p>
+</div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>3. Aplicar y probar</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:reset
+npm run db:types
+npm run crear-admin
+npm run db:test
+npm run test:run
+npm run dev</pre>
+</div>
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>4. Probar a mano como administradora y como colaboradora</b></div>
+<p>Usa una ventana normal para Admin y una de incógnito para la colaboradora. Compara los resultados con el prototipo: los números deben coincidir.</p>
+</div>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>5. Commit y push</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git add .
+git commit -m "feat(NOMBRE): descripción corta"
+git push -u origin feature/NOMBRE</pre>
+</div>
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>6. Pull Request a develop, merge y borrar la rama</b></div>
+<p>Luego, en la terminal: <code>git switch develop</code>, <code>git pull</code>, <code>git branch -d feature/NOMBRE</code>.</p>
+</div>
+
+<h3>El orden de los módulos</h3>
+<table>
+<tr><th style="width:4%">#</th><th style="width:20%">Rama / migración</th><th>Dile a Claude</th></tr>
+<tr><td>G1</td><td><code>catalogos</code></td><td><i>Paso G1 de docs/guia-desarrollo.html: catálogos (puntos de venta, sabores con base agua/leche y activo, productos con reventa y costo, precios de vaso 5/8/10, empanada 5, gastos fijos) y la pantalla Configuración (tema por celular, datos del negocio solo admin). Con seed.sql de sabores y productos iniciales.</i></td></tr>
+<tr><td>G2</td><td><code>cajas</code></td><td><i>Paso G2: cajas (abrir con monto inicial y punto de venta, una abierta por colaborador), reemplazos con entrega de efectivo, y la pantalla Caja para colaborador y admin (todas las cajas abiertas), igual que el prototipo.</i></td></tr>
+<tr><td>G3</td><td><code>pedidos</code></td><td><i>Paso G3: pedidos e ítems con sabores (pendiente, pagado efectivo/QR, invitado con para quién). Lo cancelado se borra. Pantalla Pedidos: En curso / Historial, editor de vaso con botones redondos de sabor y precio, igual que el prototipo.</i></td></tr>
+<tr><td>G4</td><td><code>pagos-retiros</code></td><td><i>Paso G4: pagos con la caja (hielo, sal, gas, insumos, otros) y retiros, con el panel deslizante del prototipo; cálculo de "debe haber en caja" en la base de datos y cierre de caja con conteo, faltante o sobrante.</i></td></tr>
+<tr><td>G5</td><td><code>resumen-pdf</code></td><td><i>Paso G5: lleva el generador de PDF del prototipo (hacerPDF, resumenPDF) a TypeScript, con pruebas, y el botón Resumen PDF en la caja y al cerrarla.</i></td></tr>
+<tr><td>G6</td><td><code>produccion-gastos</code></td><td><i>Paso G6: producción por lotes con insumos y costo por litro; compras y gastos; jornadas del personal. Solo admin.</i></td></tr>
+<tr><td>G7</td><td><code>sobrantes-equipos</code></td><td><i>Paso G7: sobrantes guardados y recuperados con merma valorizada; equipos con depreciación, roturas y reparaciones. Solo admin.</i></td></tr>
+<tr><td>G8</td><td><code>estado-resultados</code></td><td><i>Paso G8: estado de resultados como vista o función SQL (como calcER del prototipo, con mermas, invitaciones, fijos prorrateados y depreciación) y el Panel. Pruebas que comparen con números calculados a mano.</i></td></tr>
+<tr><td>G9</td><td><code>importar-respaldo</code></td><td><i>Paso G9: scripts/importar-respaldo.mjs que lea el JSON de respaldo del prototipo y lo cargue en las tablas. Que se pueda ejecutar varias veces sin duplicar.</i></td></tr>
+</table>
+<div class="warn"><b>Regla de las migraciones:</b> mientras una migración solo existe en tu rama, puedes corregirla y volver a hacer <code>db:reset</code>. Cuando ya se aplicó en pruebas o producción, <b>nunca se edita</b>: se crea una migración nueva que haga el cambio.</div>
+<div class="env">Cada merge a <code>develop</code> aplicará las migraciones nuevas al Supabase de pruebas y publicará la app de pruebas automáticamente. Lo configuraremos en la parte 2.</div>
+</section>
+
+<!-- H -->
+<section>
+<h2>10. Etapa H · Funcionar sin internet (PWA)</h2>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>H1. Instalable y con cola sin conexión</b></div>
+<div class="pedir"><p>Paso H1 de docs/guia-desarrollo.html: configura vite-plugin-pwa (manifest en español, íconos y service worker con actualización avisada) y la cola sin conexión con Dexie para pedidos, cobros, pagos y retiros: guardar primero en el celular, subir con upsert por id (UUID creado en el celular), reintentar al volver la señal y mostrar cuántos faltan por subir. Con pruebas.</p></div>
+<p>Para los íconos necesito una imagen cuadrada de al menos 512×512 px (el logo o un helado). Si no tienes, te genero uno simple.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-web">TÚ · NAVEGADOR</span><b>H2. Probar el modo sin conexión</b></div>
+<pre>npm run build
+npm run preview</pre>
+<p>El service worker solo funciona con el build, no con <code>npm run dev</code>. Abre la dirección que muestra <code>preview</code> (<code>localhost:4173</code>):</p>
+<ol>
+  <li>Inicia sesión como colaboradora y abre una caja.</li>
+  <li>Presiona F12 → pestaña <i>Network</i> → cambia <i>No throttling</i> por <b>Offline</b>.</li>
+  <li>Crea y cobra dos pedidos. Debe aparecer el aviso de "2 por subir".</li>
+  <li>Vuelve a <i>No throttling</i>. El aviso desaparece y en Studio aparecen los pedidos, sin duplicados.</li>
+</ol>
+<p class="muted">Para probar en tu celular dentro de la misma red Wi-Fi, ejecuta <code>npm run dev -- --host</code> y abre la IP que muestra. La instalación como app y el modo sin conexión completo solo funcionan con HTTPS, así que en el celular se prueban en el entorno de pruebas (parte 2).</p>
+</div>
+</section>
+
+<!-- I -->
+<section>
+<h2>11. Etapa I · Pruebas automáticas</h2>
+<p>Ya vienes escribiendo pruebas en cada módulo. Aquí se agregan las de extremo a extremo.</p>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>I1. Instalar Playwright</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>git switch develop
+git pull
+git switch -c feature/pruebas-e2e
+npm init playwright@latest</pre>
+<p>Respuestas: TypeScript → <b>sí</b>; carpeta → <code>e2e</code>; GitHub Actions workflow → <b>no</b> (lo haremos en la parte 2); instalar navegadores → <b>sí</b>.</p>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-claude">CLAUDE</span><b>I2. Escribir los flujos críticos</b></div>
+<div class="pedir"><p>Paso I2 de docs/guia-desarrollo.html: configura Playwright con pantalla de celular (360x800) y escribe estas pruebas: login de admin y de colaboradora (y rechazo cruzado), abrir caja, crear y cobrar pedido, cancelar pedido (se borra), pago y retiro, cerrar caja con faltante y descargar el PDF; y el flujo sin conexión.</p></div>
+</div>
+
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>I3. Ejecutar todo</b></div>
+<div class="ruta">PS C:\Users\Juan.Huanca\Desktop\Mokups\System-ice&gt;</div>
+<pre>npm run db:reset
+npm run crear-admin
+npm run test:run
+npm run db:test
+npm run e2e</pre>
+<div class="ver">Todo en verde. Si algo falla, <code>npx playwright show-report</code> abre un informe con capturas de pantalla del momento del error.</div>
+</div>
+<div class="env">En la parte 2, GitHub Actions ejecutará estas mismas pruebas automáticamente en cada Pull Request, con un Supabase local dentro de GitHub. Si alguna falla, no se debería unir el cambio.</div>
+</section>
+
+<!-- J -->
+<section>
+<h2>12. Trabajar desde dos computadoras y con otras personas</h2>
+
+<h3>12.1 Preparar la computadora de tu casa (una sola vez)</h3>
+<div class="paso"><div class="cab"><span class="quien q-term">TÚ · TERMINAL</span><b>Clonar y dejar listo</b></div>
+<p>Después de hacer la etapa A completa en esa computadora:</p>
+<p>Abre PowerShell en la carpeta donde quieras el proyecto (por ejemplo, en VS Code: <i>File → Open Folder…</i> → <code>Desktop\Mokups</code> y luego <i>Terminal → New Terminal</i>):</p>
+<div class="ruta">PS C:\Users\TU-USUARIO\Desktop\Mokups&gt;</div>
+<pre>git clone https://github.com/JJ-HEsquivel/-artisanal-ice-cream-system.git System-ice
+cd System-ice
+git switch develop
+npm install
+npm run db:start</pre>
+<p>Luego crea <code>.env.local</code> igual que en E3, con los valores de <code>npm run db:status</code> de <b>esa</b> computadora, y ejecuta:</p>
+<pre>npm run db:reset
+npm run crear-admin
+npm run dev</pre>
+<p class="muted">Al final de <code>git clone</code> se escribe <code>System-ice</code> para que la carpeta se llame igual que aquí. Sin eso se llamaría <code>-artisanal-ice-cream-system</code>, y en PowerShell un nombre que empieza con guion da problemas con <code>cd</code>.</p>
+<p>Abre la carpeta <code>System-ice</code> en VS Code; acepta instalar las extensiones recomendadas y abre Claude Code. Como existe <code>CLAUDE.md</code>, ya conozco el proyecto. Dime: <i>"Seguimos con el paso X de docs/guia-desarrollo.html"</i>.</p>
+</div>
+<div class="term"><b>¿Y los datos de mi base local?</b> No viajan entre computadoras, y está bien: la base local es de práctica. La <b>estructura</b> sí viaja (las migraciones están en Git) y los datos iniciales vienen de <code>seed.sql</code>. Con <code>db:reset</code> las dos computadoras quedan iguales.</div>
+
+<h3>12.2 Rutina de cada sesión de trabajo</h3>
+<table>
+<tr><th style="width:50%">Al empezar</th><th>Al terminar (aunque no hayas acabado)</th></tr>
+<tr><td>
+<ol>
+<li>Abrir Docker Desktop.</li>
+<li><code>git switch develop</code> y <code>git pull</code> (o <code>git switch feature/X</code> y <code>git pull</code> si sigues una tarea).</li>
+<li>Si cambió <code>package-lock.json</code>: <code>npm install</code>.</li>
+<li><code>npm run db:start</code>.</li>
+<li>Si llegaron migraciones nuevas: <code>npm run db:reset</code>, <code>npm run crear-admin</code> y <code>npm run db:types</code>.</li>
+<li><code>npm run dev</code>.</li>
+</ol></td><td>
+<ol>
+<li><code>git add .</code></li>
+<li><code>git commit -m "wip: lo que estaba haciendo"</code></li>
+<li><code>git push</code> (la primera vez en la rama: <code>git push -u origin feature/X</code>).</li>
+<li>Opcional: <code>npm run db:stop</code> y cerrar Docker.</li>
+</ol>
+<p><b>Nunca dejes trabajo sin subir</b> al cambiar de computadora: lo que no está en GitHub no existe en la otra.</p></td></tr>
+</table>
+<div class="term"><b>wip.</b> Significa <i>work in progress</i>, trabajo en curso. Es válido hacer commits "wip" en tu rama: lo importante es que el trabajo viaje.</div>
+
+<h3>12.3 Si aparece un conflicto</h3>
+<p>Pasa si editaste el mismo archivo en las dos computadoras sin hacer <code>pull</code> antes. Git marca el archivo con <code>&lt;&lt;&lt;&lt;&lt;&lt;&lt;</code>, <code>=======</code> y <code>&gt;&gt;&gt;&gt;&gt;&gt;&gt;</code>. VS Code muestra botones: <i>Accept Current</i>, <i>Accept Incoming</i>, <i>Accept Both</i>. Si no sabes cuál, pídeme: <i>"Tengo un conflicto en ARCHIVO, ayúdame a resolverlo"</i>. Después: <code>git add .</code>, <code>git commit</code> y <code>git push</code>.</p>
+
+<h3>12.4 Si se suman otras personas</h3>
+<ul>
+  <li>En GitHub: <i>Settings → Collaborators → Add people</i>. Cada persona hace la etapa A y el 12.1.</li>
+  <li>Cada uno trabaja en su propia rama <code>feature/…</code> y nadie sube directo a <code>develop</code> ni a <code>main</code>.</li>
+  <li>Todo cambio entra por Pull Request y, idealmente, otra persona lo revisa antes del merge.</li>
+  <li>Las reglas comunes viven en <code>CLAUDE.md</code> y <code>README.md</code>. Si cambia una decisión, se actualizan ahí.</li>
+  <li>Las llaves secretas de pruebas y producción <b>no se comparten por chat</b>: se cargan una sola vez en Cloudflare y GitHub Secrets.</li>
+</ul>
+</section>
+
+<!-- K -->
+<section>
+<h2>13. Lo que viene: pruebas y producción</h2>
+<p>Cuando termines esta guía tendrás el sistema completo funcionando en tu computadora. Así se verán las siguientes partes; ninguna requiere cambiar el código.</p>
+<table>
+<tr><th style="width:22%">Tarea</th><th style="width:39%">Parte 2 · Pruebas</th><th>Parte 3 · Producción</th></tr>
+<tr><td>Cuenta</td><td>Crear cuenta en supabase.com y cloudflare.com, con 2FA</td><td>Las mismas</td></tr>
+<tr><td>Base de datos</td><td>Proyecto <code>heladeria-pruebas</code>, región São Paulo</td><td>Proyecto <code>heladeria-prod</code>, región São Paulo</td></tr>
+<tr><td>Migraciones</td><td><code>supabase link</code> + <code>supabase db push</code>, automático al unir a <code>develop</code></td><td>Igual, al unir a <code>main</code></td></tr>
+<tr><td>Edge Functions</td><td><code>supabase functions deploy</code></td><td>Igual</td></tr>
+<tr><td>App</td><td>Cloudflare Pages, rama <code>develop</code></td><td>Cloudflare Pages, rama <code>main</code></td></tr>
+<tr><td>Variables</td><td><code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> en Cloudflare (Preview)</td><td>Las mismas en Cloudflare (Production)</td></tr>
+<tr><td>Secretos</td><td>GitHub Secrets: token, contraseña de la BD, id del proyecto</td><td>Los de producción, aparte</td></tr>
+<tr><td>Admin</td><td><code>crear-admin</code> con variables de pruebas</td><td><code>crear-admin</code> con contraseña fuerte</td></tr>
+<tr><td>Auth</td><td>Desactivar registro y confirmación de correo en el panel</td><td>Igual</td></tr>
+<tr><td>CI</td><td>GitHub Actions corre todas las pruebas en cada PR</td><td>Igual, y no se une a <code>main</code> sin que pasen</td></tr>
+<tr><td>Respaldos</td><td>No hace falta</td><td>Respaldo nocturno con GitHub Actions y simulacro de restauración</td></tr>
+<tr><td>Monitoreo</td><td>Opcional</td><td>Sentry y UptimeRobot</td></tr>
+</table>
+<p><b>Cuando quieras pagar</b> (Supabase Pro, dominio propio): se cambia el plan en el panel de facturación o se conecta el dominio en Cloudflare. El código, las migraciones y los procesos siguen exactamente iguales.</p>
+</section>
+
+<!-- L -->
+<section>
+<h2>14. Problemas comunes y soluciones</h2>
+<table>
+<tr><th style="width:38%">Lo que ves</th><th>Qué hacer</th></tr>
+<tr><td><i>"la ejecución de scripts está deshabilitada en este sistema"</i></td><td>Paso A4: <code>Set-ExecutionPolicy -Scope CurrentUser RemoteSigned</code>.</td></tr>
+<tr><td><i>"No se reconoce el término 'node'"</i> (o git, docker)</td><td>Cierra y abre de nuevo VS Code o PowerShell después de instalar. Si sigue, reinicia la computadora.</td></tr>
+<tr><td><code>supabase start</code>: <i>"Cannot connect to the Docker daemon"</i></td><td>Docker Desktop no está abierto. Ábrelo y espera a que diga <i>Engine running</i>.</td></tr>
+<tr><td><i>"port 54321 (o 5432x) is already allocated"</i></td><td>Hay otro Supabase encendido. Ejecuta <code>npx supabase stop --all</code> y vuelve a <code>npm run db:start</code>.</td></tr>
+<tr><td><i>"Failed to start inspector … port 9239 in use"</i></td><td>Una variable de depuración quedó activa en la terminal. Ejecuta <code>Remove-Item Env:BUN_INSPECT</code> y repite, o abre una terminal nueva.</td></tr>
+<tr><td><code>Port 5173 is in use</code></td><td>Ya tienes otro <code>npm run dev</code> abierto en otra terminal. Ciérralo con Ctrl+C o usa la dirección nueva que te muestra.</td></tr>
+<tr><td>La app dice que faltan variables de Supabase</td><td>Falta <code>.env.local</code> o tiene mal un nombre. Compáralo con <code>.env.example</code> y reinicia <code>npm run dev</code>: Vite solo lee el <code>.env</code> al arrancar.</td></tr>
+<tr><td>Después de <code>db:reset</code> no puedo entrar</td><td>El reset borra los usuarios. Ejecuta <code>npm run crear-admin</code>.</td></tr>
+<tr><td>El editor marca errores en columnas que sí existen</td><td><code>npm run db:types</code> y, si persiste, <i>Ctrl+Shift+P → TypeScript: Restart TS Server</i>.</td></tr>
+<tr><td><code>git push</code> rechazado: <i>"Updates were rejected… fetch first"</i></td><td>Hay cambios en GitHub que no tienes (quizá de la otra PC). <code>git pull</code>, resuelve conflictos si hay y vuelve a hacer <code>git push</code>.</td></tr>
+<tr><td>El commit falla por Husky</td><td>Lee el mensaje: es Oxlint o Prettier. <code>npm run format</code> y <code>npm run lint</code>, corrige y repite el commit. No uses <code>--no-verify</code>.</td></tr>
+<tr><td>Muchos archivos "cambiados" que no tocaste</td><td>Fin de línea distinto. Verifica que exista <code>.gitattributes</code> y pídeme ayuda antes de hacer commit.</td></tr>
+<tr><td>Cualquier otro error</td><td>Copia el <b>mensaje completo</b> de la terminal y pégamelo, diciendo en qué paso estabas.</td></tr>
+</table>
+</section>
+
+<!-- Apéndices -->
+<section>
+<h2>15. Apéndice A · Comandos del proyecto</h2>
+<p>Todos se ejecutan con <code>npm run NOMBRE</code> desde la carpeta del proyecto. Los creo en el paso D4. Usar estos nombres en lugar de los comandos largos hace que funcionen igual en cualquier computadora.</p>
+<table>
+<tr><th style="width:20%">Comando</th><th style="width:44%">Qué hace por dentro</th><th>Cuándo usarlo</th></tr>
+<tr><td><code>dev</code></td><td><code>vite</code></td><td>Programar: app en <code>localhost:5173</code>.</td></tr>
+<tr><td><code>build</code></td><td><code>tsc -b &amp;&amp; vite build</code></td><td>Comprobar que compila; genera <code>dist/</code>.</td></tr>
+<tr><td><code>preview</code></td><td><code>vite preview</code></td><td>Ver el build (para PWA y sin conexión).</td></tr>
+<tr><td><code>lint</code></td><td><code>oxlint</code></td><td>Revisar el código.</td></tr>
+<tr><td><code>format</code></td><td><code>prettier --write .</code></td><td>Ordenar el formato.</td></tr>
+<tr><td><code>test</code> / <code>test:run</code></td><td><code>vitest</code> / <code>vitest run</code></td><td>Pruebas (modo vigilante / una vez).</td></tr>
+<tr><td><code>e2e</code></td><td><code>playwright test</code></td><td>Pruebas de extremo a extremo.</td></tr>
+<tr><td><code>db:start</code></td><td><code>supabase start</code></td><td>Encender Supabase local.</td></tr>
+<tr><td><code>db:stop</code></td><td><code>supabase stop</code></td><td>Apagarlo (conserva datos).</td></tr>
+<tr><td><code>db:status</code></td><td><code>supabase status</code></td><td>Ver direcciones y llaves.</td></tr>
+<tr><td><code>db:reset</code></td><td><code>supabase db reset</code></td><td>Recrear la base desde las migraciones.</td></tr>
+<tr><td><code>db:types</code></td><td><code>supabase gen types &gt; src/lib/database.types.ts</code></td><td>Después de cambiar tablas.</td></tr>
+<tr><td><code>db:test</code></td><td><code>supabase test db</code></td><td>Pruebas de permisos (pgTAP).</td></tr>
+<tr><td><code>crear-admin</code></td><td><code>node --env-file=.env.local scripts/crear-admin.mjs</code></td><td>Después de cada <code>db:reset</code>.</td></tr>
+</table>
+
+<h3>Puertos que usa el proyecto</h3>
+<table>
+<tr><th style="width:20%">Puerto</th><th>Qué es</th></tr>
+<tr><td>5173</td><td>App en desarrollo (Vite)</td></tr>
+<tr><td>4173</td><td>App construida (<code>preview</code>)</td></tr>
+<tr><td>54321</td><td>API de Supabase</td></tr>
+<tr><td>54322</td><td>PostgreSQL</td></tr>
+<tr><td>54323</td><td>Supabase Studio</td></tr>
+<tr><td>54324</td><td>Mailpit (correos de prueba)</td></tr>
+</table>
+
+<h3>Git de bolsillo</h3>
+<table>
+<tr><th style="width:40%">Comando</th><th>Qué hace</th></tr>
+<tr><td><code>git status</code></td><td>Qué archivos cambiaron y en qué rama estás.</td></tr>
+<tr><td><code>git switch develop</code></td><td>Cambiar de rama.</td></tr>
+<tr><td><code>git switch -c feature/x</code></td><td>Crear una rama nueva y pasarte a ella.</td></tr>
+<tr><td><code>git pull</code></td><td>Traer cambios de GitHub.</td></tr>
+<tr><td><code>git add .</code> + <code>git commit -m "…"</code></td><td>Guardar cambios.</td></tr>
+<tr><td><code>git push</code></td><td>Subir a GitHub.</td></tr>
+<tr><td><code>git log --oneline -10</code></td><td>Últimos 10 commits.</td></tr>
+<tr><td><code>git restore ARCHIVO</code></td><td>Descartar cambios no guardados de un archivo (con cuidado: no se recuperan).</td></tr>
+</table>
+</section>
+
+<section>
+<h2>16. Apéndice B · Contenido de CLAUDE.md</h2>
+<p>Esto es lo que crearé en el paso D3. Si una decisión cambia, se actualiza aquí y en el archivo.</p>
+<pre># Heladería App
+
+Sistema interno (no para clientes) de una heladería artesanal en Bolivia (moneda: Bs).
+Usuarios: administración (la dueña) y colaboradores. Interfaz y mensajes en español.
+Usar siempre el término "colaborador", nunca "trabajadora".
+
+## Stack
+React 19 + TypeScript + Vite · React Router · TanStack Query · Supabase (Postgres, Auth, RLS,
+Edge Functions) · Dexie (cola sin conexión) · vite-plugin-pwa · Vitest + Testing Library ·
+pgTAP · Playwright · Oxlint + Prettier + Husky.
+
+## Entornos
+desarrollo = Supabase local (Docker) + .env.local · pruebas = rama develop · producción = rama main.
+El código es el mismo en todos; solo cambian las variables de entorno.
+
+## Reglas de la base de datos
+- Todo cambio de estructura es una migración nueva en supabase/migrations. Nunca editar una
+  migración ya aplicada en pruebas o producción.
+- RLS activado en TODAS las tablas, con pruebas pgTAP en supabase/tests.
+- Dinero: numeric(10,2). Fechas: timestamptz con default now(). Ids: uuid.
+- Nombres de tablas y columnas en español, snake_case.
+- Pedidos cancelados se BORRAN (no se guardan).
+- Usuarios sin correo: usuario@heladeria.local. Sin registro público; las cuentas las crea la
+  administración vía la Edge Function crear-usuario.
+
+## Reglas del frontend
+- Estructura por funcionalidad en src/features/&lt;modulo&gt;.
+- Las pantallas no llaman a Supabase directo: usan funciones de datos del módulo.
+- Variables VITE_ son públicas. La secret key nunca va en el frontend.
+- Precios de vaso 5, 8 y 10 Bs; empanada 5 Bs. Cuatro temas: Clásico, Oscuro, Noche, Fresa y menta.
+- Referencia funcional: Prototype/index.html. Guía de pasos: docs/guia-desarrollo.html.
+
+## Forma de trabajo
+- El usuario ejecuta los comandos y configura páginas web; Claude escribe el código y lo explica.
+- Ramas feature/* → PR a develop → PR a main. Conventional Commits en español.
+- Antes de dar algo por terminado: npm run lint, npm run test:run, npm run db:test.</pre>
+
+<h3>Lista de verificación al terminar esta parte</h3>
+<ul class="check">
+  <li>Las dos computadoras pueden clonar, levantar y correr el proyecto.</li>
+  <li>Login de administración en <code>/admin</code> y de colaboradores en <code>/</code>, sin registro.</li>
+  <li>Todos los módulos G1 a G9 funcionando y con números iguales a los del prototipo.</li>
+  <li>Funciona sin conexión y sube lo pendiente sin duplicar.</li>
+  <li><code>lint</code>, <code>test:run</code>, <code>db:test</code> y <code>e2e</code> en verde.</li>
+  <li>Todo unido en <code>develop</code> y subido a GitHub.</li>
+  <li>Ningún secreto en Git (revisa que <code>.env.local</code> no aparezca en GitHub).</li>
+</ul>
+</section>
+
+</body>
+</html>
