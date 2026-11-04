@@ -1,0 +1,10 @@
+# Generados o instalados: no se formatean
+dist
+node_modules
+package-lock.json
+src/lib/database.types.ts
+supabase/.temp
+
+# Referencia: el prototipo y las guías se dejan tal cual
+Prototype
+docs

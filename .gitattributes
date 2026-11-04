@@ -1,0 +1,13 @@
+# Todos los archivos de texto se guardan con fin de línea LF, en cualquier computadora.
+* text=auto eol=lf
+
+# Binarios: Git no debe tocarlos.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.pdf binary
+*.woff binary
+*.woff2 binary

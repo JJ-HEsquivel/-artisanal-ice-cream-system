@@ -1,32 +1,18 @@
-# React + TypeScript + Vite
+# Heladería Artesanal (Artisanal-ice-cream)
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Sistema interno de ventas, caja y estado de resultados para una heladería artesanal.
+Lo usan la administración y los colaboradores; no es para clientes.
 
-Currently, two official plugins are available:
+- **Stack:** React + TypeScript + Vite, Supabase (PostgreSQL, Auth, RLS).
+- **Guía paso a paso:** abre [docs/guia-desarrollo.html](docs/guia-desarrollo.html) en el navegador.
+- **Prototipo de referencia:** [Prototype/](Prototype/).
+- **Reglas del proyecto:** [CLAUDE.md](CLAUDE.md).
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Empezar
 
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+```powershell
+npm install
+npm run dev
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+Antes, crea `.env.local` a partir de `.env.example` (paso E6 de la guía).
