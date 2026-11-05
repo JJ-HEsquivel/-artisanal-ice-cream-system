@@ -26,6 +26,9 @@ escriben en la base real.
 - Todo cambio de estructura es una migración nueva en supabase/migrations. Nunca editar una
   migración ya aplicada en pruebas o producción. No crear tablas desde el panel de Supabase.
 - RLS activado en TODAS las tablas, con pruebas pgTAP en supabase/tests.
+- El proyecto se creó SIN "Automatically expose new tables": cada migración que crea una tabla
+  debe incluir sus GRANT explícitos a los roles authenticated (y anon solo si hace falta), además
+  de sus políticas RLS. Sin GRANT, la app no ve la tabla.
 - Dinero: numeric(10,2). Fechas: timestamptz con default now(). Ids: uuid.
 - Nombres de tablas y columnas en español, snake_case.
 - Pedidos cancelados se BORRAN (no se guardan).
